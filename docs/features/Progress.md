@@ -1,0 +1,7 @@
+# Feature progress
+
+| Feature | Status | Tasks done | Updated |
+|---|---|---|---|
+| [project-workspace](project-workspace.md) | not-started | 0/3 | 2026-11-08 |
+| [api-skeleton](api-skeleton.md) | not-started | 0/2 | 2026-11-08 |
+| [web-skeleton](web-skeleton.md) | not-started | 0/2 | 2026-11-08 |
