@@ -1,6 +1,8 @@
 # Local development
 
-Status: current ([ADR 0001](../adr/0001-monorepo-skeleton-and-tooling.md)).
+Status: current.
+
+Decided in [ADR 0001](../adr/0001-monorepo-skeleton-and-tooling.md).
 
 ## What
 

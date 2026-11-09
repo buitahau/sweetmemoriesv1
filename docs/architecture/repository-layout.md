@@ -1,6 +1,8 @@
 # Repository layout
 
-Layout of the skeleton, decided in [ADR 0001](../adr/0001-monorepo-skeleton-and-tooling.md). Status: current (built).
+Status: current (built).
+
+Layout of the skeleton, decided in [ADR 0001](../adr/0001-monorepo-skeleton-and-tooling.md).
 
 ## Overview
 
