@@ -1,6 +1,6 @@
 # Create root workspace
 
-- Status: not-started
+- Status: done
 
 ## Goal
 
@@ -34,13 +34,13 @@ Security: no secrets in any file; `.env` files must be ignored (writing-docs rul
 
 The task is complete only when every item below passes. Tags name the [project-workspace](../../features/project-workspace.md) acceptance criterion (ACn) or requirement each item proves.
 
-- [ ] 1. Root `package.json` exists and `node -e "const p=require('./package.json');console.log(p.name,p.private,p.type,JSON.stringify(p.workspaces),p.engines.node)"` prints `sweetmemories true module ["apps/*"] >=24`. (AC1; Behavior: root package.json)
-- [ ] 2. `cat .nvmrc` prints `24`. (AC1)
-- [ ] 3. `tsconfig.base.json` is valid JSON and has `"strict": true` and `"target": "ES2022"`. (AC3: shared type-check settings)
-- [ ] 4. `.gitignore` contains every line listed in Scope. (Behavior: .gitignore)
-- [ ] 5. With Node 24, `npm install` at the root exits 0 and `package-lock.json` exists at the root. (AC1)
-- [ ] 6. A test file `.env` created at the root does not appear in `git status --porcelain` (delete it afterwards). (Behavior: .gitignore; writing-docs rule: no secrets)
-- [ ] 7. With all work committed, `git diff --name-only "$BASE_BRANCH"...HEAD` (merge-base form; `$BASE_BRANCH` as defined in [local-development](../../infra/local-development.md#base-branch)) lists, outside `docs/`, only: `package.json`, `package-lock.json`, `.nvmrc`, `.gitignore`, `tsconfig.base.json`, `apps/.gitkeep`. Any path under `docs/` is allowed (status lines of this task and its feature, `Progress.md` boards, `docs/questions/`). (AC5; Out of scope)
+- [x] 1. Root `package.json` exists and `node -e "const p=require('./package.json');console.log(p.name,p.private,p.type,JSON.stringify(p.workspaces),p.engines.node)"` prints `sweetmemories true module ["apps/*"] >=24`. (AC1; Behavior: root package.json)
+- [x] 2. `cat .nvmrc` prints `24`. (AC1)
+- [x] 3. `tsconfig.base.json` is valid JSON and has `"strict": true` and `"target": "ES2022"`. (AC3: shared type-check settings)
+- [x] 4. `.gitignore` contains every line listed in Scope. (Behavior: .gitignore)
+- [x] 5. With Node 24, `npm install` at the root exits 0 and `package-lock.json` exists at the root. (AC1)
+- [x] 6. A test file `.env` created at the root does not appear in `git status --porcelain` (delete it afterwards). (Behavior: .gitignore; writing-docs rule: no secrets)
+- [x] 7. With all work committed, `git diff --name-only "$BASE_BRANCH"...HEAD` (merge-base form; `$BASE_BRANCH` as defined in [local-development](../../infra/local-development.md#base-branch)) lists, outside `docs/`, only: `package.json`, `package-lock.json`, `.nvmrc`, `.gitignore`, `tsconfig.base.json`, `apps/.gitkeep`. Any path under `docs/` is allowed (status lines of this task and its feature, `Progress.md` boards, `docs/questions/`). (AC5; Out of scope)
 
 ## e2e-test-suites
 
@@ -86,3 +86,11 @@ Expected: exactly package.json, package-lock.json, .nvmrc, .gitignore, tsconfig.
 - Feature: [project-workspace](../../features/project-workspace.md)
 - ADR: [0001-monorepo-skeleton-and-tooling](../../adr/0001-monorepo-skeleton-and-tooling.md)
 - Next: [scaffold-api-app](../api-skeleton/scaffold-api-app.md), [scaffold-web-app](../web-skeleton/scaffold-web-app.md)
+
+## Summary
+
+- Built: root workspace files (`package.json`, `.nvmrc`, `.gitignore`, `tsconfig.base.json`, `apps/.gitkeep`, `package-lock.json`).
+- PR: https://github.com/buitahau/sweetmemoriesv1/pull/2 (merge commit `f7d480e`).
+- Test: fresh clone, Node 24.14.1; checklist items 1-7 all Pass (E2E-1 to E2E-4). No deploy for this ticket.
+- Cycles: 1. Review: approve, no Blocker/Major.
+- Leftovers: none for this task.
