@@ -1,6 +1,6 @@
 # Local development
 
-Status: proposed ([ADR 0001](../adr/0001-monorepo-skeleton-and-tooling.md)). Becomes current once the [project-workspace](../features/project-workspace.md) tasks are done.
+Status: current ([ADR 0001](../adr/0001-monorepo-skeleton-and-tooling.md)).
 
 ## What
 
