@@ -51,7 +51,7 @@ No secrets are needed for the skeleton. `.env` files are git-ignored.
 Checks that say "only these files changed" compare against `$BASE_BRANCH`:
 
 ```sh
-export BASE_BRANCH=origin/main
+export BASE_BRANCH=origin/dev-v1
 git fetch origin
 git diff --name-only "$BASE_BRANCH"...HEAD          # list changed files
 git diff "$BASE_BRANCH"...HEAD -- README.md         # diff of one file
@@ -62,7 +62,7 @@ Rules:
 - The three-dot form compares commits, so commit all work before running a check; uncommitted changes are not listed.
 - The design docs (ADR 0001, its features, tasks and `docs/questions/`) must already be merged into `$BASE_BRANCH` before the first implementation branch is created. Otherwise every design doc shows up as "changed". Today they exist only on `mainv1`.
 
-`origin/main` is the default until the product owner names the integration branch ([Q007](../questions/questions-2026-11-08-requirement-breakdown.md#q007-which-branch-is-the-integration-base-for-diff-checks)). Planned: once `dev-v1` exists, task [add-ci-workflow](../tasks/ci-checks/add-ci-workflow.md) switches this section to `origin/dev-v1` ([Q004 of 2026-11-09](../questions/questions-2026-11-09-requirement-breakdown.md#q004-is-dev-v1-the-integration-and-deploy-branch) option A). When it changes, update only this section.
+`origin/dev-v1` is the integration branch ([ADR 0002](../adr/0002-ci-cd-and-dev-environment-on-cloudflare.md), [Q004 of 2026-11-09](../questions/questions-2026-11-09-requirement-breakdown.md#q004-is-dev-v1-the-integration-and-deploy-branch)). Every implementation branch starts from `origin/dev-v1`. When it changes, update only this section.
 
 ## How to change it
 
