@@ -1,6 +1,6 @@
 # Add home page
 
-- Status: not-started
+- Status: done
 
 ## Goal
 
@@ -32,14 +32,14 @@ Security: static text only; no cookies, no third-party requests (groundwork for 
 
 The task is complete only when every item below passes. Tags name the [web-skeleton](../../features/web-skeleton.md) acceptance criterion (ACn) or requirement each item proves.
 
-- [ ] 1. `npm test -w apps/web` exits 0 and runs `shows the home page heading` and `has no other text`. (AC1, AC5)
-- [ ] 2. In the browser at `http://localhost:5173/` the page shows one `<h1>` with text exactly `SweetMemories home page` and no other visible text. (AC1)
-- [ ] 3. The tab title is `SweetMemories` and `document.documentElement.lang` is `en`. (AC2)
-- [ ] 4. After loading the page, DevTools shows no cookies for `localhost:5173`, every Network request goes to `localhost:5173`, and the Console has no errors or warnings. (AC3, AC6)
-- [ ] 5. `http://localhost:5173/anything` shows the same heading. (Behavior: SPA fallback)
-- [ ] 6. After `npm run build -w apps/web && npm run preview -w apps/web`, `http://localhost:4173/` shows the same heading and title. (AC5)
-- [ ] 7. At 320 px viewport width, `document.documentElement.scrollWidth <= window.innerWidth` is `true`. (Behavior: readable at 320 px)
-- [ ] 8. `npm run typecheck -w apps/web` exits 0. (AC5)
+- [x] 1. `npm test -w apps/web` exits 0 and runs `shows the home page heading` and `has no other text`. (AC1, AC5)
+- [x] 2. In the browser at `http://localhost:5173/` the page shows one `<h1>` with text exactly `SweetMemories home page` and no other visible text. (AC1)
+- [x] 3. The tab title is `SweetMemories` and `document.documentElement.lang` is `en`. (AC2)
+- [x] 4. After loading the page, DevTools shows no cookies for `localhost:5173`, every Network request goes to `localhost:5173`, and the Console has no errors or warnings. (AC3, AC6)
+- [x] 5. `http://localhost:5173/anything` shows the same heading. (Behavior: SPA fallback)
+- [x] 6. After `npm run build -w apps/web && npm run preview -w apps/web`, `http://localhost:4173/` shows the same heading and title. (AC5)
+- [x] 7. At 320 px viewport width, `document.documentElement.scrollWidth <= window.innerWidth` is `true`. (Behavior: readable at 320 px)
+- [x] 8. `npm run typecheck -w apps/web` exits 0. (AC5)
 
 ## e2e-test-suites
 
@@ -104,3 +104,11 @@ Expected: heading fully visible (may wrap to two lines); console prints true
 
 - Feature: [web-skeleton](../../features/web-skeleton.md)
 - ADR: [0001-monorepo-skeleton-and-tooling](../../adr/0001-monorepo-skeleton-and-tooling.md)
+
+## Summary
+
+- Built: home page heading "SweetMemories home page", tab title `SweetMemories`, `lang="en"`, two Vitest tests.
+- PR: https://github.com/buitahau/sweetmemoriesv1/pull/10 (merge commit `398d15b`).
+- Test: fresh clone, Node 24.14.1, real headless Chrome 150 (dev 5173 and preview 4173, 1024 px and 320 px); task items 1-8 and feature items 2-9 Pass. Feature item 1 passes with this status update. No deploy for this ticket. Firefox/Safari and a 320 px screenshot not checked.
+- Cycles: 1. Review: approve, 1 Nit (status, done here).
+- Leftovers: none.
