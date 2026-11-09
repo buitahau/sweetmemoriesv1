@@ -19,7 +19,7 @@ Local machine only. No CI, cloud deploy, Neon, S3 or Better Auth yet ([Q005](../
 | Web (preview of build) | `http://localhost:4173` | `npm run preview -w apps/web` |
 | Both | as above | `npm run dev` |
 | API on the Workers runtime | `http://localhost:8787` | `npm run dev:worker -w apps/api` |
-| Web build on the Workers runtime (planned, [add-web-worker](../tasks/dev-deploy/add-web-worker.md)) | `http://localhost:8788` | `npm run build -w apps/web && npm run dev:worker -w apps/web` |
+| Web build on the Workers runtime | `http://localhost:8788` | `npm run build -w apps/web && npm run dev:worker -w apps/web` |
 
 The deployed dev environment is described in [dev-environment](dev-environment.md); pipelines in [ci-cd](ci-cd.md).
 
