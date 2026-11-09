@@ -1,6 +1,6 @@
 # Add CI workflow
 
-- Status: not-started
+- Status: done
 
 ## Goal
 
@@ -49,15 +49,15 @@ Security: no `secrets.` reference; `permissions: contents: read` so a PR's code 
 
 The task is complete only when every item below passes. Tags name the [ci-checks](../../features/ci-checks.md) acceptance criterion (ACn).
 
-- [ ] 1. `.github/workflows/ci.yml` exists, its `name` is `CI`, its only trigger is `pull_request` on `dev-v1` and `main`, with no `paths` or `paths-ignore`. (AC1)
-- [ ] 2. The file has job `verify` with the seven steps of Scope in that order and those names. (AC2)
-- [ ] 3. `grep -c 'secrets\.' .github/workflows/ci.yml` prints 0, `grep -c pull_request_target` prints 0, and `permissions` has only `contents: read`. (AC3)
-- [ ] 4. The PR that adds this file shows check `verify` = `pass` in `gh pr checks`. (AC1, AC2)
-- [ ] 5. In that run's log, step "Node version" prints `v` followed by the major in `.nvmrc`. (AC2)
-- [ ] 6. A temporary second commit on the same PR with `expect(1).toBe(2)` in a new test file makes `verify` fail at step "Test"; the commit is then removed and `verify` passes again. (AC2)
-- [ ] 7. Pushing a second commit while a run is in progress cancels the older run (shown as `cancelled`). (Behavior: concurrency)
-- [ ] 8. The PR changes only `.github/workflows/ci.yml` and files under `docs/` (status lines, `Progress.md`, `docs/infra/local-development.md`): `git diff --name-only origin/dev-v1...HEAD`. (Out of scope)
-- [ ] 9. `grep -c 'BASE_BRANCH=origin/dev-v1' docs/infra/local-development.md` prints 1 and `grep -c 'BASE_BRANCH=origin/main' docs/infra/local-development.md` prints 0. (Scope: Base branch; [Q004](../../questions/questions-2026-11-09-requirement-breakdown.md#q004-is-dev-v1-the-integration-and-deploy-branch) option A)
+- [x] 1. `.github/workflows/ci.yml` exists, its `name` is `CI`, its only trigger is `pull_request` on `dev-v1` and `main`, with no `paths` or `paths-ignore`. (AC1)
+- [x] 2. The file has job `verify` with the seven steps of Scope in that order and those names. (AC2)
+- [x] 3. `grep -c 'secrets\.' .github/workflows/ci.yml` prints 0, `grep -c pull_request_target` prints 0, and `permissions` has only `contents: read`. (AC3)
+- [x] 4. The PR that adds this file shows check `verify` = `pass` in `gh pr checks`. (AC1, AC2)
+- [x] 5. In that run's log, step "Node version" prints `v` followed by the major in `.nvmrc`. (AC2)
+- [x] 6. A temporary second commit on the same PR with `expect(1).toBe(2)` in a new test file makes `verify` fail at step "Test"; the commit is then removed and `verify` passes again. (AC2)
+- [x] 7. Pushing a second commit while a run is in progress cancels the older run (shown as `cancelled`). (Behavior: concurrency)
+- [x] 8. The PR changes only `.github/workflows/ci.yml` and files under `docs/` (status lines, `Progress.md`, `docs/infra/local-development.md`): `git diff --name-only origin/dev-v1...HEAD`. (Out of scope)
+- [x] 9. `grep -c 'BASE_BRANCH=origin/dev-v1' docs/infra/local-development.md` prints 1 and `grep -c 'BASE_BRANCH=origin/main' docs/infra/local-development.md` prints 0. (Scope: Base branch; [Q004](../../questions/questions-2026-11-09-requirement-breakdown.md#q004-is-dev-v1-the-integration-and-deploy-branch) option A)
 
 ## e2e-test-suites
 
@@ -118,6 +118,14 @@ Request:
   grep -c 'BASE_BRANCH=origin/main' docs/infra/local-development.md
 Expected: 1; 0
 ```
+
+## Summary
+
+- Built: `.github/workflows/ci.yml` (workflow `CI`, job `verify`: checkout, setup Node from `.nvmrc`, `node -v`, `npm ci`, typecheck, test, build; `contents: read`, no secrets, concurrency cancel-in-progress); `BASE_BRANCH` switched to `origin/dev-v1` in `docs/infra/local-development.md`.
+- PR: https://github.com/buitahau/sweetmemoriesv1/pull/17 (merge commit `9b53b49`).
+- Test: items 1-9 Pass. Throwaway PR #18 (closed, not merged): `verify` listed 20 s after opening and passed; Node `v24.22.2` matches `.nvmrc` 24; a failing test failed step Test and passed again once removed; a second push cancelled the older run. A docs-only PR also reports `verify`.
+- Cycles: 1. Review: approve, 2 Nits (task status, done here; `local-development.md:63` still says the design docs exist only on `mainv1`, left for a follow-up).
+- Leftovers: `create-dev-branch` (human, `dev-v1` already exists, not yet marked) and `protect-dev-branch` (human: add `verify` as a required check; feature items 5-10 untested until then).
 
 ## Links
 
