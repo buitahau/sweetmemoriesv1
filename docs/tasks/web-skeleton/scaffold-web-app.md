@@ -1,6 +1,6 @@
 # Scaffold web app
 
-- Status: not-started
+- Status: done
 
 ## Goal
 
@@ -46,18 +46,18 @@ Security: no third-party requests, scripts or fonts on the page; no cookies (gro
 
 The task is complete only when every item below passes. Tags name the [web-skeleton](../../features/web-skeleton.md) acceptance criterion (ACn) or requirement each item proves.
 
-- [ ] 1. `apps/web/package.json` has name `@sweetmemories/web` and the five scripts exactly as in Scope step 2 (no `lint` script). (AC5)
-- [ ] 2. No `.oxlintrc.json` and no `eslint.config.js` in `apps/web`, and `apps/web/package.json` has no dependency whose name contains `oxlint` or `eslint` and no `globals` dependency. (ADR 0001: no linting)
-- [ ] 3. Only one `package-lock.json` exists, at the repo root. (ADR 0001: root lockfile only)
-- [ ] 4. `apps/web/README.md`, `apps/web/src/App.css`, `apps/web/src/assets/` and `apps/web/public/` do not exist; `grep -rn -i -E 'react\.svg|vite\.svg|hero\.png|icons\.svg|favicon\.svg|useState|setCount|count is|Edit src/App|Get started' apps/web/src apps/web/index.html` prints nothing. (AC4; ADR 0001: no linting advice left)
-- [ ] 5. `apps/web/index.html` has `<link rel="icon" href="data:," />`. (AC3, AC6: no favicon request, no 404 in the console)
-- [ ] 6. `npm test -w apps/web` exits 0 and runs `renders the main landmark`. (AC5)
-- [ ] 7. `npm run typecheck -w apps/web` exits 0. (AC5)
-- [ ] 8. `npm run build -w apps/web` exits 0 and creates `apps/web/dist/index.html`. (AC5)
-- [ ] 9. `npm run dev -w apps/web` serves `http://localhost:5173/` (HTTP 200, HTML contains `<div id="root">`); if port 5173 is taken, it exits with an error instead of picking another port. (AC5)
-- [ ] 10. `npm run preview -w apps/web` (after build) serves `http://localhost:4173/` with HTTP 200. (AC5)
-- [ ] 11. `apps/web/src/test-setup.ts` matches Scope step 6 (contains `afterEach(cleanup)`), `apps/web/vite.config.ts` does not contain `globals`, and `apps/web/package.json` `react` dependency is major version 19. (ADR 0001: test runner, React 19)
-- [ ] 12. The step 1 command finished without showing any prompt (the implementer records the exact command in `docs/tasks/web-skeleton/scaffold-web-app.md` notes). (ADR 0001: pinned generator)
+- [x] 1. `apps/web/package.json` has name `@sweetmemories/web` and the five scripts exactly as in Scope step 2 (no `lint` script). (AC5)
+- [x] 2. No `.oxlintrc.json` and no `eslint.config.js` in `apps/web`, and `apps/web/package.json` has no dependency whose name contains `oxlint` or `eslint` and no `globals` dependency. (ADR 0001: no linting)
+- [x] 3. Only one `package-lock.json` exists, at the repo root. (ADR 0001: root lockfile only)
+- [x] 4. `apps/web/README.md`, `apps/web/src/App.css`, `apps/web/src/assets/` and `apps/web/public/` do not exist; `grep -rn -i -E 'react\.svg|vite\.svg|hero\.png|icons\.svg|favicon\.svg|useState|setCount|count is|Edit src/App|Get started' apps/web/src apps/web/index.html` prints nothing. (AC4; ADR 0001: no linting advice left)
+- [x] 5. `apps/web/index.html` has `<link rel="icon" href="data:," />`. (AC3, AC6: no favicon request, no 404 in the console)
+- [x] 6. `npm test -w apps/web` exits 0 and runs `renders the main landmark`. (AC5)
+- [x] 7. `npm run typecheck -w apps/web` exits 0. (AC5)
+- [x] 8. `npm run build -w apps/web` exits 0 and creates `apps/web/dist/index.html`. (AC5)
+- [x] 9. `npm run dev -w apps/web` serves `http://localhost:5173/` (HTTP 200, HTML contains `<div id="root">`); if port 5173 is taken, it exits with an error instead of picking another port. (AC5)
+- [x] 10. `npm run preview -w apps/web` (after build) serves `http://localhost:4173/` with HTTP 200. (AC5)
+- [x] 11. `apps/web/src/test-setup.ts` matches Scope step 6 (contains `afterEach(cleanup)`), `apps/web/vite.config.ts` does not contain `globals`, and `apps/web/package.json` `react` dependency is major version 19. (ADR 0001: test runner, React 19)
+- [x] 12. The step 1 command finished without showing any prompt (the implementer records the exact command in `docs/tasks/web-skeleton/scaffold-web-app.md` notes). (ADR 0001: pinned generator)
 
 ## e2e-test-suites
 
@@ -139,3 +139,11 @@ Expected: step 1 prints 1; step 2 prints 0; step 3 prints a range starting with 
 - Feature: [web-skeleton](../../features/web-skeleton.md)
 - ADR: [0001-monorepo-skeleton-and-tooling](../../adr/0001-monorepo-skeleton-and-tooling.md)
 - Next: [add-home-page](add-home-page.md)
+
+## Summary
+
+- Built: `apps/web` (Vite `react-ts` via create-vite 9.3.4, React 19, Vitest + Testing Library), demo content and linting removed, ports 5173/4173 strict.
+- PR: https://github.com/buitahau/sweetmemoriesv1/pull/8 (merge commit `f12476b`).
+- Test: fresh clone, Node 24.14.1; checklist items 1-12 all Pass (build, dev, preview, test, typecheck run for real). No deploy for this ticket. Browser console not inspected (HTTP/HTML checks only).
+- Cycles: 1. Review: approve, 2 Nits (no action).
+- Leftovers: none.

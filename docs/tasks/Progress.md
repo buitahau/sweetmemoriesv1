@@ -18,7 +18,7 @@
 ## web-skeleton
 | Task | Status | Updated |
 |---|---|---|
-| [scaffold-web-app](web-skeleton/scaffold-web-app.md) | not-started | 2026-11-08 |
+| [scaffold-web-app](web-skeleton/scaffold-web-app.md) | done | 2026-11-09 |
 | [add-home-page](web-skeleton/add-home-page.md) | not-started | 2026-11-08 |
 
 ## ci-checks
