@@ -1,6 +1,6 @@
 # Document commands
 
-- Status: not-started
+- Status: done
 
 ## Goal
 
@@ -36,14 +36,14 @@ Security: do not put secrets, tokens or real user data in the README.
 
 The task is complete only when every item below passes. Tags name the [project-workspace](../../features/project-workspace.md) acceptance criterion (ACn) or requirement each item proves.
 
-- [ ] 1. README "Repository layout" no longer contains "Not yet established". (AC4)
-- [ ] 2. The section names `apps/api` and `apps/web` and lists all six commands from Scope item 3. (AC4)
-- [ ] 3. The section lists ports 3000, 5173 and 4173, and they equal the ports in `docs/infra/local-development.md`. (AC4)
-- [ ] 4. The section links to `docs/infra/local-development.md` and the link resolves to an existing file. (AC4)
-- [ ] 5. Following the README commands on a clean clone (Node 24) works: `npm install`, `npm run dev` (both URLs answer), `npm run build`, `npm test`, `npm run typecheck` all succeed. (AC1, AC2, AC3)
-- [ ] 6. The README "Status" paragraph has the new sentence from Scope; no other README section changed (with all work committed, `git diff "$BASE_BRANCH"...HEAD -- README.md` shows changes only in "Status" and "Repository layout"; `$BASE_BRANCH` and the merge-base rule as defined in [local-development](../../infra/local-development.md#base-branch)). (AC4)
-- [ ] 7. `CLAUDE.md` is unchanged (`git diff --name-only "$BASE_BRANCH"...HEAD` does not list it). (Out of scope: a human edits `CLAUDE.md`)
-- [ ] 8. `docs/infra/local-development.md` starts its status line with `Status: current` and `docs/architecture/repository-layout.md` with `Status: current`; every file path in the `repository-layout.md` tree exists in the repository. (writing-docs rule: docs describe the current truth)
+- [x] 1. README "Repository layout" no longer contains "Not yet established". (AC4)
+- [x] 2. The section names `apps/api` and `apps/web` and lists all six commands from Scope item 3. (AC4)
+- [x] 3. The section lists ports 3000, 5173 and 4173, and they equal the ports in `docs/infra/local-development.md`. (AC4)
+- [x] 4. The section links to `docs/infra/local-development.md` and the link resolves to an existing file. (AC4)
+- [x] 5. Following the README commands on a clean clone (Node 24) works: `npm install`, `npm run dev` (both URLs answer), `npm run build`, `npm test`, `npm run typecheck` all succeed. (AC1, AC2, AC3)
+- [x] 6. The README "Status" paragraph has the new sentence from Scope; no other README section changed (with all work committed, `git diff "$BASE_BRANCH"...HEAD -- README.md` shows changes only in "Status" and "Repository layout"; `$BASE_BRANCH` and the merge-base rule as defined in [local-development](../../infra/local-development.md#base-branch)). (AC4)
+- [x] 7. `CLAUDE.md` is unchanged (`git diff --name-only "$BASE_BRANCH"...HEAD` does not list it). (Out of scope: a human edits `CLAUDE.md`)
+- [x] 8. `docs/infra/local-development.md` starts its status line with `Status: current` and `docs/architecture/repository-layout.md` with `Status: current`; every file path in the `repository-layout.md` tree exists in the repository. (writing-docs rule: docs describe the current truth)
 
 ## e2e-test-suites
 
@@ -96,3 +96,11 @@ Expected: one match per file; every ls succeeds
 - Feature: [project-workspace](../../features/project-workspace.md)
 - ADR: [0001-monorepo-skeleton-and-tooling](../../adr/0001-monorepo-skeleton-and-tooling.md)
 - Infra: [local-development](../../infra/local-development.md)
+
+## Summary
+
+- Built: README "Status" sentence and "Repository layout" (tree, Node 24, six commands, ports, link); `local-development.md` marked `Status: current.`; `repository-layout.md` marked `Status: current (built).` with the tree matching `git ls-files`.
+- PR: https://github.com/buitahau/sweetmemoriesv1/pull/14 (merge commit `e4bbce3`).
+- Test: fresh clone, Node 24.14.1, README commands followed literally; items 1-8 all Pass.
+- Cycles: 1 implement-and-test cycle; review took 2 rounds (round 1: Major status line not at line start, fixed).
+- Leftovers: `local-development.md` "Base branch" section still names `origin/main`; owned by add-ci-workflow.

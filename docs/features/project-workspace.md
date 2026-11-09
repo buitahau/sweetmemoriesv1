@@ -1,6 +1,6 @@
 # Project workspace
 
-- Status: not-started
+- Status: done
 
 ## Summary
 
@@ -42,17 +42,17 @@ Acceptance criteria:
 
 The feature is complete only when every item below passes.
 
-- [ ] 1. Every task in this feature has Status `done`. (all ACs)
-- [ ] 2. On a clean clone with Node 24, `npm install` at the root exits 0; exactly one `package-lock.json` exists, at the root (`find . -name package-lock.json -not -path "*/node_modules/*"` prints only `./package-lock.json`). (AC1)
-- [ ] 3. `cat .nvmrc` prints `24`; root `package.json` has `"private": true`, `"type": "module"`, `"workspaces": ["apps/*"]`, `"engines": {"node": ">=24"}`. (AC1)
-- [ ] 4. `npm run dev` at the root prints lines prefixed `[api]` and `[web]`; while it runs, `curl -s http://localhost:3000/api/health` returns `{"status":"ok"}` and `curl -s http://localhost:5173/` returns HTML containing `<div id="root">`. (AC2)
-- [ ] 5. `npm run build`, `npm test` and `npm run typecheck` at the root each exit 0, and the output shows both `@sweetmemories/api` and `@sweetmemories/web` ran. (AC3)
-- [ ] 6. `npm run build` creates `apps/api/dist/server.js` and `apps/web/dist/index.html`. (AC3)
-- [ ] 7. After `npm install` and `npm run build`, `git status --porcelain` lists no file under `node_modules/` or `dist/`. (Behavior: .gitignore)
-- [ ] 8. `README.md` "Repository layout" section names `apps/api` and `apps/web` and lists `npm install`, `npm run dev`, `npm run build`, `npm test`, `npm run typecheck`; every command and port matches [infra/local-development.md](../infra/local-development.md). (AC4)
-- [ ] 9. With all work committed, `git diff --name-only "$BASE_BRANCH"...HEAD` shows no change to `CLAUDE.md`, and every changed path is one of: `package.json`, `package-lock.json`, `.nvmrc`, `.gitignore`, `tsconfig.base.json`, `README.md`, or a path under `apps/` or `docs/`. (AC5, project state rule)
-- [ ] 10. No `.env` file is committed (`git ls-files` lists none) and no file contains a secret or token. (writing-docs rule: no secrets)
-- [ ] 11. If port 3000 is already taken, `npm run dev` prints a line starting `[api]` containing `Port 3000 is already in use`, prints no `[api]` line containing `API listening`, and the web app still answers `200` on port 5173. (Behavior: one app fails, its error stays visible)
+- [x] 1. Every task in this feature has Status `done`. (all ACs)
+- [x] 2. On a clean clone with Node 24, `npm install` at the root exits 0; exactly one `package-lock.json` exists, at the root (`find . -name package-lock.json -not -path "*/node_modules/*"` prints only `./package-lock.json`). (AC1)
+- [x] 3. `cat .nvmrc` prints `24`; root `package.json` has `"private": true`, `"type": "module"`, `"workspaces": ["apps/*"]`, `"engines": {"node": ">=24"}`. (AC1)
+- [x] 4. `npm run dev` at the root prints lines prefixed `[api]` and `[web]`; while it runs, `curl -s http://localhost:3000/api/health` returns `{"status":"ok"}` and `curl -s http://localhost:5173/` returns HTML containing `<div id="root">`. (AC2)
+- [x] 5. `npm run build`, `npm test` and `npm run typecheck` at the root each exit 0, and the output shows both `@sweetmemories/api` and `@sweetmemories/web` ran. (AC3)
+- [x] 6. `npm run build` creates `apps/api/dist/server.js` and `apps/web/dist/index.html`. (AC3)
+- [x] 7. After `npm install` and `npm run build`, `git status --porcelain` lists no file under `node_modules/` or `dist/`. (Behavior: .gitignore)
+- [x] 8. `README.md` "Repository layout" section names `apps/api` and `apps/web` and lists `npm install`, `npm run dev`, `npm run build`, `npm test`, `npm run typecheck`; every command and port matches [infra/local-development.md](../infra/local-development.md). (AC4)
+- [x] 9. With all work committed, `git diff --name-only "$BASE_BRANCH"...HEAD` shows no change to `CLAUDE.md`, and every changed path is one of: `package.json`, `package-lock.json`, `.nvmrc`, `.gitignore`, `tsconfig.base.json`, `README.md`, or a path under `apps/` or `docs/`. (AC5, project state rule)
+- [x] 10. No `.env` file is committed (`git ls-files` lists none) and no file contains a secret or token. (writing-docs rule: no secrets)
+- [x] 11. If port 3000 is already taken, `npm run dev` prints a line starting `[api]` containing `Port 3000 is already in use`, prints no `[api]` line containing `API listening`, and the web app still answers `200` on port 5173. (Behavior: one app fails, its error stays visible)
 
 ## e2e-test-suites
 
