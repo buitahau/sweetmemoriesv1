@@ -50,7 +50,7 @@ The feature is complete only when every item below passes.
 - [ ] 5. `scripts/smoke-dev.sh` exits 0 against dev and prints 4 `PASS` lines; pointed at a wrong URL (`DEV_API_URL=https://example.invalid`) it exits 1 and prints `FAIL`. (AC4)
 - [ ] 6. The newest `Deploy dev` run log shows the steps "Wait for dev deploy" and "Smoke test dev" after both deploy steps, both successful; `grep -c -F 'WAIT_TIMEOUT_SECONDS=180' .github/workflows/deploy-dev.yml` prints 1 (timeout 180 s); and `grep -c -E 'continue-on-error|^\s+if:' .github/workflows/deploy-dev.yml` prints 0, so a failing wait or smoke fails the run (checked in the file, see [add-dev-smoke-script](../tasks/dev-deploy-verification/add-dev-smoke-script.md) item 10). (AC5)
 - [ ] 7. No marker or script output contains a cookie, token, account ID or user data; `GET /api/version` sets no cookie, also when sent `Cookie: session=fake-value`. (CLAUDE.md rules 1 and 5)
-- [ ] 8. A full dry run by an agent, using only `docs/infra/dev-environment.md`: merge a probe PR ([ci-cd "Test PRs"](../infra/ci-cd.md#test-prs-probe-file)), run steps 1-4 of "How an agent verifies" (run conclusion `success`, wait exit 0), then step 5 for both suite types: the [api-skeleton](api-skeleton.md) E2E-1 to E2E-4 at `BASE_URL=$DEV_API_URL` all pass (BE), and the [web-skeleton](web-skeleton.md) E2E-1 and E2E-2 run in a browser at `BASE_URL=$DEV_WEB_URL` instead of `http://localhost:5173` show the heading "SweetMemories home page", tab title "SweetMemories", no cookies for the dev web origin and no request to another origin (FE). (AC6, the requirement's goal; CLAUDE.md rule 1 groundwork)
+- [ ] 8. A full dry run by an agent, using only `docs/infra/dev-environment.md`: merge a probe PR ([ci-cd "Test PRs"](../infra/ci-cd.md#test-prs-probe-file)), run steps 1-4 of "How an agent verifies" (run conclusion `success`, wait exit 0), then step 5 for both suite types: the [api-skeleton](api-skeleton.md) E2E-1 to E2E-4 at `BASE_URL=$DEV_API_URL` all pass (BE), and the browser checks of E2E-8 (based on [web-skeleton](web-skeleton.md) E2E-1 and E2E-2, minus the heading text) at `BASE_URL=$DEV_WEB_URL` show exactly one non-empty `h1`, tab title "SweetMemories", `lang="en"`, no cookies for the dev web origin and no request to another origin (FE). The heading text is not checked, so this item holds both for the skeleton placeholder and for the [homepage](homepage.md) that replaces it. (AC6, the requirement's goal; CLAUDE.md rule 1 groundwork)
 
 ## e2e-test-suites
 
@@ -139,15 +139,15 @@ Expected:
 ```
 
 ```
-E2E-8 -> checklist item 8: FE half of step 5, web-skeleton E2E-1 and E2E-2 on dev
+E2E-8 -> checklist item 8: FE half of step 5, web-skeleton E2E-1 and E2E-2 on dev (heading text not checked)
 Preconditions: E2E-7 done up to wait=0 (same MERGE_SHA); not signed in; fresh browser profile; DevTools open on Network and Console before loading; BASE_URL=$DEV_WEB_URL
 Steps:
   1. Open $DEV_WEB_URL/ and wait for load.
-  2. Read the visible page text and the tab title.
-  3. In DevTools Console run: document.querySelectorAll('h1').length, document.querySelector('h1').textContent, document.documentElement.lang, document.body.innerText.trim()
+  2. Read the tab title.
+  3. In DevTools Console run: [document.querySelectorAll('h1').length, document.querySelector('h1').textContent.trim().length > 0, document.title, document.documentElement.lang]
   4. Check DevTools Application > Cookies for the $DEV_WEB_URL origin.
   5. Check every row in the Network tab.
-Expected: page shows "SweetMemories home page"; tab title "SweetMemories"; console prints 1, "SweetMemories home page", "en", "SweetMemories home page"; cookie list empty (CLAUDE.md rule 1 groundwork); every request URL starts with $DEV_WEB_URL; console has no error entries
+Expected: tab title "SweetMemories"; console prints [1, true, "SweetMemories", "en"] (heading text deliberately not checked: it is the skeleton placeholder before the homepage merges and "Every little moment deserves a home." after); cookie list empty (CLAUDE.md rule 1 groundwork); every request URL starts with $DEV_WEB_URL; console has no error entries
 ```
 
 ## Related

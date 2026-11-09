@@ -24,6 +24,7 @@ Acceptance criteria:
 - Any path served by the dev or preview server (e.g. `/anything`) shows the same page (Vite SPA fallback). No router yet.
 - Text is plain, readable at 320 px width without horizontal scrolling; default browser styles plus at most a minimal `index.css` (no external fonts or CSS frameworks).
 - Which "home page" this is: the product root page (future `sweetmemories.com` Homepage), not a User subdomain home ([Q006](../questions/questions-2026-11-08-requirement-breakdown.md)).
+- Superseded (2026-11-10): the placeholder heading and its two tests are replaced by the real Homepage in feature [homepage](homepage.md) (task [add-homepage-shell](../tasks/homepage/add-homepage-shell.md)). This feature stays `done` as history; its checklist items 2 and 8 (heading text) and the E2E heading checks describe the skeleton state and no longer hold once that task is merged. The tooling items (build, preview, test, typecheck, no cookies, SPA fallback, 320 px) are re-checked by [homepage](homepage.md).
 
 ## Out of scope
 
@@ -110,6 +111,7 @@ Expected: heading fully visible (may wrap); console prints true
 
 - Parent ADR: [0001-monorepo-skeleton-and-tooling](../adr/0001-monorepo-skeleton-and-tooling.md)
 - Infra: [local-development](../infra/local-development.md)
+- Superseded by: [homepage](homepage.md) ([ADR 0003](../adr/0003-frontend-styling-and-self-hosted-fonts.md))
 - Tasks:
   1. [scaffold-web-app](../tasks/web-skeleton/scaffold-web-app.md)
   2. [add-home-page](../tasks/web-skeleton/add-home-page.md)

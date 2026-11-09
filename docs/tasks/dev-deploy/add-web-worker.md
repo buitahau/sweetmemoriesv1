@@ -35,7 +35,7 @@ The task is complete only when every item below passes. Tags name the [dev-deplo
 
 - [x] 1. `apps/web/wrangler.jsonc` matches Scope exactly: no `main`, no `account_id`, `not_found_handling` is `single-page-application`. (AC3, AC4, AC6)
 - [x] 2. `git diff --name-only "$BASE_BRANCH"...HEAD` lists nothing under `apps/web/src` and not `apps/web/index.html`. (Scope)
-- [x] 3. After `npm run build -w apps/web`, with `npm run dev:worker -w apps/web` running, `curl -s http://localhost:8788/` contains `<title>SweetMemories</title>` and `<div id="root">`, and a browser at that URL shows "SweetMemories home page". (AC3, AC8)
+- [x] 3. After `npm run build -w apps/web`, with `npm run dev:worker -w apps/web` running, `curl -s http://localhost:8788/` contains `<title>SweetMemories</title>` and `<div id="root">`, and a browser at that URL shows "SweetMemories home page". (AC3, AC8) Superseded (2026-11-10): after [homepage](../../features/homepage.md) is merged the browser shows the Homepage instead; the `curl` part still holds.
 - [x] 4. `curl -s -o /dev/null -w "%{http_code}" http://localhost:8788/anything` prints 200 and the body equals that of `/`. (AC6)
 - [x] 5. Responses from `http://localhost:8788/` have no `Set-Cookie`. (AC7)
 - [x] 6. `npm test -w apps/web`, `npm run typecheck -w apps/web` and `npm run build -w apps/web` exit 0. (AC2)

@@ -71,6 +71,36 @@ Planned in [ADR 0002](../adr/0002-ci-cd-and-dev-environment-on-cloudflare.md), n
 
 `apps/web/dist/version.json` and `apps/web/dist/_headers` are written by the deploy workflow and never committed.
 
+### Added by ADR 0003 (styling, fonts, Homepage)
+
+Planned in [ADR 0003](../adr/0003-frontend-styling-and-self-hosted-fonts.md), not built yet. Features [web-design-foundation](../features/web-design-foundation.md) and [homepage](../features/homepage.md).
+
+```
+apps/web/
+  package.json             + @fontsource/fredoka, @fontsource/caveat, @fontsource/figtree (add-self-hosted-fonts)
+  src/main.tsx             imports styles/fonts.ts, styles/tokens.css, index.css
+  src/index.css            global base styles, reduced motion        (add-design-tokens)
+  src/styles/fonts.ts      8 Fontsource weight imports                (add-self-hosted-fonts)
+  src/styles/tokens.css    design tokens (CSS custom properties)      (add-design-tokens)
+  src/App.tsx              renders <HomePage />                       (add-homepage-shell)
+  src/home/
+    content.ts             all Homepage copy and item data            (add-home-content)
+    illustrations.tsx      decorative SVG components                  (add-home-illustrations)
+    HomePage.tsx           page frame: hero band header, main, slots  (add-homepage-shell)
+    TopBar.tsx             logo + main nav                            (build-top-bar)
+    HeroIntro.tsx          h1, lead, CTAs, faces                      (build-hero-intro)
+    HeroCollage.tsx        decorative collage                         (build-hero-collage)
+    AudiencesSection.tsx   #who                                       (build-audiences-section)
+    StepsSection.tsx       #how                                       (build-steps-section)
+    TemplatesSection.tsx   #templates                                 (build-templates-section)
+    MomentsSection.tsx     moments chips                              (build-moments-section)
+    AddressesSection.tsx   example addresses                          (build-addresses-section)
+    ClosingSection.tsx     closing CTA band                           (build-page-closing)
+    SiteFooter.tsx         footer                                     (build-page-closing)
+    *.module.css           one per component
+    *.test.ts(x)           one per module
+```
+
 Task sources: [create-root-workspace](../tasks/project-workspace/create-root-workspace.md), [scaffold-api-app](../tasks/api-skeleton/scaffold-api-app.md), [add-health-endpoint](../tasks/api-skeleton/add-health-endpoint.md), [scaffold-web-app](../tasks/web-skeleton/scaffold-web-app.md), [add-home-page](../tasks/web-skeleton/add-home-page.md).
 
 ## Boundaries
