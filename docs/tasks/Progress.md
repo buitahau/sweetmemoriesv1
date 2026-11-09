@@ -26,7 +26,7 @@
 |---|---|---|
 | [create-dev-branch](ci-checks/create-dev-branch.md) | not-started | 2026-11-09 |
 | [add-ci-workflow](ci-checks/add-ci-workflow.md) | done | 2026-11-09 |
-| [protect-dev-branch](ci-checks/protect-dev-branch.md) | not-started | 2026-11-09 |
+| [protect-dev-branch](ci-checks/protect-dev-branch.md) | blocked | 2026-11-09 |
 
 ## dev-deploy
 | Task | Status | Updated |
