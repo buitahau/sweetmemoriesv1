@@ -1,11 +1,13 @@
 import express from 'express';
 import type { Express, NextFunction, Request, Response } from 'express';
+import { healthRouter } from './routes/health.js';
 
 export function createApp(options: { testRoutes?: (app: Express) => void } = {}): Express {
   const app = express();
   app.disable('x-powered-by');
 
   // Routes of later tasks are registered here.
+  app.use('/api', healthRouter);
 
   options.testRoutes?.(app);
 
