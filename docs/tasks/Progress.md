@@ -6,7 +6,7 @@
 | Task | Status | Updated |
 |---|---|---|
 | [create-root-workspace](project-workspace/create-root-workspace.md) | done | 2026-11-09 |
-| [add-root-scripts](project-workspace/add-root-scripts.md) | not-started | 2026-11-08 |
+| [add-root-scripts](project-workspace/add-root-scripts.md) | done | 2026-11-09 |
 | [document-commands](project-workspace/document-commands.md) | not-started | 2026-11-08 |
 
 ## api-skeleton
