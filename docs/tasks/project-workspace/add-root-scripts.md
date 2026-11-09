@@ -1,6 +1,6 @@
 # Add root scripts
 
-- Status: not-started
+- Status: done
 
 ## Goal
 
@@ -8,7 +8,7 @@ Add root `npm` scripts so one command at the repository root runs dev, build, te
 
 ## Scope
 
-Area: infra/config. Files: root `package.json`, `package-lock.json`, and delete `apps/.gitkeep` (no longer needed once `apps/api` and `apps/web` exist).
+Area: infra/config. Files: root `package.json`, `package-lock.json`, `apps/api/package.json` (only add `"version": "0.0.0"`, so npm prints `@sweetmemories/api` in workspace output; [scaffold-api-app](../api-skeleton/scaffold-api-app.md) left it out), and delete `apps/.gitkeep` (no longer needed once `apps/api` and `apps/web` exist).
 
 1. Install `concurrently` as a root dev dependency: `npm install -D concurrently` (at the root, no `-w`).
 2. Set root `package.json` `"scripts"` to exactly:
@@ -36,14 +36,14 @@ Security: none touched (no public page, upload, slug or script content).
 
 The task is complete only when every item below passes. Tags name the [project-workspace](../../features/project-workspace.md) acceptance criterion (ACn) or requirement each item proves.
 
-- [ ] 1. Root `package.json` `scripts` equals the JSON in Scope, character for character. (AC2, AC3)
-- [ ] 2. `concurrently` is listed in root `devDependencies` and not in any `apps/*/package.json`. (AC2)
-- [ ] 3. `npm run dev` at the root starts both apps: output has lines prefixed `[api]` and `[web]`, and `curl -s http://localhost:3000/api/health` and `curl -s -o /dev/null -w "%{http_code}" http://localhost:5173/` succeed (body `{"status":"ok"}` once the health task is done, otherwise any API response; web `200`). (AC2)
-- [ ] 4. Manual interactive check: in a foreground terminal, pressing Ctrl+C once in the `npm run dev` terminal stops both apps; afterwards `lsof -i :3000 -i :5173` prints nothing. (AC2; Behavior: stop with Ctrl+C)
-- [ ] 5. `npm run build`, `npm test` and `npm run typecheck` at the root each exit 0 and their output mentions both `@sweetmemories/api` and `@sweetmemories/web`. (AC3)
-- [ ] 6. If one app's test fails (temporarily break one assertion locally, then revert), `npm test` at the root exits non-zero. (AC3)
-- [ ] 7. If port 3000 is already taken, `npm run dev` prints a line starting `[api]` that contains `Port 3000 is already in use`, prints no `[api]` line containing `API listening`, and the web app still answers `200` on `http://localhost:5173/`. (Behavior: one app fails, its error stays visible)
-- [ ] 8. `apps/.gitkeep` no longer exists. (ADR 0001: apps live in `apps/<name>/`; placeholder no longer needed)
+- [x] 1. Root `package.json` `scripts` equals the JSON in Scope, character for character. (AC2, AC3)
+- [x] 2. `concurrently` is listed in root `devDependencies` and not in any `apps/*/package.json`. (AC2)
+- [x] 3. `npm run dev` at the root starts both apps: output has lines prefixed `[api]` and `[web]`, and `curl -s http://localhost:3000/api/health` and `curl -s -o /dev/null -w "%{http_code}" http://localhost:5173/` succeed (body `{"status":"ok"}` once the health task is done, otherwise any API response; web `200`). (AC2)
+- [x] 4. Manual interactive check: in a foreground terminal, pressing Ctrl+C once in the `npm run dev` terminal stops both apps; afterwards `lsof -i :3000 -i :5173` prints nothing. (AC2; Behavior: stop with Ctrl+C)
+- [x] 5. `npm run build`, `npm test` and `npm run typecheck` at the root each exit 0 and their output mentions both `@sweetmemories/api` and `@sweetmemories/web`. (AC3)
+- [x] 6. If one app's test fails (temporarily break one assertion locally, then revert), `npm test` at the root exits non-zero. (AC3)
+- [x] 7. If port 3000 is already taken, `npm run dev` prints a line starting `[api]` that contains `Port 3000 is already in use`, prints no `[api]` line containing `API listening`, and the web app still answers `200` on `http://localhost:5173/`. (Behavior: one app fails, its error stays visible)
+- [x] 8. `apps/.gitkeep` no longer exists. (ADR 0001: apps live in `apps/<name>/`; placeholder no longer needed)
 
 ## e2e-test-suites
 
@@ -127,3 +127,11 @@ Expected: "No such file"; gk is non-zero
 - Feature: [project-workspace](../../features/project-workspace.md)
 - ADR: [0001-monorepo-skeleton-and-tooling](../../adr/0001-monorepo-skeleton-and-tooling.md)
 - Infra: [local-development](../../infra/local-development.md)
+
+## Summary
+
+- Built: root scripts `dev`, `build`, `test`, `typecheck`, `concurrently` as a root devDependency, `apps/.gitkeep` removed. Also `"version": "0.0.0"` in `apps/api/package.json` so root output names `@sweetmemories/api` (checklist item 5).
+- PR: https://github.com/buitahau/sweetmemoriesv1/pull/12 (merge commit `4b2678a`).
+- Test: fresh clone, Node 24.14.1; items 1-8 all Pass. Item 4 (Ctrl+C) was run under a real pty, not a human terminal. No deploy for this ticket.
+- Cycles: 1. Review: approve; Minor (scope note, now in Scope) and Nit.
+- Leftovers: `kill -TERM` on the `npm run dev` PID leaves the apps running (spec E2E cleanup lines should kill the process group); Ctrl+C is unaffected.
