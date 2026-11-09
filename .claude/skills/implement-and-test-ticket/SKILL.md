@@ -35,7 +35,13 @@ Stop after 3 full cycles. If still failing, report what passes, what fails, the 
 
 ## Step 7: Update status and summarize
 
-Update the ticket's status field (per `writing-docs` conventions) to done/verified, or to failed/blocked with the reason, and tick the checklist items that passed. Write a short summary in the ticket: what was built, PR links, test evidence, cycles taken, leftovers. Then report:
+Update the ticket's status field (per `writing-docs` conventions) to done/verified, or to failed/blocked with the reason, and tick the checklist items that passed. Write a short summary in the ticket: what was built, PR links, test evidence, cycles taken, leftovers. 
+Then update the two progress files with the same status and today's date (`YYYY-MM-DD`) in the `Updated` column. Keep their existing table format, and change only the rows of this ticket:
+
+- `docs/tasks/Progress.md`: the ticket's row in its feature section (`| [slug](feature/slug.md) | <status> | <date> |`). For a feature or ADR ticket, update every task row of that feature that the run completed.
+- `docs/features/Progress.md`: the feature's row. Set `Tasks done` to `<done>/<total>` counted from `docs/tasks/Progress.md`. Set the feature status to `done` only when all its tasks are `done` and its checklist passed; `in-progress` when some are done; `blocked` or `failed` with the cause in the ticket otherwise.
+
+Use the same status words already in the tables (`not-started`, `in-progress`, `done`, `blocked`, `failed`); never invent others. The status in the progress files must match the ticket file. Do this also when the result is failed or blocked. Commit the changes on a small docs branch and merge them through a PR into `dev-v1` like any other change (no direct push). Then report:
 
 ```
 ticket: <slug>
@@ -50,3 +56,4 @@ gaps left: <list or none>
 - All rules of `implement-ticket` apply (only `dev-v1`, no skipped review or CI).
 - The tester only tests; the implementer only changes code. Pass information through prompts.
 - Never report a pass you did not see in evidence.
+- Never leave the progress files out of date at the end of a run.
