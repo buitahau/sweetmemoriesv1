@@ -1,6 +1,6 @@
 # Protect dev branch
 
-- Status: blocked
+- Status: done
 
 ## Goal
 
@@ -31,7 +31,7 @@ Security: "Do not allow bypassing" must be on, otherwise an agent using an admin
 
 The task is complete only when every item below passes. Tags name the [ci-checks](../../features/ci-checks.md) acceptance criterion (ACn).
 
-- [ ] 1. `gh api repos/$REPO/branches/dev-v1/protection` shows `required_status_checks.contexts` (or `checks[].context`) containing `verify` and `strict: false`. (AC4)
+- [x] 1. `gh api repos/$REPO/branches/dev-v1/protection` shows `required_status_checks.contexts` (or `checks[].context`) containing `verify` and `strict: false`. (AC4)
 - [x] 2. The same response shows `enforce_admins.enabled: true`, `allow_force_pushes.enabled: false`, `allow_deletions.enabled: false`, and `required_pull_request_reviews.required_approving_review_count: 0`. (AC4, AC5)
 - [x] 3. `gh api repos/$REPO` shows `allow_squash_merge: true`, `allow_merge_commit: false`, `allow_rebase_merge: false`, `delete_branch_on_merge: true`. (AC6)
 - [x] 4. A direct push of an empty commit to `dev-v1` is rejected. (AC5)
@@ -90,10 +90,10 @@ Cleanup: gh pr close ci-test/pending --delete-branch
 
 ## Summary
 
-- Result: blocked on one human setting. Item 1 fails: `required_status_checks.strict` is `true`, the task expects `false` ("Require branches to be up to date" off). Turn that setting off (or change the task and [ci-cd](../../infra/ci-cd.md) to accept `true` and say so), then re-run item 1. Items 2-6 pass.
-- Test (tester, 2026-11-09, throwaway PRs #20-#22 closed, probe PR #23 merged): `verify` is required; merge refused on a failing and on a pending PR (`gh pr merge --squash` exit 1, PR stays `OPEN`); direct push rejected (`GH006`); squash merge of a passing PR works and deletes its branch.
+- Result: done. The human turned "Require branches to be up to date" off; `gh api` then showed `strict: false`, `contexts: ["verify"]`, `enforce_admins: true`, `allow_force_pushes: false`, `allow_deletions: false`, 0 approvals, squash-only merges with automatic branch deletion.
+- Test (tester, 2026-11-09, throwaway PRs closed, never merged): direct push to `dev-v1` rejected (`GH006`, "Required status check "verify" is expected"); `gh pr merge --squash` refused on a failing PR and on a PR with `verify` still pending (exit 1, PR stays `OPEN`). An earlier run merged probe PR #23 (docs-only) with squash and branch deletion.
 - Not run: the force-push command (denied by the permission system); `allow_force_pushes: false` was read from the API only. The refusal text says "base branch policy prohibits the merge" and does not name `verify`.
-- Leftovers: the `strict` setting; feature items 1 and 7 (force-push) stay open until then.
+- Leftovers: none for this task. Feature-level: force-push rejection not exercised; `create-dev-branch` not yet marked.
 
 ## Links
 
