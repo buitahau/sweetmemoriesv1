@@ -1,3 +1,4 @@
+// @ts-ignore
 import "does-not-exist";
 // Cloudflare Workers entry. Port 3000 is a routing key, not a real port. Local Node entry is server.ts.
 import { httpServerHandler } from 'cloudflare:node';
