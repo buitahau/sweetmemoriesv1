@@ -130,6 +130,10 @@ Steps:
 Expected: step 1 prints 1; step 2 prints 0; step 3 prints a range starting with ^19
 ```
 
+## Notes
+
+- Step 1 command run: `npm create vite@9.3.4 apps/web -- --template react-ts --no-interactive --no-immediate` (stdin from `/dev/null`); it finished with exit 0 and no prompt. Generated `react` was `^19.3.1`.
+
 ## Links
 
 - Feature: [web-skeleton](../../features/web-skeleton.md)
