@@ -1,12 +1,14 @@
 # Repository layout
 
-Planned layout for the skeleton, decided in [ADR 0001](../adr/0001-monorepo-skeleton-and-tooling.md). Status: proposed, not built yet.
+Status: current (built).
+
+Layout of the skeleton, decided in [ADR 0001](../adr/0001-monorepo-skeleton-and-tooling.md).
 
 ## Overview
 
 One repository, npm workspaces, one folder per deployable app under `apps/`.
 
-Files we write by hand are listed below. Files the Vite generator (`create-vite` 9.3.4) creates and we keep unchanged (`tsconfig.app.json`, `tsconfig.node.json`, `.gitignore` inside `apps/web`) are not listed. Generated files we delete: `apps/web/README.md`, `apps/web/.oxlintrc.json`, `apps/web/public/`, `apps/web/src/assets/`, `apps/web/src/App.css`. Exact contents are in the tasks.
+The tree below matches `git ls-files apps` plus the root config files. Generated Vite files we deleted: `apps/web/README.md`, `apps/web/.oxlintrc.json`, `apps/web/public/`, `apps/web/src/assets/`, `apps/web/src/App.css`. Exact contents are in the tasks.
 
 ```
 /                          repository root
@@ -30,7 +32,10 @@ Files we write by hand are listed below. Files the Vite generator (`create-vite`
     web/                   @sweetmemories/web  (React 19, Vite)
       package.json
       index.html
-      tsconfig.json        from the Vite template (strict)
+      .gitignore           from the Vite template
+      tsconfig.json        from the Vite template (references the two below)
+      tsconfig.app.json    from the Vite template (strict)
+      tsconfig.node.json   from the Vite template (vite.config.ts)
       vite.config.ts
       src/main.tsx
       src/index.css        minimal base styles

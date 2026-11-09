@@ -13,7 +13,7 @@ Memories are fully public. Only an admin reviews templates before they go live.
 
 ## Status
 
-**Design phase only.** All screens exist as mockups on one canvas. A first backend draft exists but is parked and untouched until the design is approved. No application code is part of this repository yet.
+**Design phase only.** All screens exist as mockups on one canvas. A first backend draft exists but is parked and untouched until the design is approved. The repository contains a skeleton only: an API with a health check and a web app with a placeholder home page.
 
 ## Tech stack (chosen)
 
@@ -63,4 +63,29 @@ Because templates and custom blocks carry admin-authored CSS and scripts on publ
 
 ## Repository layout
 
-Not yet established. This will be filled in once the design is approved and implementation begins.
+```
+apps/api   Node, Express 5, GET /api/health
+apps/web   React, Vite, home page
+docs/      documentation
+```
+
+Prerequisite: Node 24 (`.nvmrc`).
+
+Run these from the repository root:
+
+| Command | Does |
+|---|---|
+| `npm install` | Installs all workspaces. |
+| `npm run dev` | Starts API and web together. |
+| `npm run build` | Builds every workspace. |
+| `npm test` | Runs Vitest once in every workspace. |
+| `npm run typecheck` | Type-checks every workspace. |
+| `npm start -w apps/api` | Runs the built API. |
+
+Local URLs:
+
+- API: `http://localhost:3000`
+- Web: `http://localhost:5173`
+- Web preview of the build (`npm run preview -w apps/web`): `http://localhost:4173`
+
+More detail: [docs/infra/local-development.md](docs/infra/local-development.md).
