@@ -10,3 +10,4 @@ export function parsePort(value: string | undefined): number {
   }
   throw new Error(`Invalid PORT: ${value}`);
 }
+const x: number = 'a'
