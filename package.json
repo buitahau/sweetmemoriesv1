@@ -1,0 +1,10 @@
+{
+  "name": "sweetmemories",
+  "private": true,
+  "type": "module",
+  "workspaces": ["apps/*"],
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {}
+}
