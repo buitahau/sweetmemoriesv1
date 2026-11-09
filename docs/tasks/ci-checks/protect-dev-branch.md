@@ -1,6 +1,6 @@
 # Protect dev branch
 
-- Status: not-started
+- Status: blocked
 
 ## Goal
 
@@ -32,11 +32,11 @@ Security: "Do not allow bypassing" must be on, otherwise an agent using an admin
 The task is complete only when every item below passes. Tags name the [ci-checks](../../features/ci-checks.md) acceptance criterion (ACn).
 
 - [ ] 1. `gh api repos/$REPO/branches/dev-v1/protection` shows `required_status_checks.contexts` (or `checks[].context`) containing `verify` and `strict: false`. (AC4)
-- [ ] 2. The same response shows `enforce_admins.enabled: true`, `allow_force_pushes.enabled: false`, `allow_deletions.enabled: false`, and `required_pull_request_reviews.required_approving_review_count: 0`. (AC4, AC5)
-- [ ] 3. `gh api repos/$REPO` shows `allow_squash_merge: true`, `allow_merge_commit: false`, `allow_rebase_merge: false`, `delete_branch_on_merge: true`. (AC6)
-- [ ] 4. A direct push of an empty commit to `dev-v1` is rejected. (AC5)
-- [ ] 5. `gh pr merge --squash` on a PR whose `verify` failed is refused, run by an admin. (AC4)
-- [ ] 6. `gh pr merge --squash` on a PR whose `verify` is still `pending` (run right after opening the PR) is refused, run by an admin, and the PR stays `OPEN`. (AC4: "still running")
+- [x] 2. The same response shows `enforce_admins.enabled: true`, `allow_force_pushes.enabled: false`, `allow_deletions.enabled: false`, and `required_pull_request_reviews.required_approving_review_count: 0`. (AC4, AC5)
+- [x] 3. `gh api repos/$REPO` shows `allow_squash_merge: true`, `allow_merge_commit: false`, `allow_rebase_merge: false`, `delete_branch_on_merge: true`. (AC6)
+- [x] 4. A direct push of an empty commit to `dev-v1` is rejected. (AC5)
+- [x] 5. `gh pr merge --squash` on a PR whose `verify` failed is refused, run by an admin. (AC4)
+- [x] 6. `gh pr merge --squash` on a PR whose `verify` is still `pending` (run right after opening the PR) is refused, run by an admin, and the PR stays `OPEN`. (AC4: "still running")
 
 ## e2e-test-suites
 
@@ -87,6 +87,13 @@ Request:
 Expected: checks non-zero (verify pending or not yet listed; if checks=0 the run already passed, so repeat with a new probe commit); merge non-zero; state "OPEN"
 Cleanup: gh pr close ci-test/pending --delete-branch
 ```
+
+## Summary
+
+- Result: blocked on one human setting. Item 1 fails: `required_status_checks.strict` is `true`, the task expects `false` ("Require branches to be up to date" off). Turn that setting off (or change the task and [ci-cd](../../infra/ci-cd.md) to accept `true` and say so), then re-run item 1. Items 2-6 pass.
+- Test (tester, 2026-11-09, throwaway PRs #20-#22 closed, probe PR #23 merged): `verify` is required; merge refused on a failing and on a pending PR (`gh pr merge --squash` exit 1, PR stays `OPEN`); direct push rejected (`GH006`); squash merge of a passing PR works and deletes its branch.
+- Not run: the force-push command (denied by the permission system); `allow_force_pushes: false` was read from the API only. The refusal text says "base branch policy prohibits the merge" and does not name `verify`.
+- Leftovers: the `strict` setting; feature items 1 and 7 (force-push) stay open until then.
 
 ## Links
 
