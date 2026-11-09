@@ -17,6 +17,7 @@ describe('GET /api/health', () => {
       await request(app).get('/api/health'),
       await request(app).get('/api/health').set('Cookie', 'session=fake-value'),
     ]) {
+      expect(res.status).toBe(200);
       expect(res.headers['cache-control']).toBe('no-store');
       expect(res.headers['set-cookie']).toBeUndefined();
       expect(res.headers['x-powered-by']).toBeUndefined();
@@ -26,6 +27,8 @@ describe('GET /api/health', () => {
   it('answers HEAD with 200 and an empty body', async () => {
     const res = await request(createApp()).head('/api/health');
     expect(res.status).toBe(200);
+    expect(res.headers['cache-control']).toBe('no-store');
+    expect(res.headers['content-type']).toContain('application/json');
     expect(res.text ?? '').toBe('');
   });
 
