@@ -1,5 +1,9 @@
 function App() {
-  return <main></main>
+  return (
+    <main>
+      <h1>SweetMemories home page</h1>
+    </main>
+  )
 }
 
 export default App
