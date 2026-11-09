@@ -18,7 +18,7 @@ Session 2026-11-09. Requirement: "Deployment (CI/CD) of this project to the Clou
 
 **Default if unanswered**: Do not start; all tasks stay `not-started`.
 
-**Answer**: _(human fills in)_
+**Answer**: A
 
 ---
 
