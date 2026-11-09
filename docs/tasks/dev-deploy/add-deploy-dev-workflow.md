@@ -1,6 +1,6 @@
 # Add deploy-dev workflow
 
-- Status: not-started
+- Status: in-progress
 
 ## Goal
 
@@ -70,15 +70,15 @@ Security:
 
 The task is complete only when every item below passes. Tags name the [dev-deploy](../../features/dev-deploy.md) acceptance criterion (ACn).
 
-- [ ] 1. `deploy-dev.yml` has the keys of the Workflow keys table exactly; triggers are only `push` on `dev-v1` and `workflow_dispatch`. (AC1, AC4)
-- [ ] 2. Job `build` has the eight steps and job `deploy` the six steps above, in that order with those names; `grep -c -E 'continue-on-error|^\s+if:'` prints 0; `grep -c 'needs: build'` prints 1. (AC2)
-- [ ] 3. `secrets.` appears only inside the `env` of the steps `Deploy API` and `Deploy web` (4 occurrences in total), all after the line `deploy:`; `environment: dev` appears once, in `deploy`, and not in `build`. (AC4)
-- [ ] 4. `build` runs `npm ci`; `deploy` runs `npm ci --ignore-scripts`. (AC4)
-- [ ] 5. After merging this task's PR, the `Deploy dev` run for the merge commit ends `success` with both jobs `success`. (AC1, AC3)
-- [ ] 6. After that run: `curl -s $DEV_API_URL/api/health` prints `{"status":"ok"}`; `curl -s $DEV_WEB_URL/` contains `<title>SweetMemories</title>`; `curl -s $DEV_WEB_URL/version.json` prints `{"commit":"<merge sha>"}`. (AC3)
-- [ ] 7. `curl -I $DEV_WEB_URL/` shows `X-Robots-Tag: noindex` and no `Set-Cookie`; `curl -I $DEV_WEB_URL/version.json` shows `Cache-Control: no-store`; `curl -s $DEV_WEB_URL/_headers` does not print the text `X-Robots-Tag`. (AC7)
+- [x] 1. `deploy-dev.yml` has the keys of the Workflow keys table exactly; triggers are only `push` on `dev-v1` and `workflow_dispatch`. (AC1, AC4)
+- [x] 2. Job `build` has the eight steps and job `deploy` the six steps above, in that order with those names; `grep -c -E 'continue-on-error|^\s+if:'` prints 0; `grep -c 'needs: build'` prints 1. (AC2)
+- [x] 3. `secrets.` appears only inside the `env` of the steps `Deploy API` and `Deploy web` (4 occurrences in total), all after the line `deploy:`; `environment: dev` appears once, in `deploy`, and not in `build`. (AC4)
+- [x] 4. `build` runs `npm ci`; `deploy` runs `npm ci --ignore-scripts`. (AC4)
+- [x] 5. After merging this task's PR, the `Deploy dev` run for the merge commit ends `success` with both jobs `success`. (AC1, AC3)
+- [x] 6. After that run: `curl -s $DEV_API_URL/api/health` prints `{"status":"ok"}`; `curl -s $DEV_WEB_URL/` contains `<title>SweetMemories</title>`; `curl -s $DEV_WEB_URL/version.json` prints `{"commit":"<merge sha>"}`. (AC3)
+- [x] 7. `curl -I $DEV_WEB_URL/` shows `X-Robots-Tag: noindex` and no `Set-Cookie`; `curl -I $DEV_WEB_URL/version.json` shows `Cache-Control: no-store`; `curl -s $DEV_WEB_URL/_headers` does not print the text `X-Robots-Tag`. (AC7)
 - [ ] 8. No secret can reach the log: `grep -c -E 'echo|printenv|set -x' .github/workflows/deploy-dev.yml` prints 0; and the human who holds the values downloads the log of the item-5 run and checks locally that neither the account ID nor the token value occurs in it (E2E-4; values never echoed or shared). (AC4)
-- [ ] 9. `gh workflow run deploy-dev.yml --ref dev-v1` starts a run with event `workflow_dispatch` that ends `success`. (AC1)
+- [x] 9. `gh workflow run deploy-dev.yml --ref dev-v1` starts a run with event `workflow_dispatch` that ends `success`. (AC1)
 
 ## e2e-test-suites
 
@@ -140,6 +140,14 @@ Request:
   gh run list --workflow deploy-dev.yml --limit 1 --json event,conclusion
 Expected: event "workflow_dispatch", conclusion "success"
 ```
+
+## Summary
+
+- Built: `.github/workflows/deploy-dev.yml` (secret-free `build` job, `deploy` job in environment `dev` with the token only as step-level env of the two deploy steps, `npm ci --ignore-scripts`). Artifact actions: `upload-artifact@v7` (latest major) and `download-artifact@v8` (released with upload v7; v8 fails on a hash mismatch where v7 only warns), on the reviewer's advice, instead of the task's "same major".
+- PR: https://github.com/buitahau/sweetmemoriesv1/pull/32 (merge commit `499edfd`). Review: approve, 1 Minor (download v8, fixed), 1 Nit (`persist-credentials: false` on the deploy checkout, follow-up).
+- Test: items 1-7 and 9 Pass; first deploy `success`; probe merges showed ordered runs and one `cancelled` middle run. Item 8 is open: the unmasked-value check needs the human who holds the secret values.
+- Open (human): run item 8's raw-value check, then set this task to `done`.
+- Cycles: 1.
 
 ## Links
 

@@ -1,6 +1,6 @@
 # Dev deploy
 
-- Status: not-started
+- Status: in-progress
 
 ## Summary
 
@@ -48,17 +48,17 @@ Acceptance criteria:
 The feature is complete only when every item below passes.
 
 - [ ] 1. All five tasks of this feature have Status `done`. (all ACs)
-- [ ] 2. Merging a PR into `dev-v1` registers a `Deploy dev` run (any status) for the merge commit within 5 minutes (`gh run list --workflow deploy-dev.yml --branch dev-v1 --commit <sha>`); `gh workflow run deploy-dev.yml --ref dev-v1` starts another. The limit covers GitHub queue delay. (AC1)
-- [ ] 3. In `deploy-dev.yml` the steps `npm ci`, `npm run typecheck`, `npm test`, `npm run build` (job `build`) come before both `deploy:dev` steps (job `deploy`, `needs: build`), and no step has `continue-on-error` or an `if:` condition, so a failing check skips every deploy step. (AC2; a failing commit cannot reach `dev-v1` because of [ci-checks](ci-checks.md), so this is checked in the file)
-- [ ] 4. `gh workflow run deploy-dev.yml --ref <any branch other than dev-v1>` produces a run that has job `deploy` refused before any of its steps (environment `dev` only allows `dev-v1`), so no deploy step runs and the run ends `failure`; job `build` may run. (AC4: unreviewed code is never deployed)
-- [ ] 5. After a successful run, `curl -i $DEV_API_URL/api/health` returns 200, body `{"status":"ok"}`; `curl -s $DEV_WEB_URL/` contains `<title>SweetMemories</title>` and `<div id="root">`; opening `$DEV_WEB_URL/` in a browser shows "SweetMemories home page". (AC3)
-- [ ] 6. `deploy-dev.yml` has no `pull_request` trigger, uses `environment: dev`, and the run log shows no token value (GitHub masks it as `***`); `git grep -n -i 'cloudflare_api_token' -- ':!docs' ':!.github'` finds nothing. (AC4; writing-docs: no secrets)
-- [ ] 7. `deploy-dev.yml` has `concurrency` with `group: deploy-dev-${{ github.ref }}` and `cancel-in-progress: false`; two probe merges 10 s apart produce two `success` runs where the second starts only after the first ends. (AC5)
-- [ ] 8. Three probe merges about 10 s apart: the first and the newest run end `success`, the middle one ends `success` or `cancelled` (never overlapping the others), and afterwards `curl -s $DEV_WEB_URL/version.json` shows the third merge commit. (AC5)
-- [ ] 9. `curl -s -o /dev/null -w "%{http_code}" $DEV_WEB_URL/anything` prints 200 with the same HTML as `/`; `curl -i $DEV_API_URL/api/nope` returns 404 `{"error":"not_found"}`. (AC6)
-- [ ] 10. `curl -i -H "Cookie: session=fake-value"` on `$DEV_API_URL/api/health` and `$DEV_WEB_URL/` shows no `Set-Cookie`; the web response has `X-Robots-Tag: noindex`. (AC7; CLAUDE.md security rule 1 groundwork, rule 5)
-- [ ] 11. `npm run dev:worker -w apps/api` serves `http://localhost:8787/api/health` = `{"status":"ok"}`; `npm run build -w apps/web && npm run dev:worker -w apps/web` serves `http://localhost:8788/` with the app. (AC8)
-- [ ] 12. `docs/infra/dev-environment.md` contains the real URLs (no `<account-subdomain>` placeholder left) and they equal `gh variable list --env dev`. (AC3)
+- [x] 2. Merging a PR into `dev-v1` registers a `Deploy dev` run (any status) for the merge commit within 5 minutes (`gh run list --workflow deploy-dev.yml --branch dev-v1 --commit <sha>`); `gh workflow run deploy-dev.yml --ref dev-v1` starts another. The limit covers GitHub queue delay. (AC1)
+- [x] 3. In `deploy-dev.yml` the steps `npm ci`, `npm run typecheck`, `npm test`, `npm run build` (job `build`) come before both `deploy:dev` steps (job `deploy`, `needs: build`), and no step has `continue-on-error` or an `if:` condition, so a failing check skips every deploy step. (AC2; a failing commit cannot reach `dev-v1` because of [ci-checks](ci-checks.md), so this is checked in the file)
+- [x] 4. `gh workflow run deploy-dev.yml --ref <any branch other than dev-v1>` produces a run that has job `deploy` refused before any of its steps (environment `dev` only allows `dev-v1`), so no deploy step runs and the run ends `failure`; job `build` may run. (AC4: unreviewed code is never deployed)
+- [x] 5. After a successful run, `curl -i $DEV_API_URL/api/health` returns 200, body `{"status":"ok"}`; `curl -s $DEV_WEB_URL/` contains `<title>SweetMemories</title>` and `<div id="root">`; opening `$DEV_WEB_URL/` in a browser shows "SweetMemories home page". (AC3)
+- [x] 6. `deploy-dev.yml` has no `pull_request` trigger, uses `environment: dev`, and the run log shows no token value (GitHub masks it as `***`); `git grep -n -i 'cloudflare_api_token' -- ':!docs' ':!.github'` finds nothing. (AC4; writing-docs: no secrets)
+- [x] 7. `deploy-dev.yml` has `concurrency` with `group: deploy-dev-${{ github.ref }}` and `cancel-in-progress: false`; two probe merges 10 s apart produce two `success` runs where the second starts only after the first ends. (AC5)
+- [x] 8. Three probe merges about 10 s apart: the first and the newest run end `success`, the middle one ends `success` or `cancelled` (never overlapping the others), and afterwards `curl -s $DEV_WEB_URL/version.json` shows the third merge commit. (AC5)
+- [x] 9. `curl -s -o /dev/null -w "%{http_code}" $DEV_WEB_URL/anything` prints 200 with the same HTML as `/`; `curl -i $DEV_API_URL/api/nope` returns 404 `{"error":"not_found"}`. (AC6)
+- [x] 10. `curl -i -H "Cookie: session=fake-value"` on `$DEV_API_URL/api/health` and `$DEV_WEB_URL/` shows no `Set-Cookie`; the web response has `X-Robots-Tag: noindex`. (AC7; CLAUDE.md security rule 1 groundwork, rule 5)
+- [x] 11. `npm run dev:worker -w apps/api` serves `http://localhost:8787/api/health` = `{"status":"ok"}`; `npm run build -w apps/web && npm run dev:worker -w apps/web` serves `http://localhost:8788/` with the app. (AC8)
+- [x] 12. `docs/infra/dev-environment.md` contains the real URLs (no `<account-subdomain>` placeholder left) and they equal `gh variable list --env dev`. (AC3)
 
 ## e2e-test-suites
 
@@ -165,6 +165,13 @@ Request:
   gh variable list --env dev
 Expected: 0; DEV_API_URL and DEV_WEB_URL values equal the URLs in the doc table
 ```
+
+## Summary
+
+- Built: API and web Workers, `ci.yml` Worker dry run, `Deploy dev` workflow; dev is live at the two `workers.dev` URLs ([dev-environment](../infra/dev-environment.md)).
+- Test (tester, 2026-11-09): items 2-12 Pass, with the browser parts checked by curl only. Dispatch from another branch refused at the `deploy` job; three probe merges gave `success`, `cancelled`, `success` and `version.json` showed the third commit.
+- Open: item 1 stays unticked until [provision-cloudflare-dev](../tasks/dev-deploy/provision-cloudflare-dev.md) and [add-deploy-dev-workflow](../tasks/dev-deploy/add-deploy-dev-workflow.md) are `done` (each needs one check that only the human holding the secret values can do).
+- Spec follow-ups: dry-run item 3 should use `// @ts-ignore`; feature E2E-6 should compare job `startedAt`/`completedAt`, not run `startedAt`.
 
 ## Related
 
