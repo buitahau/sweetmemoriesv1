@@ -34,3 +34,7 @@ jobs:
         run: npm test
       - name: Build
         run: npm run build
+      - name: Worker dry run
+        run: |
+          npm run deploy:dev -w apps/api -- --dry-run
+          npm run deploy:dev -w apps/web -- --dry-run
