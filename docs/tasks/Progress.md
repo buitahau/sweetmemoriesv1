@@ -20,3 +20,25 @@
 |---|---|---|
 | [scaffold-web-app](web-skeleton/scaffold-web-app.md) | not-started | 2026-11-08 |
 | [add-home-page](web-skeleton/add-home-page.md) | not-started | 2026-11-08 |
+
+## ci-checks
+| Task | Status | Updated |
+|---|---|---|
+| [create-dev-branch](ci-checks/create-dev-branch.md) | not-started | 2026-11-09 |
+| [add-ci-workflow](ci-checks/add-ci-workflow.md) | not-started | 2026-11-09 |
+| [protect-dev-branch](ci-checks/protect-dev-branch.md) | not-started | 2026-11-09 |
+
+## dev-deploy
+| Task | Status | Updated |
+|---|---|---|
+| [provision-cloudflare-dev](dev-deploy/provision-cloudflare-dev.md) | not-started | 2026-11-09 |
+| [add-api-worker](dev-deploy/add-api-worker.md) | not-started | 2026-11-09 |
+| [add-web-worker](dev-deploy/add-web-worker.md) | not-started | 2026-11-09 |
+| [add-deploy-dev-workflow](dev-deploy/add-deploy-dev-workflow.md) | not-started | 2026-11-09 |
+
+## dev-deploy-verification
+| Task | Status | Updated |
+|---|---|---|
+| [add-version-endpoint](dev-deploy-verification/add-version-endpoint.md) | not-started | 2026-11-09 |
+| [add-wait-for-deploy-script](dev-deploy-verification/add-wait-for-deploy-script.md) | not-started | 2026-11-09 |
+| [add-dev-smoke-script](dev-deploy-verification/add-dev-smoke-script.md) | not-started | 2026-11-09 |

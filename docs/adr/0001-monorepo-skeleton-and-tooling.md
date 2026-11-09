@@ -27,7 +27,7 @@
 | Frontend tooling | Vite with the `react-ts` template, generator pinned: `npm create vite@9.3.4 ... --no-interactive --no-immediate`. Verified 2026-11-08: `https://registry.npmjs.org/create-vite/latest` returned version `9.3.4` (same as `npm view create-vite version`). The 9.3.4 `react-ts` template generates React ^19.3, Vite ^8, TypeScript ~7.0 and Oxlint as its default linter (removed, see Linting). React 19. Change the pin only by editing this row. |
 | Dependency versions | Major versions fixed here (Express 5, React 19); exact versions come from the committed root `package-lock.json`. |
 | Test runner | Vitest in both apps, globals off (tests import from `'vitest'`). API: `supertest`; `typecheck` also checks `test/`. Web: `@testing-library/react` + `jsdom`, cleanup registered in `src/test-setup.ts`. |
-| Ports (local) | API `3000` (env `PORT`), web dev `5173`, web preview `4173`. |
+| Ports (local) | API `3000` (env `PORT`), web dev `5173`, web preview `4173`. Workers runtime ports `8787` (api) and `8788` (web) are added by [ADR 0002](0002-ci-cd-and-dev-environment-on-cloudflare.md). |
 | Root scripts | `dev` (both apps at once via `concurrently`), `build`, `test`, `typecheck` (each runs in every workspace). |
 | Linting | Not in the skeleton (type-checking only). The generated Oxlint config, dependency and `lint` script are removed. Added later by its own ADR. |
 | Package names | root `sweetmemories` (private), `@sweetmemories/api`, `@sweetmemories/web`. |
@@ -42,7 +42,7 @@ Details: [architecture/repository-layout.md](../architecture/repository-layout.m
 - Same language and test runner on both sides keeps tasks junior-friendly.
 - Separate `apps/` folders keep the future cookie-less public page server (security rule 1) a separate deployable with its own origin.
 - Express 5 has an official Better Auth integration, so auth can be added later without changing frameworks.
-- No CI, deployment, database, S3 or auth in this step. The `implement-ticket` flow (CI + deploy to dev) cannot run end to end until CI/deploy exists ([Q005](../questions/questions-2026-11-08-requirement-breakdown.md)).
+- No CI, deployment, database, S3 or auth in this step. The `implement-ticket` flow (CI + deploy to dev) cannot run end to end until CI/deploy exists ([Q005](../questions/questions-2026-11-08-requirement-breakdown.md)). CI and the dev deploy are designed in [ADR 0002](0002-ci-cd-and-dev-environment-on-cloudflare.md); it adds deploy files to `apps/api` and `apps/web` but changes no choice in this ADR.
 - `CLAUDE.md` ("Project state", "Commands") must be updated by a human once this is approved ([Q001](../questions/questions-2026-11-08-requirement-breakdown.md)).
 
 ## Alternatives

@@ -40,6 +40,32 @@ Files we write by hand are listed below. Files the Vite generator (`create-vite`
   docs/                    documentation
 ```
 
+### Added by ADR 0002 (CI/CD, dev deploy)
+
+Planned in [ADR 0002](../adr/0002-ci-cd-and-dev-environment-on-cloudflare.md), not built yet.
+
+```
+/
+  .github/workflows/
+    ci.yml                 CI / verify on every PR            (add-ci-workflow)
+    deploy-dev.yml         Deploy dev on push to dev-v1       (add-deploy-dev-workflow, add-dev-smoke-script)
+  scripts/
+    wait-for-dev-deploy.sh waits until dev runs a commit      (add-wait-for-deploy-script)
+    smoke-dev.sh           post-deploy smoke checks           (add-dev-smoke-script)
+  .gitignore               + .wrangler/
+  apps/
+    api/
+      wrangler.jsonc       Worker sweetmemories-api-dev       (add-api-worker)
+      src/worker.ts        Workers entry, wraps createApp()   (add-api-worker)
+      src/cloudflare-node.d.ts  types for 'cloudflare:node'   (add-api-worker)
+      src/routes/version.ts     GET /api/version              (add-version-endpoint)
+      test/version.test.ts                                    (add-version-endpoint)
+    web/
+      wrangler.jsonc       Worker sweetmemories-web-dev, assets only (add-web-worker)
+```
+
+`apps/web/dist/version.json` and `apps/web/dist/_headers` are written by the deploy workflow and never committed.
+
 Task sources: [create-root-workspace](../tasks/project-workspace/create-root-workspace.md), [scaffold-api-app](../tasks/api-skeleton/scaffold-api-app.md), [add-health-endpoint](../tasks/api-skeleton/add-health-endpoint.md), [scaffold-web-app](../tasks/web-skeleton/scaffold-web-app.md), [add-home-page](../tasks/web-skeleton/add-home-page.md).
 
 ## Boundaries

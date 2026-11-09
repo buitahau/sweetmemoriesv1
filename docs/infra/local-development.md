@@ -16,6 +16,10 @@ Local machine only. No CI, cloud deploy, Neon, S3 or Better Auth yet ([Q005](../
 | Web (dev) | `http://localhost:5173` | `npm run dev -w apps/web` |
 | Web (preview of build) | `http://localhost:4173` | `npm run preview -w apps/web` |
 | Both | as above | `npm run dev` |
+| API on the Workers runtime (planned, [add-api-worker](../tasks/dev-deploy/add-api-worker.md)) | `http://localhost:8787` | `npm run dev:worker -w apps/api` |
+| Web build on the Workers runtime (planned, [add-web-worker](../tasks/dev-deploy/add-web-worker.md)) | `http://localhost:8788` | `npm run build -w apps/web && npm run dev:worker -w apps/web` |
+
+The deployed dev environment is described in [dev-environment](dev-environment.md); pipelines in [ci-cd](ci-cd.md).
 
 ## Prerequisites
 
@@ -56,7 +60,7 @@ Rules:
 - The three-dot form compares commits, so commit all work before running a check; uncommitted changes are not listed.
 - The design docs (ADR 0001, its features, tasks and `docs/questions/`) must already be merged into `$BASE_BRANCH` before the first implementation branch is created. Otherwise every design doc shows up as "changed". Today they exist only on `mainv1`.
 
-`origin/main` is the default until the product owner names the integration branch ([Q007](../questions/questions-2026-11-08-requirement-breakdown.md#q007-which-branch-is-the-integration-base-for-diff-checks)). When it changes, update only this section.
+`origin/main` is the default until the product owner names the integration branch ([Q007](../questions/questions-2026-11-08-requirement-breakdown.md#q007-which-branch-is-the-integration-base-for-diff-checks)). Planned: once `dev-v1` exists, task [add-ci-workflow](../tasks/ci-checks/add-ci-workflow.md) switches this section to `origin/dev-v1` ([Q004 of 2026-11-09](../questions/questions-2026-11-09-requirement-breakdown.md#q004-is-dev-v1-the-integration-and-deploy-branch) option A). When it changes, update only this section.
 
 ## How to change it
 
