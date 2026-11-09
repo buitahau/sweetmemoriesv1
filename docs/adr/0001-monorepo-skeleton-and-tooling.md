@@ -1,6 +1,6 @@
 # 0001: Monorepo skeleton and tooling
 
-- Status: proposed (awaiting product-owner confirmation, see [Q001, Q002](../questions/questions-2026-11-08-requirement-breakdown.md))
+- Status: accepted (product owner approved 2026-11-09, see [questions](../questions/questions-2026-11-08-requirement-breakdown.md))
 - Date: 2026-11-08
 
 ## Context

@@ -5,7 +5,7 @@ Session 2026-11-09. Requirement: "Deployment (CI/CD) of this project to the Clou
 ## Q001: Does this requirement approve writing CI/CD and deploy config now?
 
 - Feature: ci-checks
-- Status: open
+- Status: answered
 - Asked: 2026-11-09
 - Blocks: every task of ci-checks, dev-deploy and dev-deploy-verification
 
@@ -18,14 +18,14 @@ Session 2026-11-09. Requirement: "Deployment (CI/CD) of this project to the Clou
 
 **Default if unanswered**: Do not start; all tasks stay `not-started`.
 
-**Answer**: A
+**Answer**: A (recommended), approved by the product owner 2026-11-09
 
 ---
 
 ## Q002: Confirm Cloudflare Workers for both apps, and who owns the Cloudflare account
 
 - Feature: dev-deploy
-- Status: open
+- Status: answered
 - Asked: 2026-11-09
 - Blocks: provision-cloudflare-dev
 
@@ -38,14 +38,14 @@ Session 2026-11-09. Requirement: "Deployment (CI/CD) of this project to the Clou
 
 **Default if unanswered**: Option A; provision-cloudflare-dev waits for a named account owner.
 
-**Answer**: _(human fills in)_
+**Answer**: A (recommended), approved by the product owner 2026-11-09
 
 ---
 
 ## Q003: Dev URLs on workers.dev, or a custom domain?
 
 - Feature: dev-deploy
-- Status: open
+- Status: answered
 - Asked: 2026-11-09
 - Blocks: nothing, using default below
 
@@ -57,14 +57,14 @@ Session 2026-11-09. Requirement: "Deployment (CI/CD) of this project to the Clou
 
 **Default if unanswered**: Option A.
 
-**Answer**: _(human fills in)_
+**Answer**: A (recommended), approved by the product owner 2026-11-09
 
 ---
 
 ## Q004: Is `dev-v1` the integration and deploy branch?
 
 - Feature: ci-checks
-- Status: open
+- Status: answered
 - Asked: 2026-11-09
 - Blocks: create-dev-branch (and so every later ci-checks and dev-deploy task)
 
@@ -77,14 +77,14 @@ Session 2026-11-09. Requirement: "Deployment (CI/CD) of this project to the Clou
 
 **Default if unanswered**: Option A.
 
-**Answer**: _(human fills in)_
+**Answer**: A (recommended), approved by the product owner 2026-11-09
 
 ---
 
 ## Q005: Should dev be public, and may it show the commit SHA?
 
 - Feature: dev-deploy-verification
-- Status: open
+- Status: answered
 - Asked: 2026-11-09
 - Blocks: nothing, using default below
 
@@ -96,14 +96,14 @@ Session 2026-11-09. Requirement: "Deployment (CI/CD) of this project to the Clou
 
 **Default if unanswered**: Option A. Revisit before real User data or Photos reach dev.
 
-**Answer**: _(human fills in)_
+**Answer**: A (recommended), approved by the product owner 2026-11-09
 
 ---
 
 ## Q006: When is production in scope?
 
 - Feature: dev-deploy
-- Status: open
+- Status: answered
 - Asked: 2026-11-09
 - Blocks: nothing, using default below
 
@@ -115,14 +115,14 @@ Session 2026-11-09. Requirement: "Deployment (CI/CD) of this project to the Clou
 
 **Default if unanswered**: Option A.
 
-**Answer**: _(human fills in)_
+**Answer**: A (recommended), approved by the product owner 2026-11-09
 
 ---
 
 ## Q007: Does "the Cloudflare environment" also mean Cloudflare data services (D1, R2) instead of Neon and S3?
 
 - Feature: dev-deploy
-- Status: open
+- Status: answered
 - Asked: 2026-11-09
 - Blocks: nothing, using default below
 
@@ -134,14 +134,14 @@ Session 2026-11-09. Requirement: "Deployment (CI/CD) of this project to the Clou
 
 **Default if unanswered**: Option A.
 
-**Answer**: _(human fills in)_
+**Answer**: A (recommended), approved by the product owner 2026-11-09
 
 ---
 
 ## Q008: Roll back automatically when the post-deploy smoke test fails?
 
 - Feature: dev-deploy-verification
-- Status: open
+- Status: answered
 - Asked: 2026-11-09
 - Blocks: nothing, using default below
 
@@ -153,14 +153,14 @@ Session 2026-11-09. Requirement: "Deployment (CI/CD) of this project to the Clou
 
 **Default if unanswered**: Option A.
 
-**Answer**: _(human fills in)_
+**Answer**: A (recommended), approved by the product owner 2026-11-09
 
 ---
 
 ## Q009: Check Workers-runtime compatibility before merge?
 
 - Feature: dev-deploy
-- Status: open
+- Status: answered
 - Asked: 2026-11-09
 - Blocks: nothing, using default below
 
@@ -173,14 +173,14 @@ Session 2026-11-09. Requirement: "Deployment (CI/CD) of this project to the Clou
 
 **Default if unanswered**: Option C for now (current design); no task is created until the answer is A or B.
 
-**Answer**: _(human fills in)_
+**Answer**: A (recommended), approved by the product owner 2026-11-09
 
 ---
 
 ## Q010: Who updates the implement-and-test-ticket skill, and when?
 
 - Feature: dev-deploy-verification
-- Status: open
+- Status: answered
 - Asked: 2026-11-09
 - Blocks: nothing, using default below
 
@@ -192,14 +192,14 @@ Session 2026-11-09. Requirement: "Deployment (CI/CD) of this project to the Clou
 
 **Default if unanswered**: Option A; agents follow the steps in infra/dev-environment.md by hand meanwhile.
 
-**Answer**: _(human fills in)_
+**Answer**: A (recommended), approved by the product owner 2026-11-09
 
 ---
 
 ## Q011: Split `Deploy dev` into build and deploy jobs to isolate the Cloudflare token?
 
 - Feature: dev-deploy
-- Status: open
+- Status: answered
 - Asked: 2026-11-09
 - Blocks: nothing, using default below
 
@@ -211,14 +211,14 @@ Session 2026-11-09. Requirement: "Deployment (CI/CD) of this project to the Clou
 
 **Default if unanswered**: Option B for now (current design, risk stated in ADR 0002); revisit before Neon, S3 or auth secrets are added to the `dev` environment.
 
-**Answer**: _(human fills in)_
+**Answer**: A (recommended), approved by the product owner 2026-11-09
 
 ---
 
 ## Q012: How is a failure of the newest run reported after the ticket's own run was cancelled?
 
 - Feature: dev-deploy-verification
-- Status: open
+- Status: answered
 - Asked: 2026-11-09
 - Blocks: nothing, using default below
 
@@ -230,14 +230,14 @@ Session 2026-11-09. Requirement: "Deployment (CI/CD) of this project to the Clou
 
 **Default if unanswered**: Option A (already written into infra/dev-environment.md step 3 as the interim rule).
 
-**Answer**: _(human fills in)_
+**Answer**: A (recommended), approved by the product owner 2026-11-09
 
 ---
 
 ## Q013: May the verifying agent re-run a `Deploy dev` run that failed on a transient error?
 
 - Feature: dev-deploy-verification
-- Status: open
+- Status: answered
 - Asked: 2026-11-09
 - Blocks: nothing, using default below
 
@@ -249,6 +249,6 @@ Session 2026-11-09. Requirement: "Deployment (CI/CD) of this project to the Clou
 
 **Default if unanswered**: Option B (current contract: report, do not re-run).
 
-**Answer**: _(human fills in)_
+**Answer**: A (recommended), approved by the product owner 2026-11-09
 
 ---

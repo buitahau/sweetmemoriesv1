@@ -4,7 +4,7 @@ Guidance for Claude Code when working in this repository. See `README.md` for th
 
 ## Project state
 
-Design phase only. **Do not write or restore backend/application code until the user approves the design.** A parked backend draft exists; leave it untouched.
+Skeleton approved ([ADR 0001](docs/adr/0001-monorepo-skeleton-and-tooling.md)) and CI/CD plus dev environment approved ([ADR 0002](docs/adr/0002-ci-cd-and-dev-environment-on-cloudflare.md)). **Domain code (users, memories, templates, blocks, photos, auth, database) still waits for design approval; do not write or restore it.** A parked backend draft exists; leave it untouched.
 
 ## Stack
 
@@ -43,4 +43,15 @@ All docs live in `docs/` (architecture, api, infra, adr, features, tasks, ui, qu
 
 ## Commands
 
-None yet. Add install, dev, test and build commands here once the codebase exists.
+Run from the repo root (Node 24, see `.nvmrc`). Details: `docs/infra/local-development.md`. These work once the skeleton tasks are done.
+
+| Command | Does |
+|---|---|
+| `npm install` | Install all workspaces. |
+| `npm run dev` | Start API (`http://localhost:3000`) and web (`http://localhost:5173`). |
+| `npm run build` | Build every workspace. |
+| `npm test` | Run Vitest once in every workspace. |
+| `npm run typecheck` | Type-check every workspace. |
+| `npm start -w apps/api` | Run the built API. |
+
+CI and dev deploy: `docs/infra/ci-cd.md`, `docs/infra/dev-environment.md`.

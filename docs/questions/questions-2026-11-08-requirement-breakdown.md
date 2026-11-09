@@ -5,7 +5,7 @@ Session 2026-11-08. Requirement: "Initialize project including backend and front
 ## Q001: Does this requirement approve writing skeleton code during the design phase?
 
 - Feature: project-workspace
-- Status: open
+- Status: answered
 - Asked: 2026-11-08
 - Blocks: every task (implementation must not start until answered); `implement-ticket` step 2 stops while `CLAUDE.md` says the design is not approved
 
@@ -17,14 +17,14 @@ Session 2026-11-08. Requirement: "Initialize project including backend and front
 
 **Default if unanswered**: Do not start implementation. Docs stay at Status `not-started`.
 
-**Answer**: _(human fills in)_
+**Answer**: A (recommended), approved by the product owner 2026-11-09
 
 ---
 
 ## Q002: Confirm the tooling choices in ADR 0001
 
 - Feature: project-workspace
-- Status: open
+- Status: answered
 - Asked: 2026-11-08
 - Blocks: nothing, using default below (ADR 0001 stays `proposed` until confirmed)
 
@@ -37,14 +37,14 @@ Session 2026-11-08. Requirement: "Initialize project including backend and front
 
 **Default if unanswered**: Option A; ADR 0001 status changes to `accepted` when Q001 is answered "yes".
 
-**Answer**: _(human fills in)_
+**Answer**: A (recommended), approved by the product owner 2026-11-09
 
 ---
 
 ## Q003: Where is the parked backend draft, and should the skeleton reuse it?
 
 - Feature: api-skeleton
-- Status: open
+- Status: answered
 - Asked: 2026-11-08
 - Blocks: nothing, using default below
 
@@ -56,14 +56,14 @@ Session 2026-11-08. Requirement: "Initialize project including backend and front
 
 **Default if unanswered**: Option A.
 
-**Answer**: _(human fills in)_
+**Answer**: A (recommended), approved by the product owner 2026-11-09
 
 ---
 
 ## Q004: Should the health check test the database (readiness) or only that the API is up (liveness)?
 
 - Feature: api-skeleton
-- Status: open
+- Status: answered
 - Asked: 2026-11-08
 - Blocks: nothing, using default below
 
@@ -76,14 +76,14 @@ Session 2026-11-08. Requirement: "Initialize project including backend and front
 
 **Default if unanswered**: Option A.
 
-**Answer**: _(human fills in)_
+**Answer**: A (recommended), approved by the product owner 2026-11-09
 
 ---
 
 ## Q005: Are CI and a dev deployment part of "initialize project"?
 
 - Feature: project-workspace
-- Status: open
+- Status: answered
 - Asked: 2026-11-08
 - Blocks: nothing, using default below (tests run locally)
 
@@ -96,14 +96,14 @@ Session 2026-11-08. Requirement: "Initialize project including backend and front
 
 **Default if unanswered**: Option A.
 
-**Answer**: _(human fills in)_
+**Answer**: A (recommended), approved by the product owner 2026-11-09
 
 ---
 
 ## Q006: Which "home page" is this?
 
 - Feature: web-skeleton
-- Status: open
+- Status: answered
 - Asked: 2026-11-08
 - Blocks: nothing, using default below
 
@@ -115,14 +115,14 @@ Session 2026-11-08. Requirement: "Initialize project including backend and front
 
 **Default if unanswered**: Option A.
 
-**Answer**: _(human fills in)_
+**Answer**: A (recommended), approved by the product owner 2026-11-09
 
 ---
 
 ## Q007: Which branch is the integration base for diff checks?
 
 - Feature: project-workspace
-- Status: open
+- Status: answered
 - Asked: 2026-11-08
 - Blocks: nothing, using default below
 
@@ -135,14 +135,14 @@ Session 2026-11-08. Requirement: "Initialize project including backend and front
 
 **Default if unanswered**: Option A (`BASE_BRANCH=origin/main`; design docs merged into `main` first).
 
-**Answer**: _(human fills in)_
+**Answer**: A (recommended), approved by the product owner 2026-11-09
 
 ---
 
 ## Q008: Node 24 (Maintenance LTS) or Node 26 (Active LTS)?
 
 - Feature: project-workspace
-- Status: open
+- Status: answered
 - Asked: 2026-11-08
 - Blocks: nothing, using default below (ADR 0001 stays `proposed` until Q001/Q002 are answered anyway)
 
@@ -154,6 +154,6 @@ Session 2026-11-08. Requirement: "Initialize project including backend and front
 
 **Default if unanswered**: Option A (Node 24).
 
-**Answer**: _(human fills in)_
+**Answer**: A (recommended), approved by the product owner 2026-11-09
 
 ---

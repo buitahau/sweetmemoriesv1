@@ -1,6 +1,6 @@
 # 0002: CI/CD and dev environment on Cloudflare
 
-- Status: proposed (awaiting product-owner confirmation, see [Q001-Q004](../questions/questions-2026-11-09-requirement-breakdown.md))
+- Status: accepted (product owner approved 2026-11-09, see [questions](../questions/questions-2026-11-09-requirement-breakdown.md))
 - Date: 2026-11-09
 
 ## Context
