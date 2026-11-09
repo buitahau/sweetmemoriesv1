@@ -2,9 +2,19 @@
   "name": "sweetmemories",
   "private": true,
   "type": "module",
-  "workspaces": ["apps/*"],
+  "workspaces": [
+    "apps/*"
+  ],
   "engines": {
     "node": ">=24"
   },
-  "scripts": {}
+  "scripts": {
+    "dev": "concurrently -n api,web \"npm run dev -w apps/api\" \"npm run dev -w apps/web\"",
+    "build": "npm run build --workspaces",
+    "test": "npm test --workspaces",
+    "typecheck": "npm run typecheck --workspaces"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.7"
+  }
 }
