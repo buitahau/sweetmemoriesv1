@@ -1,6 +1,6 @@
 # Add API Worker
 
-- Status: not-started
+- Status: done
 
 ## Goal
 
@@ -37,14 +37,14 @@ Security: no cookies (groundwork for CLAUDE.md rule 1); `preview_urls: false` so
 
 The task is complete only when every item below passes. Tags name the [dev-deploy](../../features/dev-deploy.md) acceptance criterion (ACn).
 
-- [ ] 1. `apps/api/wrangler.jsonc` matches Scope exactly and contains no `account_id`. (AC3, AC4)
-- [ ] 2. `apps/api/src/worker.ts` matches Scope; `git diff "$BASE_BRANCH"...HEAD -- apps/api/src/app.ts apps/api/src/server.ts apps/api/src/routes` is empty. (Scope)
-- [ ] 3. `npm run typecheck -w apps/api`, `npm test -w apps/api` and `npm run build -w apps/api` exit 0. (AC2)
-- [ ] 4. With `npm run dev:worker -w apps/api` running, `curl -i http://localhost:8787/api/health` returns 200, body `{"status":"ok"}`, `Cache-Control: no-store`, no `Set-Cookie`, no `X-Powered-By`. (AC3, AC7, AC8)
-- [ ] 5. Under `wrangler dev`: `GET /api/nope` and `POST /api/health` return 404 `{"error":"not_found"}`; `HEAD /api/health` returns 200. (AC6)
-- [ ] 6. `npx wrangler deploy --dry-run --outdir /tmp/api-bundle` in `apps/api` exits 0 and prints a total upload size under 3 MiB gzip (free-plan limit). (AC3)
-- [ ] 7. `npm run build -w apps/api && npm start -w apps/api` still serves `http://localhost:3000/api/health` as before. (Scope: local Node path unchanged)
-- [ ] 8. `git status --porcelain` after running `dev:worker` lists nothing under `.wrangler/`. (Scope: .gitignore)
+- [x] 1. `apps/api/wrangler.jsonc` matches Scope exactly and contains no `account_id`. (AC3, AC4)
+- [x] 2. `apps/api/src/worker.ts` matches Scope; `git diff "$BASE_BRANCH"...HEAD -- apps/api/src/app.ts apps/api/src/server.ts apps/api/src/routes` is empty. (Scope)
+- [x] 3. `npm run typecheck -w apps/api`, `npm test -w apps/api` and `npm run build -w apps/api` exit 0. (AC2)
+- [x] 4. With `npm run dev:worker -w apps/api` running, `curl -i http://localhost:8787/api/health` returns 200, body `{"status":"ok"}`, `Cache-Control: no-store`, no `Set-Cookie`, no `X-Powered-By`. (AC3, AC7, AC8)
+- [x] 5. Under `wrangler dev`: `GET /api/nope` and `POST /api/health` return 404 `{"error":"not_found"}`; `HEAD /api/health` returns 200. (AC6)
+- [x] 6. `npx wrangler deploy --dry-run --outdir /tmp/api-bundle` in `apps/api` exits 0 and prints a total upload size under 3 MiB gzip (free-plan limit). (AC3)
+- [x] 7. `npm run build -w apps/api && npm start -w apps/api` still serves `http://localhost:3000/api/health` as before. (Scope: local Node path unchanged)
+- [x] 8. `git status --porcelain` after running `dev:worker` lists nothing under `.wrangler/`. (Scope: .gitignore)
 
 ## e2e-test-suites
 
@@ -94,6 +94,13 @@ Request:
   git status --porcelain | grep -c '\.wrangler/'
 Expected: {"status":"ok"}; 0
 ```
+
+## Summary
+
+- Built: `apps/api/src/worker.ts` (`httpServerHandler`), `apps/api/wrangler.jsonc`, `dev:worker` and `deploy:dev` scripts, `wrangler` ^4.158.0.
+- PR: https://github.com/buitahau/sweetmemoriesv1/pull/29. Review: approve, no findings.
+- Test: items 1-8 Pass (local Workers runtime, dry run 375 KiB gzip, deployed API answers 200/404 as specified, no `Set-Cookie`).
+- Cycles: 1. Leftovers: none.
 
 ## Links
 
