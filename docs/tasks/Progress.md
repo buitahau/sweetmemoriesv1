@@ -34,6 +34,7 @@
 | [provision-cloudflare-dev](dev-deploy/provision-cloudflare-dev.md) | not-started | 2026-11-09 |
 | [add-api-worker](dev-deploy/add-api-worker.md) | not-started | 2026-11-09 |
 | [add-web-worker](dev-deploy/add-web-worker.md) | not-started | 2026-11-09 |
+| [add-worker-dry-run-check](dev-deploy/add-worker-dry-run-check.md) | not-started | 2026-11-09 |
 | [add-deploy-dev-workflow](dev-deploy/add-deploy-dev-workflow.md) | not-started | 2026-11-09 |
 
 ## dev-deploy-verification

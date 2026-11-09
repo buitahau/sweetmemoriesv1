@@ -6,7 +6,7 @@
 
 Every push to `dev-v1` (in practice: every merged PR) re-checks the commit and deploys `apps/api` and `apps/web` to Cloudflare Workers, so the latest `dev-v1` is always live at two fixed dev URLs. Decided in [ADR 0002](../adr/0002-ci-cd-and-dev-environment-on-cloudflare.md); details in [infra/ci-cd.md](../infra/ci-cd.md) and [infra/dev-environment.md](../infra/dev-environment.md).
 
-Order: [provision-cloudflare-dev](../tasks/dev-deploy/provision-cloudflare-dev.md) (steps 1-3 any time; step 4 after [create-dev-branch](../tasks/ci-checks/create-dev-branch.md); step 5 after [add-ci-workflow](../tasks/ci-checks/add-ci-workflow.md)), [add-api-worker](../tasks/dev-deploy/add-api-worker.md) and [add-web-worker](../tasks/dev-deploy/add-web-worker.md) (both after [add-ci-workflow](../tasks/ci-checks/add-ci-workflow.md), which switches `$BASE_BRANCH` to `origin/dev-v1`) can run in parallel; [add-deploy-dev-workflow](../tasks/dev-deploy/add-deploy-dev-workflow.md) needs all three plus [add-ci-workflow](../tasks/ci-checks/add-ci-workflow.md) and [protect-dev-branch](../tasks/ci-checks/protect-dev-branch.md). Same design gate as [ci-checks](ci-checks.md).
+Order: [provision-cloudflare-dev](../tasks/dev-deploy/provision-cloudflare-dev.md) (steps 1-3 any time; step 4 after [create-dev-branch](../tasks/ci-checks/create-dev-branch.md); step 5 after [add-ci-workflow](../tasks/ci-checks/add-ci-workflow.md)), [add-api-worker](../tasks/dev-deploy/add-api-worker.md) and [add-web-worker](../tasks/dev-deploy/add-web-worker.md) (both after [add-ci-workflow](../tasks/ci-checks/add-ci-workflow.md), which switches `$BASE_BRANCH` to `origin/dev-v1`) can run in parallel; [add-worker-dry-run-check](../tasks/dev-deploy/add-worker-dry-run-check.md) needs both Worker tasks; [add-deploy-dev-workflow](../tasks/dev-deploy/add-deploy-dev-workflow.md) needs all three plus [add-ci-workflow](../tasks/ci-checks/add-ci-workflow.md) and [protect-dev-branch](../tasks/ci-checks/protect-dev-branch.md). Same design gate as [ci-checks](ci-checks.md).
 
 ## User story
 
@@ -14,9 +14,9 @@ As the agent that verifies a ticket, I want each merge into `dev-v1` deployed au
 
 Acceptance criteria:
 1. A push to `dev-v1` starts workflow `Deploy dev`; it can also be started with `gh workflow run deploy-dev.yml --ref dev-v1`.
-2. The workflow runs `npm ci`, `npm run typecheck`, `npm test`, `npm run build` before deploying and deploys nothing if any of them fails.
+2. The workflow runs `npm ci`, `npm run typecheck`, `npm test`, `npm run build` in job `build` before the `deploy` job (`needs: build`) and deploys nothing if any of them fails.
 3. On success, `GET $DEV_API_URL/api/health` returns `200 {"status":"ok"}` and `GET $DEV_WEB_URL/` returns the built web app, both served by Cloudflare.
-4. The Cloudflare token is used only in the `dev` GitHub environment, only by `Deploy dev`, and never on `pull_request` events; it never appears in logs or the repository.
+4. The Cloudflare token is used only in the `dev` GitHub environment, only by the `deploy` job of `Deploy dev` (never by the job that runs install scripts and tests), and never on `pull_request` events; it never appears in logs or the repository.
 5. `Deploy dev` runs for `dev-v1` never overlap; the newest pending commit always deploys; an intermediate run replaced by a newer merge shows `cancelled`; a dispatch from another branch cannot replace a pending `dev-v1` run.
 6. Unknown web paths (e.g. `/anything`) return the web app (SPA fallback), and `$DEV_API_URL/api/nope` returns `404 {"error":"not_found"}`.
 7. Neither Worker sets a cookie; web responses carry `X-Robots-Tag: noindex`.
@@ -26,6 +26,8 @@ Acceptance criteria:
 
 - API Worker `sweetmemories-api-dev`: entry `apps/api/src/worker.ts`, `createApp()` wrapped by `httpServerHandler({ port: 3000 })`; `GIT_SHA` passed with `--var`.
 - Web Worker `sweetmemories-web-dev`: assets only from `apps/web/dist`, `not_found_handling: "single-page-application"`; the workflow writes `dist/version.json` and `dist/_headers` after the build.
+- `Deploy dev` has two jobs: `build` (checks, markers, uploads `apps/web/dist`; no secrets, no environment) and `deploy` (fresh runner, `npm ci --ignore-scripts`, deploys; the only job with the token) ([Q011](../questions/questions-2026-11-09-requirement-breakdown.md#q011-split-deploy-dev-into-build-and-deploy-jobs-to-isolate-the-cloudflare-token)).
+- `ci.yml` also runs `wrangler deploy --dry-run` for both apps before merge ([Q009](../questions/questions-2026-11-09-requirement-breakdown.md#q009-check-workers-runtime-compatibility-before-merge), task [add-worker-dry-run-check](../tasks/dev-deploy/add-worker-dry-run-check.md)); it catches bundling errors, not runtime errors.
 - If the API deploy fails, the web deploy does not run (steps run in order, API first) and the run is `failure`.
 - If the web deploy fails after the API deployed, the run is `failure`; the API and web markers then show different commits until the next successful run.
 - Concurrency group `deploy-dev-${{ github.ref }}`, `cancel-in-progress: false` (see [infra/ci-cd.md](../infra/ci-cd.md)).
@@ -39,16 +41,16 @@ Acceptance criteria:
 - The public Memory page server (`apps/public`) and user subdomains.
 - Automatic rollback ([Q008](../questions/questions-2026-11-09-requirement-breakdown.md)).
 - `GET /api/version`, wait and smoke scripts (see [dev-deploy-verification](dev-deploy-verification.md)).
-- A pre-merge Workers-runtime check in CI ([Q009](../questions/questions-2026-11-09-requirement-breakdown.md#q009-check-workers-runtime-compatibility-before-merge)).
+- A `wrangler dev` runtime probe in CI (only the bundling dry run is in scope, [Q009](../questions/questions-2026-11-09-requirement-breakdown.md#q009-check-workers-runtime-compatibility-before-merge)).
 
 ## Verification checklist
 
 The feature is complete only when every item below passes.
 
-- [ ] 1. All four tasks of this feature have Status `done`. (all ACs)
+- [ ] 1. All five tasks of this feature have Status `done`. (all ACs)
 - [ ] 2. Merging a PR into `dev-v1` registers a `Deploy dev` run (any status) for the merge commit within 5 minutes (`gh run list --workflow deploy-dev.yml --branch dev-v1 --commit <sha>`); `gh workflow run deploy-dev.yml --ref dev-v1` starts another. The limit covers GitHub queue delay. (AC1)
-- [ ] 3. In `deploy-dev.yml` the steps `npm ci`, `npm run typecheck`, `npm test`, `npm run build` come before both `deploy:dev` steps, and no step has `continue-on-error` or an `if:` condition, so a failing check skips every deploy step. (AC2; a failing commit cannot reach `dev-v1` because of [ci-checks](ci-checks.md), so this is checked in the file)
-- [ ] 4. `gh workflow run deploy-dev.yml --ref <any branch other than dev-v1>` produces a run that fails before any step, because environment `dev` only allows `dev-v1`. (AC4: unreviewed code is never deployed)
+- [ ] 3. In `deploy-dev.yml` the steps `npm ci`, `npm run typecheck`, `npm test`, `npm run build` (job `build`) come before both `deploy:dev` steps (job `deploy`, `needs: build`), and no step has `continue-on-error` or an `if:` condition, so a failing check skips every deploy step. (AC2; a failing commit cannot reach `dev-v1` because of [ci-checks](ci-checks.md), so this is checked in the file)
+- [ ] 4. `gh workflow run deploy-dev.yml --ref <any branch other than dev-v1>` produces a run that has job `deploy` refused before any of its steps (environment `dev` only allows `dev-v1`), so no deploy step runs and the run ends `failure`; job `build` may run. (AC4: unreviewed code is never deployed)
 - [ ] 5. After a successful run, `curl -i $DEV_API_URL/api/health` returns 200, body `{"status":"ok"}`; `curl -s $DEV_WEB_URL/` contains `<title>SweetMemories</title>` and `<div id="root">`; opening `$DEV_WEB_URL/` in a browser shows "SweetMemories home page". (AC3)
 - [ ] 6. `deploy-dev.yml` has no `pull_request` trigger, uses `environment: dev`, and the run log shows no token value (GitHub masks it as `***`); `git grep -n -i 'cloudflare_api_token' -- ':!docs' ':!.github'` finds nothing. (AC4; writing-docs: no secrets)
 - [ ] 7. `deploy-dev.yml` has `concurrency` with `group: deploy-dev-${{ github.ref }}` and `cancel-in-progress: false`; two probe merges 10 s apart produce two `success` runs where the second starts only after the first ends. (AC5)
@@ -174,5 +176,6 @@ Expected: 0; DEV_API_URL and DEV_WEB_URL values equal the URLs in the doc table
   1. [provision-cloudflare-dev](../tasks/dev-deploy/provision-cloudflare-dev.md) (human)
   2. [add-api-worker](../tasks/dev-deploy/add-api-worker.md)
   3. [add-web-worker](../tasks/dev-deploy/add-web-worker.md)
-  4. [add-deploy-dev-workflow](../tasks/dev-deploy/add-deploy-dev-workflow.md)
-- Open questions: [Q002, Q003, Q006, Q007](../questions/questions-2026-11-09-requirement-breakdown.md), [Q009](../questions/questions-2026-11-09-requirement-breakdown.md#q009-check-workers-runtime-compatibility-before-merge), [Q011](../questions/questions-2026-11-09-requirement-breakdown.md#q011-split-deploy-dev-into-build-and-deploy-jobs-to-isolate-the-cloudflare-token)
+  4. [add-worker-dry-run-check](../tasks/dev-deploy/add-worker-dry-run-check.md)
+  5. [add-deploy-dev-workflow](../tasks/dev-deploy/add-deploy-dev-workflow.md)
+- Open questions: [Q002, Q003, Q006, Q007](../questions/questions-2026-11-09-requirement-breakdown.md)

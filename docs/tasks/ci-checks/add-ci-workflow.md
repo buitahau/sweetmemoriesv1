@@ -41,7 +41,7 @@ Prerequisites:
 - Features `done`: [project-workspace](../../features/project-workspace.md), [api-skeleton](../../features/api-skeleton.md), [web-skeleton](../../features/web-skeleton.md) (root scripts `typecheck`, `test`, `build` exist).
 - Tasks `done`: [create-dev-branch](create-dev-branch.md) (human; `dev-v1` exists on `origin`, [Q004](../../questions/questions-2026-11-09-requirement-breakdown.md)).
 
-Out of scope: deploy steps, secrets, caching beyond `cache: npm`, lint, matrix builds, branch protection ([protect-dev-branch](protect-dev-branch.md)), any change under `apps/` or `.claude/`.
+Out of scope: deploy steps, the later `Worker dry run` step ([add-worker-dry-run-check](../dev-deploy/add-worker-dry-run-check.md), step 8 of `verify`), secrets, caching beyond `cache: npm`, lint, matrix builds, branch protection ([protect-dev-branch](protect-dev-branch.md)), any change under `apps/` or `.claude/`.
 
 Security: no `secrets.` reference; `permissions: contents: read` so a PR's code gets a read-only token. Never add `pull_request_target` (it would expose secrets to PR code).
 

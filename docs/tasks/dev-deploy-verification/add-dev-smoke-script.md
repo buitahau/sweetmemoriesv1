@@ -21,10 +21,10 @@ Area: infra (one shell script, two workflow steps). Follow [dev-deploy-verificat
 
 Output: one line per check, `PASS <name>` or `FAIL <name>: <reason>`, where `<reason>` is one of `status <code>`, `unexpected body`, `set-cookie present`, `missing noindex`, `commit mismatch`, `request failed`. Never print bodies or headers. Exit 0 if all four pass, else 1.
 
-`.github/workflows/deploy-dev.yml`: replace the comment `# post-deploy checks: see add-dev-smoke-script` with two steps (no `if:`, no `continue-on-error`), step-level `env: DEV_API_URL: ${{ vars.DEV_API_URL }}` and `DEV_WEB_URL: ${{ vars.DEV_WEB_URL }}`:
+`.github/workflows/deploy-dev.yml`, job `deploy` (the job with `environment: dev`, which holds the `vars.`): replace the comment `# post-deploy checks: see add-dev-smoke-script` with two steps (no `if:`, no `continue-on-error`), step-level `env: DEV_API_URL: ${{ vars.DEV_API_URL }}` and `DEV_WEB_URL: ${{ vars.DEV_WEB_URL }}`:
 
-10. `Wait for dev deploy`: `run: WAIT_TIMEOUT_SECONDS=180 scripts/wait-for-dev-deploy.sh "$GITHUB_SHA"`
-11. `Smoke test dev`: `run: scripts/smoke-dev.sh`
+7. `Wait for dev deploy`: `run: WAIT_TIMEOUT_SECONDS=180 scripts/wait-for-dev-deploy.sh "$GITHUB_SHA"`
+8. `Smoke test dev`: `run: scripts/smoke-dev.sh`
 
 Prerequisites:
 - Tasks `done`: [add-wait-for-deploy-script](add-wait-for-deploy-script.md), [add-deploy-dev-workflow](../dev-deploy/add-deploy-dev-workflow.md).
@@ -43,11 +43,11 @@ The task is complete only when every item below passes. Tags name the [dev-deplo
 - [ ] 3. With `DEV_WEB_URL` pointing at `$DEV_API_URL` (wrong app), check 3 prints `FAIL web home: ...` and the script exits 1. (AC4)
 - [ ] 4. With `DEV_API_URL` unset it exits 2 with the message from Scope. (AC4)
 - [ ] 5. Locally, with no dev environment: run the API on `localhost:3000` with `GIT_SHA` set and point both URLs at it; checks 1 and 2 pass, checks 3 and 4 print `FAIL ...: status 404`, exit 1. (AC4; testable without network)
-- [ ] 6. `deploy-dev.yml` has steps 10 and 11 after "Deploy web", with only `vars.` (no `secrets.`) in their `env`; `grep -c -F 'WAIT_TIMEOUT_SECONDS=180 scripts/wait-for-dev-deploy.sh "$GITHUB_SHA"' .github/workflows/deploy-dev.yml` prints 1. (AC5: timeout 180 s)
+- [ ] 6. `deploy-dev.yml` has steps 7 and 8 of job `deploy` after "Deploy web", with only `vars.` (no `secrets.`) in their `env`; `grep -c -F 'WAIT_TIMEOUT_SECONDS=180 scripts/wait-for-dev-deploy.sh "$GITHUB_SHA"' .github/workflows/deploy-dev.yml` prints 1. (AC5: timeout 180 s)
 - [ ] 7. The `Deploy dev` run for this task's merge commit ends `success`, and its log shows both new steps succeeding. (AC5)
 - [ ] 8. No output line of items 1-5 contains a body, header value or env value (only the fixed `PASS`/`FAIL` formats). (Security)
 - [ ] 9. `git ls-files -s scripts/smoke-dev.sh` shows `100755`; `bash -n scripts/smoke-dev.sh` exits 0. (Scope)
-- [ ] 10. After steps 10 and 11 are added, `grep -c -E 'continue-on-error|^\s+if:' .github/workflows/deploy-dev.yml` prints 0 and neither step sets `shell:`. With the default `run` shell (`bash -e`), a non-zero exit of either script (proven by items 2-5) fails the step and the run, so this is checked in the file, as in [dev-deploy](../../features/dev-deploy.md) checklist item 3. No live negative run is required: it would mean pointing the shared `dev` environment variables at a wrong URL. (AC5)
+- [ ] 10. After steps 7 and 8 of job `deploy` are added, `grep -c -E 'continue-on-error|^\s+if:' .github/workflows/deploy-dev.yml` prints 0 and neither step sets `shell:`. With the default `run` shell (`bash -e`), a non-zero exit of either script (proven by items 2-5) fails the step and the run, so this is checked in the file, as in [dev-deploy](../../features/dev-deploy.md) checklist item 3. No live negative run is required: it would mean pointing the shared `dev` environment variables at a wrong URL. (AC5)
 
 ## e2e-test-suites
 
@@ -100,7 +100,7 @@ Preconditions: this task's PR merged; its Deploy dev run finished
 Request:
   grep -n -E 'name: (Deploy web|Wait for dev deploy|Smoke test dev)$|vars\.DEV_|secrets\.' .github/workflows/deploy-dev.yml
   grep -c -F 'WAIT_TIMEOUT_SECONDS=180 scripts/wait-for-dev-deploy.sh "$GITHUB_SHA"' .github/workflows/deploy-dev.yml
-  gh run view $(gh run list --workflow deploy-dev.yml --branch dev-v1 --limit 1 --json databaseId -q '.[0].databaseId') --json conclusion,jobs -q '.conclusion, (.jobs[0].steps[] | [.name,.conclusion] | @tsv)'
+  gh run view $(gh run list --workflow deploy-dev.yml --branch dev-v1 --limit 1 --json databaseId -q '.[0].databaseId') --json conclusion,jobs -q '.conclusion, (.jobs[] | select(.name=="deploy") | .steps[] | [.name,.conclusion] | @tsv)'
 Expected: Wait and Smoke names after Deploy web; vars.DEV_ lines only after them; all secrets. lines before "Wait for dev deploy"; 1 (timeout line present exactly once); conclusion success; both new steps "success"
 ```
 
@@ -114,7 +114,7 @@ Expected: 100755; syntax=0
 
 ```
 E2E-8 -> checklist item 10: nothing can let a failing check pass the run
-Preconditions: steps 10 and 11 committed
+Preconditions: steps 7 and 8 of job `deploy` committed
 Request:
   grep -c -E 'continue-on-error|^\s+if:' .github/workflows/deploy-dev.yml
   grep -A4 -E 'name: (Wait for dev deploy|Smoke test dev)$' .github/workflows/deploy-dev.yml | grep -c 'shell:'

@@ -173,7 +173,7 @@ Session 2026-11-09. Requirement: "Deployment (CI/CD) of this project to the Clou
 
 **Default if unanswered**: Option C for now (current design); no task is created until the answer is A or B.
 
-**Answer**: A (recommended), approved by the product owner 2026-11-09
+**Answer**: A (recommended), approved by the product owner 2026-11-09. Applied in ADR 0002, ci-cd.md, dev-deploy feature and new task add-worker-dry-run-check.
 
 ---
 
@@ -211,7 +211,7 @@ Session 2026-11-09. Requirement: "Deployment (CI/CD) of this project to the Clou
 
 **Default if unanswered**: Option B for now (current design, risk stated in ADR 0002); revisit before Neon, S3 or auth secrets are added to the `dev` environment.
 
-**Answer**: A (recommended), approved by the product owner 2026-11-09
+**Answer**: A (recommended), approved by the product owner 2026-11-09. Applied in ADR 0002, ci-cd.md, dev-deploy feature, add-deploy-dev-workflow and add-dev-smoke-script.
 
 ---
 
@@ -249,6 +249,6 @@ Session 2026-11-09. Requirement: "Deployment (CI/CD) of this project to the Clou
 
 **Default if unanswered**: Option B (current contract: report, do not re-run).
 
-**Answer**: A (recommended), approved by the product owner 2026-11-09
+**Answer**: A (recommended), approved by the product owner 2026-11-09. Applied in ADR 0002, ci-cd.md, dev-environment.md and dev-deploy-verification feature.
 
 ---
