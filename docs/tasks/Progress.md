@@ -13,7 +13,7 @@
 | Task | Status | Updated |
 |---|---|---|
 | [scaffold-api-app](api-skeleton/scaffold-api-app.md) | done | 2026-11-09 |
-| [add-health-endpoint](api-skeleton/add-health-endpoint.md) | not-started | 2026-11-08 |
+| [add-health-endpoint](api-skeleton/add-health-endpoint.md) | done | 2026-11-09 |
 
 ## web-skeleton
 | Task | Status | Updated |

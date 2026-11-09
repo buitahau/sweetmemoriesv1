@@ -1,6 +1,6 @@
 # API skeleton
 
-- Status: not-started
+- Status: done
 
 ## Summary
 
@@ -37,14 +37,14 @@ Acceptance criteria:
 
 The feature is complete only when every item below passes.
 
-- [ ] 1. Both tasks of this feature have Status `done`. (all ACs)
-- [ ] 2. `curl -i $BASE_URL/api/health` returns `HTTP/1.1 200`, `Content-Type: application/json; charset=utf-8` and body exactly `{"status":"ok"}`. (AC1)
-- [ ] 3. The same response has `Cache-Control: no-store` and no `Set-Cookie` or `X-Powered-By` header, also when the request sends a `Cookie` header. (AC2; supports CLAUDE.md security rule 1: no cookies on public responses)
-- [ ] 4. `GET $BASE_URL/api/nope` and `POST $BASE_URL/api/health` return 404 with body `{"error":"not_found"}`. (AC3)
-- [ ] 5. An automated test proves a thrown error returns 500 with body `{"error":"internal_error"}` and the body does not contain the word `Error:` or a file path. (AC4)
-- [ ] 6. `PORT=4000 npm start -w apps/api` serves on port 4000; `PORT=abc node apps/api/dist/server.js` and `PORT=70000 node apps/api/dist/server.js` exit with code 1 and print `Invalid PORT: <value>`; a second `node apps/api/dist/server.js` on a busy port exits with code 1, prints `Port <port> is already in use` and prints no `API listening` line. (Exit codes are checked on `node` directly because `npm` wraps the child's exit code.) (AC5)
-- [ ] 7. In `apps/api`: `npm run dev`, `npm run build` (creates `dist/server.js`), `npm start`, `npm test` and `npm run typecheck` (covers `src` and `test`) all work and exit 0 where they terminate. (AC6)
-- [ ] 8. `apps/api` has no dependency on a database, S3, auth or CORS package (`grep -E '"(pg|@neondatabase/[^"]*|@aws-sdk/[^"]*|better-auth|cors)"' apps/api/package.json` finds nothing). (Out of scope)
+- [x] 1. Both tasks of this feature have Status `done`. (all ACs)
+- [x] 2. `curl -i $BASE_URL/api/health` returns `HTTP/1.1 200`, `Content-Type: application/json; charset=utf-8` and body exactly `{"status":"ok"}`. (AC1)
+- [x] 3. The same response has `Cache-Control: no-store` and no `Set-Cookie` or `X-Powered-By` header, also when the request sends a `Cookie` header. (AC2; supports CLAUDE.md security rule 1: no cookies on public responses)
+- [x] 4. `GET $BASE_URL/api/nope` and `POST $BASE_URL/api/health` return 404 with body `{"error":"not_found"}`. (AC3)
+- [x] 5. An automated test proves a thrown error returns 500 with body `{"error":"internal_error"}` and the body does not contain the word `Error:` or a file path. (AC4)
+- [x] 6. `PORT=4000 npm start -w apps/api` serves on port 4000; `PORT=abc node apps/api/dist/server.js` and `PORT=70000 node apps/api/dist/server.js` exit with code 1 and print `Invalid PORT: <value>`; a second `node apps/api/dist/server.js` on a busy port exits with code 1, prints `Port <port> is already in use` and prints no `API listening` line. (Exit codes are checked on `node` directly because `npm` wraps the child's exit code.) (AC5)
+- [x] 7. In `apps/api`: `npm run dev`, `npm run build` (creates `dist/server.js`), `npm start`, `npm test` and `npm run typecheck` (covers `src` and `test`) all work and exit 0 where they terminate. (AC6)
+- [x] 8. `apps/api` has no dependency on a database, S3, auth or CORS package (`grep -E '"(pg|@neondatabase/[^"]*|@aws-sdk/[^"]*|better-auth|cors)"' apps/api/package.json` finds nothing). (Out of scope)
 
 ## e2e-test-suites
 
