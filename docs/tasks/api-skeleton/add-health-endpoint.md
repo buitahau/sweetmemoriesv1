@@ -1,6 +1,6 @@
 # Add health endpoint
 
-- Status: not-started
+- Status: done
 
 ## Goal
 
@@ -32,15 +32,15 @@ Security: public endpoint, no auth. It must not read or set cookies (groundwork 
 
 The task is complete only when every item below passes. Tags name the [api-skeleton](../../features/api-skeleton.md) acceptance criterion (ACn) or requirement each item proves.
 
-- [ ] 1. Test: `GET /api/health` -> 200, `Content-Type` matches `application/json`, body deep-equals `{ status: 'ok' }` and raw text equals `{"status":"ok"}`. (AC1)
-- [ ] 2. Test: the response has `cache-control: no-store` and no `set-cookie` or `x-powered-by` header, also when the request sends `Cookie: session=fake-value`. (AC2)
-- [ ] 3. Test: `HEAD /api/health` -> 200 with empty body. (AC1; [api/health.md](../../api/health.md) contract)
-- [ ] 4. Test: `GET /api/health/` and `GET /api/health?probe=1` -> 200 `{"status":"ok"}`. (AC1)
-- [ ] 5. Test: `POST /api/health` -> 404 `{"error":"not_found"}`. (AC3)
-- [ ] 6. `npm test -w apps/api` exits 0 (including the scaffold tests) and `npm run typecheck -w apps/api` exits 0. (AC6)
-- [ ] 7. With `npm start -w apps/api` running, `curl -s http://localhost:3000/api/health` prints `{"status":"ok"}` and answers in under 0.5 s (`curl -w "%{time_total}"`). (AC1)
-- [ ] 8. `apps/api/src/routes/health.ts` imports nothing except `express`. (Behavior: no database, S3 or auth calls)
-- [ ] 9. `docs/api/health.md` status line starts with `Status: current`. (writing-docs rule: docs describe the current truth)
+- [x] 1. Test: `GET /api/health` -> 200, `Content-Type` matches `application/json`, body deep-equals `{ status: 'ok' }` and raw text equals `{"status":"ok"}`. (AC1)
+- [x] 2. Test: the response has `cache-control: no-store` and no `set-cookie` or `x-powered-by` header, also when the request sends `Cookie: session=fake-value`. (AC2)
+- [x] 3. Test: `HEAD /api/health` -> 200 with empty body. (AC1; [api/health.md](../../api/health.md) contract)
+- [x] 4. Test: `GET /api/health/` and `GET /api/health?probe=1` -> 200 `{"status":"ok"}`. (AC1)
+- [x] 5. Test: `POST /api/health` -> 404 `{"error":"not_found"}`. (AC3)
+- [x] 6. `npm test -w apps/api` exits 0 (including the scaffold tests) and `npm run typecheck -w apps/api` exits 0. (AC6)
+- [x] 7. With `npm start -w apps/api` running, `curl -s http://localhost:3000/api/health` prints `{"status":"ok"}` and answers in under 0.5 s (`curl -w "%{time_total}"`). (AC1)
+- [x] 8. `apps/api/src/routes/health.ts` imports nothing except `express`. (Behavior: no database, S3 or auth calls)
+- [x] 9. `docs/api/health.md` status line starts with `Status: current`. (writing-docs rule: docs describe the current truth)
 
 ## e2e-test-suites
 
@@ -102,3 +102,11 @@ Expected: t=0 with health tests listed as passed; tc=0; only an import from 'exp
 - Feature: [api-skeleton](../../features/api-skeleton.md)
 - ADR: [0001-monorepo-skeleton-and-tooling](../../adr/0001-monorepo-skeleton-and-tooling.md)
 - API: [health](../../api/health.md)
+
+## Summary
+
+- Built: `GET /api/health` (`apps/api/src/routes/health.ts`, registered in `app.ts`), 5 supertest tests, `docs/api/health.md` status set to `current`.
+- PR: https://github.com/buitahau/sweetmemoriesv1/pull/6 (merge commit `f45c447`).
+- Test: fresh clone, Node 24.14.1, real API with curl; task items 1-9 and feature checklist items 2-8 all Pass. No deploy for this ticket.
+- Cycles: 1. Review: approve; test-assertion Minor and Nit fixed.
+- Leftovers: none.
