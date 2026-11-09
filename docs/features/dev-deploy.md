@@ -1,6 +1,6 @@
 # Dev deploy
 
-- Status: in-progress
+- Status: done
 
 ## Summary
 
@@ -47,7 +47,7 @@ Acceptance criteria:
 
 The feature is complete only when every item below passes.
 
-- [ ] 1. All five tasks of this feature have Status `done`. (all ACs)
+- [x] 1. All five tasks of this feature have Status `done`. (all ACs)
 - [x] 2. Merging a PR into `dev-v1` registers a `Deploy dev` run (any status) for the merge commit within 5 minutes (`gh run list --workflow deploy-dev.yml --branch dev-v1 --commit <sha>`); `gh workflow run deploy-dev.yml --ref dev-v1` starts another. The limit covers GitHub queue delay. (AC1)
 - [x] 3. In `deploy-dev.yml` the steps `npm ci`, `npm run typecheck`, `npm test`, `npm run build` (job `build`) come before both `deploy:dev` steps (job `deploy`, `needs: build`), and no step has `continue-on-error` or an `if:` condition, so a failing check skips every deploy step. (AC2; a failing commit cannot reach `dev-v1` because of [ci-checks](ci-checks.md), so this is checked in the file)
 - [x] 4. `gh workflow run deploy-dev.yml --ref <any branch other than dev-v1>` produces a run that has job `deploy` refused before any of its steps (environment `dev` only allows `dev-v1`), so no deploy step runs and the run ends `failure`; job `build` may run. (AC4: unreviewed code is never deployed)
@@ -170,7 +170,7 @@ Expected: 0; DEV_API_URL and DEV_WEB_URL values equal the URLs in the doc table
 
 - Built: API and web Workers, `ci.yml` Worker dry run, `Deploy dev` workflow; dev is live at the two `workers.dev` URLs ([dev-environment](../infra/dev-environment.md)).
 - Test (tester, 2026-11-09): items 2-12 Pass, with the browser parts checked by curl only. Dispatch from another branch refused at the `deploy` job; three probe merges gave `success`, `cancelled`, `success` and `version.json` showed the third commit.
-- Open: item 1 stays unticked until [provision-cloudflare-dev](../tasks/dev-deploy/provision-cloudflare-dev.md) and [add-deploy-dev-workflow](../tasks/dev-deploy/add-deploy-dev-workflow.md) are `done` (each needs one check that only the human holding the secret values can do).
+- Human-only checks (token scope, no secrets in docs, no unmasked values in the log) confirmed by the owner on 2026-11-09; all five tasks are `done`.
 - Spec follow-ups: dry-run item 3 should use `// @ts-ignore`; feature E2E-6 should compare job `startedAt`/`completedAt`, not run `startedAt`.
 
 ## Related

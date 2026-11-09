@@ -31,11 +31,11 @@
 ## dev-deploy
 | Task | Status | Updated |
 |---|---|---|
-| [provision-cloudflare-dev](dev-deploy/provision-cloudflare-dev.md) | in-progress | 2026-11-09 |
+| [provision-cloudflare-dev](dev-deploy/provision-cloudflare-dev.md) | done | 2026-11-09 |
 | [add-api-worker](dev-deploy/add-api-worker.md) | done | 2026-11-09 |
 | [add-web-worker](dev-deploy/add-web-worker.md) | done | 2026-11-09 |
 | [add-worker-dry-run-check](dev-deploy/add-worker-dry-run-check.md) | done | 2026-11-09 |
-| [add-deploy-dev-workflow](dev-deploy/add-deploy-dev-workflow.md) | in-progress | 2026-11-09 |
+| [add-deploy-dev-workflow](dev-deploy/add-deploy-dev-workflow.md) | done | 2026-11-09 |
 
 ## dev-deploy-verification
 | Task | Status | Updated |
