@@ -14,7 +14,11 @@ export function createApp(options: { testRoutes?: (app: Express) => void } = {})
   });
 
   // Express recognizes an error handler by its four arguments.
-  app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
+  app.use((err: unknown, req: Request, res: Response, next: NextFunction) => {
+    if (res.headersSent) {
+      next(err);
+      return;
+    }
     console.error(err);
     res.status(500).json({ error: 'internal_error' });
   });

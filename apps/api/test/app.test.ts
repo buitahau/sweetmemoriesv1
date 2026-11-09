@@ -15,6 +15,8 @@ describe('createApp', () => {
     const res = await request(createApp()).get('/anything');
     expect(res.status).toBe(404);
     expect(res.text).toBe('{"error":"not_found"}');
+    expect(res.headers['set-cookie']).toBeUndefined();
+    expect(res.headers['x-powered-by']).toBeUndefined();
   });
 
   it('returns 500 internal_error when a route throws', async () => {
@@ -27,6 +29,8 @@ describe('createApp', () => {
     const res = await request(app).get('/__throw');
     expect(res.status).toBe(500);
     expect(res.text).toBe('{"error":"internal_error"}');
+    expect(res.headers['set-cookie']).toBeUndefined();
+    expect(res.headers['x-powered-by']).toBeUndefined();
     expect(res.text).not.toContain('boom');
     expect(res.text).not.toContain('Error:');
     expect(res.text).not.toContain(' at ');
