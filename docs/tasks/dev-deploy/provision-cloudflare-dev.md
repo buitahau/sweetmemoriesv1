@@ -1,6 +1,6 @@
 # Provision Cloudflare dev
 
-- Status: in-progress
+- Status: done
 
 ## Goal
 
@@ -39,9 +39,9 @@ The task is complete only when every item below passes. Tags name the [dev-deplo
 - [x] 1. `gh secret list --env dev` lists exactly `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`. (AC4)
 - [x] 2. `gh variable list --env dev` lists `DEV_API_URL` and `DEV_WEB_URL`, both `https://...workers.dev` with no trailing slash. (AC3)
 - [x] 3. `gh api repos/$REPO/environments/dev` shows `deployment_branch_policy.custom_branch_policies: true`, and `gh api repos/$REPO/environments/dev/deployment-branch-policies` lists only `dev-v1`. (AC4)
-- [ ] 4. The token works and is narrow: `curl -s -H "Authorization: Bearer <token>" https://api.cloudflare.com/client/v4/user/tokens/verify` (run once by the human, locally, output not shared) shows `"status":"active"`; the token's permission list in the dashboard shows only Workers-related permissions on one account. (AC4)
+- [x] 4. The token works and is narrow: `curl -s -H "Authorization: Bearer <token>" https://api.cloudflare.com/client/v4/user/tokens/verify` (run once by the human, locally, output not shared) shows `"status":"active"`; the token's permission list in the dashboard shows only Workers-related permissions on one account. (AC4)
 - [x] 5. `docs/infra/dev-environment.md` contains no `<account-subdomain>` and no "(to be filled in)", and its URLs equal the two variables. (AC3)
-- [ ] 6. Run locally by the human who holds the values: `git grep -c -F` with the real account ID, and again with the real token, over `docs` finds nothing (exit 1 both times). The values are never echoed or shared. (writing-docs: no secrets)
+- [x] 6. Run locally by the human who holds the values: `git grep -c -F` with the real account ID, and again with the real token, over `docs` finds nothing (exit 1 both times). The values are never echoed or shared. (writing-docs: no secrets)
 
 ## e2e-test-suites
 
@@ -96,7 +96,7 @@ Expected: id=1; token=1 (no match). Example SHAs in docs are not secrets and do 
 
 - Done by the human (environment `dev`, secrets, variables, branch policy, doc URLs).
 - Test (tester): items 1, 2, 3, 5 Pass (secret names only; no values seen). Items 4 and 6 need the token and account ID values, so only the human can confirm them.
-- Open (human): run items 4 and 6 locally, then set this task to `done`.
+- Human confirmation (2026-11-09): item 4 (token active, Workers-only on one account) and item 6 (`git grep -F` for the account ID and the token under `docs` both exit 1). Done.
 
 ## Links
 
