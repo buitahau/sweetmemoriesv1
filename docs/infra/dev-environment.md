@@ -8,18 +8,18 @@ A shared, always-on copy of the latest `dev-v1` commit, used by agents and human
 
 ## Where it runs
 
-Cloudflare Workers, free plan, `workers.dev` subdomain `<account-subdomain>` (to be filled in).
+Cloudflare Workers, free plan, `workers.dev` subdomain `haubuitatmp`.
 
 | App | Worker name | URL | Config |
 |---|---|---|---|
-| API | `sweetmemories-api-dev` | `https://sweetmemories-api-dev.<account-subdomain>.workers.dev` (to be filled in) | `apps/api/wrangler.jsonc` |
-| Web | `sweetmemories-web-dev` | `https://sweetmemories-web-dev.<account-subdomain>.workers.dev` (to be filled in) | `apps/web/wrangler.jsonc` |
+| API | `sweetmemories-api-dev` | `https://sweetmemories-api-dev.haubuitatmp.workers.dev` | `apps/api/wrangler.jsonc` |
+| Web | `sweetmemories-web-dev` | `https://sweetmemories-web-dev.haubuitatmp.workers.dev` | `apps/web/wrangler.jsonc` |
 
 Shell setup for agents (values from the table, or `gh variable list --env dev`):
 
 ```sh
-export DEV_API_URL="https://sweetmemories-api-dev.<account-subdomain>.workers.dev"
-export DEV_WEB_URL="https://sweetmemories-web-dev.<account-subdomain>.workers.dev"
+export DEV_API_URL="https://sweetmemories-api-dev.haubuitatmp.workers.dev"
+export DEV_WEB_URL="https://sweetmemories-web-dev.haubuitatmp.workers.dev"
 ```
 
 URLs have no trailing slash.
