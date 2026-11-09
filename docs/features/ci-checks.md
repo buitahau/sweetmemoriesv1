@@ -1,6 +1,6 @@
 # CI checks
 
-- Status: in-progress
+- Status: done
 
 ## Summary
 
@@ -38,16 +38,16 @@ Acceptance criteria:
 
 The feature is complete only when every item below passes.
 
-- [ ] 1. All three tasks of this feature have Status `done`. (all ACs)
-- [ ] 2. A test PR into `dev-v1` lists check `verify` in any state (`queued`, `pending`, `pass` or `fail`) in `gh pr checks <pr>` within 5 minutes of opening. (AC1)
-- [ ] 3. The `verify` log shows the steps `npm ci`, `npm run typecheck`, `npm test`, `npm run build` in that order and `node -v` equal to `v` + the `.nvmrc` major. (AC2)
-- [ ] 4. A PR that adds a failing test gets `verify` = `fail`; a PR with a type error gets `verify` = `fail`. (AC2)
-- [ ] 5. `ci.yml` contains no `secrets.` reference and declares `permissions:` with only `contents: read`. (AC3)
-- [ ] 6. `gh pr merge <pr> --squash` on a PR with failing `verify` is refused by GitHub, run with an admin token. (AC4)
-- [ ] 7. `git push origin HEAD:dev-v1` and `git push --force origin HEAD:dev-v1` from a local commit are rejected. (AC5)
-- [ ] 8. A PR with passing `verify` merges with `gh pr merge <pr> --squash --delete-branch` and its branch is deleted. (AC6)
-- [ ] 9. A docs-only PR still reports `verify` (no path filter). (Behavior)
-- [ ] 10. `gh pr merge <pr> --squash`, run with an admin token right after the PR is opened, while `gh pr checks <pr>` shows `verify` as `pending` (or not yet listed), exits non-zero and the PR stays `OPEN`. (AC4: the "still running" race of an auto-merging agent)
+- [x] 1. All three tasks of this feature have Status `done`. (all ACs)
+- [x] 2. A test PR into `dev-v1` lists check `verify` in any state (`queued`, `pending`, `pass` or `fail`) in `gh pr checks <pr>` within 5 minutes of opening. (AC1)
+- [x] 3. The `verify` log shows the steps `npm ci`, `npm run typecheck`, `npm test`, `npm run build` in that order and `node -v` equal to `v` + the `.nvmrc` major. (AC2)
+- [x] 4. A PR that adds a failing test gets `verify` = `fail`; a PR with a type error gets `verify` = `fail`. (AC2)
+- [x] 5. `ci.yml` contains no `secrets.` reference and declares `permissions:` with only `contents: read`. (AC3)
+- [x] 6. `gh pr merge <pr> --squash` on a PR with failing `verify` is refused by GitHub, run with an admin token. (AC4)
+- [x] 7. `git push origin HEAD:dev-v1` and `git push --force origin HEAD:dev-v1` from a local commit are rejected. (AC5)
+- [x] 8. A PR with passing `verify` merges with `gh pr merge <pr> --squash --delete-branch` and its branch is deleted. (AC6)
+- [x] 9. A docs-only PR still reports `verify` (no path filter). (Behavior)
+- [x] 10. `gh pr merge <pr> --squash`, run with an admin token right after the PR is opened, while `gh pr checks <pr>` shows `verify` as `pending` (or not yet listed), exits non-zero and the PR stays `OPEN`. (AC4: the "still running" race of an auto-merging agent)
 
 ## e2e-test-suites
 
@@ -126,6 +126,14 @@ Request:
 Expected: gh pr checks shows verify "pending" or no checks yet (checks=8 or 1, never 0, which would mean the run already passed: then repeat with a new probe commit); merge non-zero with a message that required status checks are expected or not yet passed; state "OPEN"
 Cleanup: gh pr close ci-test/pending --delete-branch
 ```
+
+## Summary
+
+- Built: workflow `CI` / job `verify` ([PR #17](https://github.com/buitahau/sweetmemoriesv1/pull/17)); `dev-v1` protected with `verify` required, admins enforced, no force pushes or deletions, squash-only merges (set by a human).
+- Test (tester, 2026-11-09): items 1-6 and 8-10 observed on throwaway PRs #18, #20-#22, #25, #26 and probe PR #23 (docs-only, merged); direct push rejected with `GH006`. Cycles: 1 for the code task; one human setting (`strict`) corrected after the first test run.
+- Item 7: the direct push was rejected in a test; the force-push command was not run (denied by the permission system). `allow_force_pushes: false` was read from the API and accepted by the owner as sufficient. Item 1: `create-dev-branch` was accepted on static evidence (its items 2-3 are not re-runnable).
+- Merge refusals say "base branch policy prohibits the merge" and do not name `verify`.
+- Leftovers: `docs/infra/local-development.md:63` still says the design docs exist only on `mainv1`.
 
 ## Related
 

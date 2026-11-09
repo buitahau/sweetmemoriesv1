@@ -1,6 +1,6 @@
 # Create dev branch
 
-- Status: not-started
+- Status: done
 
 ## Goal
 
@@ -28,7 +28,7 @@ Security: never force-push; the branch starts exactly at `origin/main`, so no un
 
 The task is complete only when every item below passes. Tags name the [ci-checks](../../features/ci-checks.md) acceptance criterion (ACn).
 
-- [ ] 1. `git ls-remote --heads origin dev-v1` prints exactly one line. (AC4, AC5: the branch to protect exists)
+- [x] 1. `git ls-remote --heads origin dev-v1` prints exactly one line. (AC4, AC5: the branch to protect exists)
 - [ ] 2. Right after creation, `git rev-parse origin/dev-v1` equals `git rev-parse origin/main` (after `git fetch origin`). (Scope: starts at `main`)
 - [ ] 3. `git ls-remote --heads origin main devv1 mainv1` shows the same SHAs as before step 3 (no other branch changed). (Out of scope)
 
@@ -53,6 +53,12 @@ Request:
   git ls-remote --heads origin main devv1 mainv1 | diff /tmp/heads-before.txt -; echo "diff=$?"
 Expected: diff=0
 ```
+
+## Summary
+
+- Result: done by the owner's decision (2026-11-09) on static evidence. `dev-v1` exists on `origin` (item 1 pass); `main` is its ancestor ("Initial commit"), consistent with a branch cut from `main`.
+- Not re-run: items 2 and 3 (`dev-v1` equals `main` right after creation; other branches unchanged). They only apply at creation time and `dev-v1` has moved on, so they stay unticked.
+- Leftovers: none.
 
 ## Links
 
