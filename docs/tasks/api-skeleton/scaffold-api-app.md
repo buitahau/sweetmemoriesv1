@@ -1,6 +1,6 @@
 # Scaffold API app
 
-- Status: not-started
+- Status: done
 
 ## Goal
 
@@ -41,18 +41,18 @@ Security: the API must not set cookies (groundwork for CLAUDE.md security rule 1
 
 The task is complete only when every item below passes. Tags name the [api-skeleton](../../features/api-skeleton.md) acceptance criterion (ACn) or requirement each item proves.
 
-- [ ] 1. `apps/api/package.json` has name `@sweetmemories/api`, `"type": "module"` and the five scripts exactly as in Scope; `express` major version is 5. (AC6)
-- [ ] 2. `npm run build -w apps/api` exits 0 and creates `apps/api/dist/server.js`, `dist/app.js`, `dist/config.js` (and no `dist/test/` folder); `npm run typecheck -w apps/api` exits 0. (AC6)
-- [ ] 3. `apps/api/test/config.test.ts` covers and passes: `undefined` -> 3000, `""` -> 3000, `"4000"` -> 4000, `"1"` -> 1, `"65535"` -> 65535, and throws `Invalid PORT: <value>` for `"0"`, `"65536"`, `"abc"`, `"-1"`, `"3000.5"`, `" 3000"`. (AC5)
-- [ ] 4. `apps/api/test/app.test.ts` passes: `GET /anything` -> 404 body `{"error":"not_found"}`; `GET /__throw` (test route) -> 500 body `{"error":"internal_error"}` with no `boom` and no stack trace text in the body. (AC3, AC4)
-- [ ] 5. `npm test -w apps/api` exits 0. (AC6)
-- [ ] 6. `npm start -w apps/api` prints `API listening on http://localhost:3000`; `curl -i http://localhost:3000/anything` returns 404, body `{"error":"not_found"}`, no `X-Powered-By`, no `Set-Cookie`. (AC2, AC3, AC5)
-- [ ] 7. `PORT=4000 npm start -w apps/api` listens on 4000; `PORT=abc node apps/api/dist/server.js` prints `Invalid PORT: abc` and exits with code 1. (AC5)
-- [ ] 8. Running `node apps/api/dist/server.js` while an API already runs on 3000 prints `Port 3000 is already in use`, prints no line containing `API listening`, and exits with code 1. (AC5)
-- [ ] 9. `npm run dev -w apps/api` starts the API and restarts it after a change to `src/app.ts` is saved. (AC6)
-- [ ] 10. `apps/api/package.json` has no `pg`, `@neondatabase/*`, `@aws-sdk/*`, `better-auth` or `cors` dependency. (Out of scope)
-- [ ] 11. A type error in a test file fails type-checking: temporarily add `const x: number = 'a'` to `apps/api/test/config.test.ts`, run `npm run typecheck -w apps/api`, expect a non-zero exit; then revert the line. (AC6)
-- [ ] 12. `apps/api/src/server.ts` calls `listen(port)` with one argument only and logs `API listening` from a `'listening'` event handler. (AC5)
+- [x] 1. `apps/api/package.json` has name `@sweetmemories/api`, `"type": "module"` and the five scripts exactly as in Scope; `express` major version is 5. (AC6)
+- [x] 2. `npm run build -w apps/api` exits 0 and creates `apps/api/dist/server.js`, `dist/app.js`, `dist/config.js` (and no `dist/test/` folder); `npm run typecheck -w apps/api` exits 0. (AC6)
+- [x] 3. `apps/api/test/config.test.ts` covers and passes: `undefined` -> 3000, `""` -> 3000, `"4000"` -> 4000, `"1"` -> 1, `"65535"` -> 65535, and throws `Invalid PORT: <value>` for `"0"`, `"65536"`, `"abc"`, `"-1"`, `"3000.5"`, `" 3000"`. (AC5)
+- [x] 4. `apps/api/test/app.test.ts` passes: `GET /anything` -> 404 body `{"error":"not_found"}`; `GET /__throw` (test route) -> 500 body `{"error":"internal_error"}` with no `boom` and no stack trace text in the body. (AC3, AC4)
+- [x] 5. `npm test -w apps/api` exits 0. (AC6)
+- [x] 6. `npm start -w apps/api` prints `API listening on http://localhost:3000`; `curl -i http://localhost:3000/anything` returns 404, body `{"error":"not_found"}`, no `X-Powered-By`, no `Set-Cookie`. (AC2, AC3, AC5)
+- [x] 7. `PORT=4000 npm start -w apps/api` listens on 4000; `PORT=abc node apps/api/dist/server.js` prints `Invalid PORT: abc` and exits with code 1. (AC5)
+- [x] 8. Running `node apps/api/dist/server.js` while an API already runs on 3000 prints `Port 3000 is already in use`, prints no line containing `API listening`, and exits with code 1. (AC5)
+- [x] 9. `npm run dev -w apps/api` starts the API and restarts it after a change to `src/app.ts` is saved. (AC6)
+- [x] 10. `apps/api/package.json` has no `pg`, `@neondatabase/*`, `@aws-sdk/*`, `better-auth` or `cors` dependency. (Out of scope)
+- [x] 11. A type error in a test file fails type-checking: temporarily add `const x: number = 'a'` to `apps/api/test/config.test.ts`, run `npm run typecheck -w apps/api`, expect a non-zero exit; then revert the line. (AC6)
+- [x] 12. `apps/api/src/server.ts` calls `listen(port)` with one argument only and logs `API listening` from a `'listening'` event handler. (AC5)
 
 ## e2e-test-suites
 
@@ -132,3 +132,11 @@ Expected: tc non-zero with an error pointing at test/config.test.ts; disttest no
 - ADR: [0001-monorepo-skeleton-and-tooling](../../adr/0001-monorepo-skeleton-and-tooling.md)
 - API: [health](../../api/health.md)
 - Next: [add-health-endpoint](add-health-endpoint.md)
+
+## Summary
+
+- Built: `apps/api` (Express 5, TypeScript, Vitest): `config.ts`, `app.ts`, `server.ts`, tests, tsconfigs.
+- PR: https://github.com/buitahau/sweetmemoriesv1/pull/4 (merge commit `a9d5701`).
+- Test: fresh clone, Node 24.14.1; checklist items 1-12 all Pass. No deploy for this ticket.
+- Cycles: 1. Review: approve; Minor fixes applied (`@types/node` ^24, `headersSent` guard, header assertions).
+- Leftovers: decide 4xx handling for body-parser errors when a body parser is added.
