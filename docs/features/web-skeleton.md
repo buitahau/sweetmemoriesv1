@@ -1,6 +1,6 @@
 # Web skeleton
 
-- Status: not-started
+- Status: done
 
 ## Summary
 
@@ -35,15 +35,15 @@ Acceptance criteria:
 
 The feature is complete only when every item below passes.
 
-- [ ] 1. Both tasks of this feature have Status `done`. (all ACs)
-- [ ] 2. At `http://localhost:5173/` the page shows one `<h1>` with text exactly `SweetMemories home page` and no other visible text. (AC1)
-- [ ] 3. The tab title is `SweetMemories`; `document.documentElement.lang` is `en`. (AC2)
-- [ ] 4. DevTools Application > Cookies for `http://localhost:5173` is empty after load; the Network tab shows only requests to `localhost:5173`. (AC3; CLAUDE.md security rule 1 groundwork: no cookies, rule 5: no private data in output)
-- [ ] 5. `apps/web/README.md`, `apps/web/public/`, `apps/web/src/assets/` and `apps/web/src/App.css` do not exist, and `grep -rn -i -E 'react\.svg|vite\.svg|hero\.png|icons\.svg|favicon\.svg|useState|setCount|count is|Edit src/App|Get started' apps/web/src apps/web/index.html` prints nothing. (AC4)
-- [ ] 6. In `apps/web`: `npm run build` creates `dist/index.html`; `npm run preview` serves it at `http://localhost:4173/` with the same heading; `npm test` and `npm run typecheck` exit 0. (AC5)
-- [ ] 7. The browser console shows no errors or warnings on load in dev and preview. (AC6)
-- [ ] 8. `http://localhost:5173/anything` shows the same heading. (Behavior: SPA fallback)
-- [ ] 9. At 320 px viewport width the heading is fully visible and the page has no horizontal scrollbar. (Behavior: accessibility)
+- [x] 1. Both tasks of this feature have Status `done`. (all ACs)
+- [x] 2. At `http://localhost:5173/` the page shows one `<h1>` with text exactly `SweetMemories home page` and no other visible text. (AC1)
+- [x] 3. The tab title is `SweetMemories`; `document.documentElement.lang` is `en`. (AC2)
+- [x] 4. DevTools Application > Cookies for `http://localhost:5173` is empty after load; the Network tab shows only requests to `localhost:5173`. (AC3; CLAUDE.md security rule 1 groundwork: no cookies, rule 5: no private data in output)
+- [x] 5. `apps/web/README.md`, `apps/web/public/`, `apps/web/src/assets/` and `apps/web/src/App.css` do not exist, and `grep -rn -i -E 'react\.svg|vite\.svg|hero\.png|icons\.svg|favicon\.svg|useState|setCount|count is|Edit src/App|Get started' apps/web/src apps/web/index.html` prints nothing. (AC4)
+- [x] 6. In `apps/web`: `npm run build` creates `dist/index.html`; `npm run preview` serves it at `http://localhost:4173/` with the same heading; `npm test` and `npm run typecheck` exit 0. (AC5)
+- [x] 7. The browser console shows no errors or warnings on load in dev and preview. (AC6)
+- [x] 8. `http://localhost:5173/anything` shows the same heading. (Behavior: SPA fallback)
+- [x] 9. At 320 px viewport width the heading is fully visible and the page has no horizontal scrollbar. (Behavior: accessibility)
 
 ## e2e-test-suites
 
