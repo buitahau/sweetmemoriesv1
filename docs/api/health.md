@@ -1,6 +1,6 @@
 # Health API
 
-Status: proposed ([ADR 0001](../adr/0001-monorepo-skeleton-and-tooling.md)). Implemented by [add-health-endpoint](../tasks/api-skeleton/add-health-endpoint.md).
+Status: current ([ADR 0001](../adr/0001-monorepo-skeleton-and-tooling.md)). Implemented by [add-health-endpoint](../tasks/api-skeleton/add-health-endpoint.md).
 
 ## Purpose
 
