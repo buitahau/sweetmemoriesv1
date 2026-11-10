@@ -40,9 +40,9 @@
 ## dev-deploy-verification
 | Task | Status | Updated |
 |---|---|---|
-| [add-version-endpoint](dev-deploy-verification/add-version-endpoint.md) | not-started | 2026-11-09 |
-| [add-wait-for-deploy-script](dev-deploy-verification/add-wait-for-deploy-script.md) | not-started | 2026-11-09 |
-| [add-dev-smoke-script](dev-deploy-verification/add-dev-smoke-script.md) | not-started | 2026-11-09 |
+| [add-version-endpoint](dev-deploy-verification/add-version-endpoint.md) | done | 2026-11-10 |
+| [add-wait-for-deploy-script](dev-deploy-verification/add-wait-for-deploy-script.md) | done | 2026-11-10 |
+| [add-dev-smoke-script](dev-deploy-verification/add-dev-smoke-script.md) | done | 2026-11-10 |
 
 ## web-design-foundation
 | Task | Status | Updated |

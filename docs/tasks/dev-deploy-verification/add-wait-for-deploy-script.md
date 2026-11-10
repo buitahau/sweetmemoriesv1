@@ -1,6 +1,6 @@
 # Add wait-for-deploy script
 
-- Status: not-started
+- Status: done
 
 ## Goal
 
@@ -36,15 +36,15 @@ Security: the script prints only commit values or `none`, never raw response bod
 
 The task is complete only when every item below passes. Tags name the [dev-deploy-verification](../../features/dev-deploy-verification.md) acceptance criterion (ACn).
 
-- [ ] 1. `scripts/wait-for-dev-deploy.sh` with no argument, with `abc`, and with two arguments exits 2 and prints the usage line. (AC3)
-- [ ] 2. With a valid SHA but `DEV_API_URL` unset, or `WAIT_TIMEOUT_SECONDS=0` or `=x`, it exits 2 with the matching message. (AC3)
-- [ ] 3. With `DEV_API_URL=http://127.0.0.1:9` and `DEV_WEB_URL=http://127.0.0.1:9` (closed port) and `WAIT_TIMEOUT_SECONDS=15`, it prints `waiting: api=none web=none` at least once and exits 1 within 30 s with the `timeout after` line. (AC3; network errors count as "not yet")
-- [ ] 4. Against dev, with the deployed SHA, it exits 0 within 15 s and prints `deployed:`. (AC3)
-- [ ] 5. Against dev, with the parent of the deployed SHA, it exits 0. (AC3: later commit accepted)
-- [ ] 6. Against dev, with `0000000000000000000000000000000000000000` and `WAIT_TIMEOUT_SECONDS=20`, it exits 1. (AC3)
-- [ ] 7. `git ls-files -s scripts/wait-for-dev-deploy.sh` shows mode `100755`; `bash -n scripts/wait-for-dev-deploy.sh` exits 0. (Scope)
-- [ ] 8. No output line contains anything other than the fixed messages, commit values and `none` (checked in the outputs of items 1-6). (Security)
-- [ ] 9. Dev serves the deployed commit: after the newest `Deploy dev` run on `dev-v1` ended `success`, `curl -s $DEV_API_URL/api/version` prints `{"commit":"<that run's headSha>"}`, and so does `curl -s $DEV_WEB_URL/version.json`. (AC1, AC2; moved here from [add-version-endpoint](add-version-endpoint.md) so that task can be verified locally)
+- [x] 1. `scripts/wait-for-dev-deploy.sh` with no argument, with `abc`, and with two arguments exits 2 and prints the usage line. (AC3)
+- [x] 2. With a valid SHA but `DEV_API_URL` unset, or `WAIT_TIMEOUT_SECONDS=0` or `=x`, it exits 2 with the matching message. (AC3)
+- [x] 3. With `DEV_API_URL=http://127.0.0.1:9` and `DEV_WEB_URL=http://127.0.0.1:9` (closed port) and `WAIT_TIMEOUT_SECONDS=15`, it prints `waiting: api=none web=none` at least once and exits 1 within 30 s with the `timeout after` line. (AC3; network errors count as "not yet")
+- [x] 4. Against dev, with the deployed SHA, it exits 0 within 15 s and prints `deployed:`. (AC3)
+- [x] 5. Against dev, with the parent of the deployed SHA, it exits 0. (AC3: later commit accepted)
+- [x] 6. Against dev, with `0000000000000000000000000000000000000000` and `WAIT_TIMEOUT_SECONDS=20`, it exits 1. (AC3)
+- [x] 7. `git ls-files -s scripts/wait-for-dev-deploy.sh` shows mode `100755`; `bash -n scripts/wait-for-dev-deploy.sh` exits 0. (Scope)
+- [x] 8. No output line contains anything other than the fixed messages, commit values and `none` (checked in the outputs of items 1-6). (Security)
+- [x] 9. Dev serves the deployed commit: after the newest `Deploy dev` run on `dev-v1` ended `success`, `curl -s $DEV_API_URL/api/version` prints `{"commit":"<that run's headSha>"}`, and so does `curl -s $DEV_WEB_URL/version.json`. (AC1, AC2; moved here from [add-version-endpoint](add-version-endpoint.md) so that task can be verified locally)
 
 ## e2e-test-suites
 
@@ -98,6 +98,13 @@ Request:
   curl -s "$DEV_WEB_URL/version.json"; echo
 Expected: conclusion "success"; both bodies exactly {"commit":"<headSha>"}
 ```
+
+## Summary
+
+- Built: `scripts/wait-for-dev-deploy.sh` (100755).
+- PR: https://github.com/buitahau/sweetmemoriesv1/pull/44. Review: approve; timeout overrun fixed.
+- Test: items 1-9 Pass (live=0, parent=0, unknown commit=1 after about 21 s, bad arg and missing URL=2).
+- Cycles: 1. Leftovers: none.
 
 ## Links
 

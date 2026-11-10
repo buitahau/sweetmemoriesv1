@@ -1,6 +1,6 @@
 # Dev environment
 
-Status: proposed ([ADR 0002](../adr/0002-ci-cd-and-dev-environment-on-cloudflare.md)). URLs are filled in by [provision-cloudflare-dev](../tasks/dev-deploy/provision-cloudflare-dev.md); becomes current once the [dev-deploy-verification](../features/dev-deploy-verification.md) tasks are done.
+Status: current ([ADR 0002](../adr/0002-ci-cd-and-dev-environment-on-cloudflare.md)). URLs are filled in by [provision-cloudflare-dev](../tasks/dev-deploy/provision-cloudflare-dev.md).
 
 ## What
 

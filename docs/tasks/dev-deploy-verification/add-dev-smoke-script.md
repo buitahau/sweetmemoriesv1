@@ -1,6 +1,6 @@
 # Add dev smoke script
 
-- Status: not-started
+- Status: done
 
 ## Goal
 
@@ -38,16 +38,16 @@ Security: the script must not print bodies, headers or env values (writing-docs:
 
 The task is complete only when every item below passes. Tags name the [dev-deploy-verification](../../features/dev-deploy-verification.md) acceptance criterion (ACn).
 
-- [ ] 1. Against live dev, `scripts/smoke-dev.sh` prints exactly `PASS api health`, `PASS api version`, `PASS web home`, `PASS web version` and exits 0. (AC4)
-- [ ] 2. With `DEV_API_URL=https://example.invalid`, it prints `FAIL api health: request failed` and `FAIL api version: request failed`, still runs checks 3 and 4, and exits 1. (AC4)
-- [ ] 3. With `DEV_WEB_URL` pointing at `$DEV_API_URL` (wrong app), check 3 prints `FAIL web home: ...` and the script exits 1. (AC4)
-- [ ] 4. With `DEV_API_URL` unset it exits 2 with the message from Scope. (AC4)
-- [ ] 5. Locally, with no dev environment: run the API on `localhost:3000` with `GIT_SHA` set and point both URLs at it; checks 1 and 2 pass, checks 3 and 4 print `FAIL ...: status 404`, exit 1. (AC4; testable without network)
-- [ ] 6. `deploy-dev.yml` has steps 7 and 8 of job `deploy` after "Deploy web", with only `vars.` (no `secrets.`) in their `env`; `grep -c -F 'WAIT_TIMEOUT_SECONDS=180 scripts/wait-for-dev-deploy.sh "$GITHUB_SHA"' .github/workflows/deploy-dev.yml` prints 1. (AC5: timeout 180 s)
-- [ ] 7. The `Deploy dev` run for this task's merge commit ends `success`, and its log shows both new steps succeeding. (AC5)
-- [ ] 8. No output line of items 1-5 contains a body, header value or env value (only the fixed `PASS`/`FAIL` formats). (Security)
-- [ ] 9. `git ls-files -s scripts/smoke-dev.sh` shows `100755`; `bash -n scripts/smoke-dev.sh` exits 0. (Scope)
-- [ ] 10. After steps 7 and 8 of job `deploy` are added, `grep -c -E 'continue-on-error|^\s+if:' .github/workflows/deploy-dev.yml` prints 0 and neither step sets `shell:`. With the default `run` shell (`bash -e`), a non-zero exit of either script (proven by items 2-5) fails the step and the run, so this is checked in the file, as in [dev-deploy](../../features/dev-deploy.md) checklist item 3. No live negative run is required: it would mean pointing the shared `dev` environment variables at a wrong URL. (AC5)
+- [x] 1. Against live dev, `scripts/smoke-dev.sh` prints exactly `PASS api health`, `PASS api version`, `PASS web home`, `PASS web version` and exits 0. (AC4)
+- [x] 2. With `DEV_API_URL=https://example.invalid`, it prints `FAIL api health: request failed` and `FAIL api version: request failed`, still runs checks 3 and 4, and exits 1. (AC4)
+- [x] 3. With `DEV_WEB_URL` pointing at `$DEV_API_URL` (wrong app), check 3 prints `FAIL web home: ...` and the script exits 1. (AC4)
+- [x] 4. With `DEV_API_URL` unset it exits 2 with the message from Scope. (AC4)
+- [x] 5. Locally, with no dev environment: run the API on `localhost:3000` with `GIT_SHA` set and point both URLs at it; checks 1 and 2 pass, checks 3 and 4 print `FAIL ...: status 404`, exit 1. (AC4; testable without network)
+- [x] 6. `deploy-dev.yml` has steps 7 and 8 of job `deploy` after "Deploy web", with only `vars.` (no `secrets.`) in their `env`; `grep -c -F 'WAIT_TIMEOUT_SECONDS=180 scripts/wait-for-dev-deploy.sh "$GITHUB_SHA"' .github/workflows/deploy-dev.yml` prints 1. (AC5: timeout 180 s)
+- [x] 7. The `Deploy dev` run for this task's merge commit ends `success`, and its log shows both new steps succeeding. (AC5)
+- [x] 8. No output line of items 1-5 contains a body, header value or env value (only the fixed `PASS`/`FAIL` formats). (Security)
+- [x] 9. `git ls-files -s scripts/smoke-dev.sh` shows `100755`; `bash -n scripts/smoke-dev.sh` exits 0. (Scope)
+- [x] 10. After steps 7 and 8 of job `deploy` are added, `grep -c -E 'continue-on-error|^\s+if:' .github/workflows/deploy-dev.yml` prints 0 and neither step sets `shell:`. With the default `run` shell (`bash -e`), a non-zero exit of either script (proven by items 2-5) fails the step and the run, so this is checked in the file, as in [dev-deploy](../../features/dev-deploy.md) checklist item 3. No live negative run is required: it would mean pointing the shared `dev` environment variables at a wrong URL. (AC5)
 
 ## e2e-test-suites
 
@@ -120,6 +120,13 @@ Request:
   grep -A4 -E 'name: (Wait for dev deploy|Smoke test dev)$' .github/workflows/deploy-dev.yml | grep -c 'shell:'
 Expected: 0; 0
 ```
+
+## Summary
+
+- Built: `scripts/smoke-dev.sh` (100755) and steps `Wait for dev deploy` (180 s) and `Smoke test dev` in `deploy-dev.yml`.
+- PR: https://github.com/buitahau/sweetmemoriesv1/pull/44. Review: approve.
+- Test: items 1-10 Pass (4 PASS on dev, failure cases exit 1/2, Deploy dev run 42745745331 success with both steps).
+- Cycles: 1. Leftovers: none.
 
 ## Links
 
