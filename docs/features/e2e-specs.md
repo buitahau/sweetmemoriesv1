@@ -20,15 +20,16 @@ Acceptance criteria:
 
 ## Behavior
 
-- Install: `npm ci --prefix e2e`. Run: `cd e2e && BASE_URL=<url> npx playwright test [specs/<feature-slug>/]`.
-- Optional `STORAGE_STATE` points specs at a session saved with `npm --prefix e2e run auth:save` ([ADR 0004](../adr/0004-playwright-e2e-specs.md), Consequences).
+- Install: `npm ci --prefix e2e`. Run one ticket: `cd e2e && BASE_URL=<url> npx playwright test --grep <ticket-slug>`; run a whole feature with only its feature spec: `--grep "<feature-slug> E2E-"` (e.g. `--grep "homepage E2E-"`).
+- Spec isolation ([ADR 0004](../adr/0004-playwright-e2e-specs.md), Spec isolation row; [Q014](../questions/questions-2026-11-10-requirement-breakdown.md#q014-keep-task-level-homepage-specs-from-failing-a-full-playwright-run), option A): each task spec wraps its tests in `test.describe('<task-slug>', ...)`, because it asserts the page as it is right after that task and may fail once later tasks merge. A bare `--grep <feature-slug>` also matches task specs (Playwright greps the file path too), and an unfiltered `npx playwright test` is not a supported check.
+- Signed-in specs: one saved session per role (`e2e/.auth/<role>.json`, from `npm --prefix e2e run auth:save -- <url> --role user|admin`); a spec opts in with `test.use({ storageState: sessionFile('<role>') })` from `e2e/support/session.ts`. There is no global `STORAGE_STATE` ([ADR 0005](../adr/0005-e2e-signed-in-data-writing-and-visual-specs.md), Sessions row; [ADR 0004](../adr/0004-playwright-e2e-specs.md), Consequences).
 - Spec-eligibility, `Spec:` and `Testids:` fields: [writing-docs skill, Playwright specs](../../.claude/skills/writing-docs/SKILL.md).
 
 ## Out of scope
 
 - Running specs in CI (ADR 0004, CI row).
 - Screenshot-diff tooling (ADR 0003).
-- Test-only sign-in, dev database seed/reset (deferred by ADR 0004).
+- Building the test-only sign-in and the dev database seed/reset endpoints: decided in [ADR 0005](../adr/0005-e2e-signed-in-data-writing-and-visual-specs.md) (accepted), built by their own tickets after product-owner approval (ADR 0005, Gating).
 - Per-ticket spec files (owned by each FE ticket).
 
 ## Verification checklist
@@ -89,7 +90,7 @@ Expected: two lines, each "- Status: done"
 
 - Parent ADR: [0004-playwright-e2e-specs](../adr/0004-playwright-e2e-specs.md)
 - Used by: every FE ticket's `e2e-test-suites` (`Spec:` fields), e.g. [homepage](homepage.md), [web-design-foundation](web-design-foundation.md); those features belong to [ADR 0003](../adr/0003-frontend-styling-and-self-hosted-fonts.md).
-- Questions: [Q010](../questions/questions-2026-11-10-requirement-breakdown.md#q010-record-adr-0003-and-adr-0004-approval-in-claudemd) (open; record ADR 0004 approval in `CLAUDE.md`).
+- Questions: [Q010](../questions/questions-2026-11-10-requirement-breakdown.md#q010-record-adr-0003-and-adr-0004-approval-in-claudemd) (open; record ADR 0004 approval in `CLAUDE.md`); [Q014](../questions/questions-2026-11-10-requirement-breakdown.md#q014-keep-task-level-homepage-specs-from-failing-a-full-playwright-run) (answered A; Spec isolation).
 - Tasks:
   1. [scaffold-e2e-project](../tasks/e2e-specs/scaffold-e2e-project.md) (done, PR #46)
   2. [align-e2e-readme-title-rule](../tasks/e2e-specs/align-e2e-readme-title-rule.md)

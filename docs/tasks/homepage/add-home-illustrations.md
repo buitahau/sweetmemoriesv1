@@ -29,9 +29,11 @@ The hero face ring (line 94: `border`, `border-radius`, `background`, negative m
 
 `illustrations.test.tsx` (Vitest + Testing Library, imports from `'vitest'`), tests:
 - `hides every illustration from assistive technology`: render each component (all variants/kinds) and expect its `container.querySelector('svg')` to have `aria-hidden="true"`.
-- `sizes Face and Heart from props`: `Face` with `size={52}` has `width="52"` and `height="52"`; its first `circle` has `fill` equal to the `bg` prop.
+- `sizes Face and Heart from props`: `Face` with `size={52}` has `width="52"` and `height="52"`; its first `circle` has `fill` equal to the `bg` prop; `Heart` with `size={22}` has `width="22"`.
 - `draws the two logo variants`: header variant `width="38"`, footer variant `width="28"`.
-- `passes className through`: `Star` with `className="x"` has class `x` on the `svg`.
+- `passes className through`: `Star` with `className="x"` has class `x` on the `svg`; without `className` the `svg` has no `class="undefined"`.
+
+The `unit-tests` section below maps these tests to checklist items.
 
 Prerequisites: none.
 
@@ -51,12 +53,15 @@ The task is complete only when every item below passes. Tags name the [homepage]
 
 ## e2e-test-suites
 
-Type: FE (component module, verified by commands). Run from the repo root. `Spec:`/`Testids:` per [ADR 0004](../../adr/0004-playwright-e2e-specs.md): no case opens a page, so all are prose.
+Type: FE (component module, verified by commands). Run from the repo root. `Spec:`/`Testids:` per [ADR 0004](../../adr/0004-playwright-e2e-specs.md): no case opens a page, so all are prose. Every case is `Auth: none`, `Data: none`, `Visual: none` (commands only; [ui/homepage.md, Test case fields](../../ui/homepage.md#test-case-fields)).
 
 ```
 E2E-1 -> checklist items 1, 2: exports, tests, types
 Spec: prose (npm and grep commands)
 Testids: none
+Auth: none
+Data: none
+Visual: none
 Preconditions: npm install done
 Steps:
   1. Run: npm test -w apps/web -- --reporter=verbose src/home/illustrations.test.tsx; echo "t=$?"
@@ -69,22 +74,43 @@ Expected: the four test names pass; t=0; c=0; step 3 lists LogoMark, Face, Heart
 E2E-2 -> checklist item 3: shapes match the mockup
 Spec: prose (shell commands)
 Testids: none
+Auth: none
+Data: none
+Visual: none
 Preconditions: branch checked out
 Steps:
-  1. Run: for d in "M15 22s-6.5-4.1-6.5-8.4A3.6 3.6 0 0 1 15 11.6a3.6 3.6 0 0 1 6.5 2C21.5 17.9 15 22 15 22z" "M15 25s-10-6.3-10-13A5.5 5.5 0 0 1 15 9a5.5 5.5 0 0 1 10 3c0 6.7-10 13-10 13z" "M3.5 9.5L10 4l6.5 5.5V16h-4.2v-4.2H7.7V16H3.5z" "M14 44a13 13 0 0 1 2-26 18 18 0 0 1 34-3 15 15 0 0 1 14 29z" "M21 37q9 8 18 0"; do grep -qF "$d" apps/web/src/home/illustrations.tsx || echo "missing: $d"; done; echo done
-Expected: prints only "done"
+  1. Run: for d in "M15 22s-6.5-4.1-6.5-8.4A3.6 3.6 0 0 1 15 11.6a3.6 3.6 0 0 1 6.5 2C21.5 17.9 15 22 15 22z" "M15 25s-10-6.3-10-13A5.5 5.5 0 0 1 15 9a5.5 5.5 0 0 1 10 3c0 6.7-10 13-10 13z" "M3.5 9.5L10 4l6.5 5.5V16h-4.2v-4.2H7.7V16H3.5z" "M10 16.5s-6-3.8-6-8A3.3 3.3 0 0 1 10 6.6a3.3 3.3 0 0 1 6 1.9c0 4.2-6 8-6 8z" "M14 44a13 13 0 0 1 2-26 18 18 0 0 1 34-3 15 15 0 0 1 14 29z" "M21 37q9 8 18 0" "20,3 25,14.5 37.5,15.5 28,23.500 31,36 20,29.500 9,36 12,23.500 2.500,15.500 15,14.500" "M4 5V3.6a2 2 0 0 1 4 0V5" 'viewBox="0 0 12 12"' 'viewBox="0 0 40 40"'; do grep -qF -- "$d" apps/web/src/home/illustrations.tsx || echo "missing: $d"; done; echo done
+Expected: prints only "done" (the strings are: LogoMark heart (lines 65, 274), Heart (line 80), AddressIcon home (line 324), AddressIcon heart (line 325), Cloud (line 114), Face smile (line 155), Star polygon `points` (line 133, copied character for character), LockIcon shackle path and LockIcon and Star `viewBox` (lines 119, 133); the LockIcon `rect` (`x` 2, `y` 5, `width` 8, `height` 6, `rx` 1.5, fill `#6B4A5A`) is compared by the reviewer under checklist item 3)
 ```
 
 ```
 E2E-3 -> checklist items 4, 5: no unsafe markup, scope
 Spec: prose (grep and git commands)
 Testids: none
+Auth: none
+Data: none
+Visual: none
 Preconditions: PR branch checked out
 Steps:
   1. Run: grep -n -E 'dangerouslySetInnerHTML|href=|xlink|style=' apps/web/src/home/illustrations.tsx; echo "g=$?"
   2. Run: git diff --name-only origin/dev-v1...HEAD -- apps/
 Expected: only "g=1"; exactly apps/web/src/home/illustrations.tsx and apps/web/src/home/illustrations.test.tsx (files under docs/ may also change in the PR but are not listed by this command)
 ```
+
+## unit-tests
+
+Vitest + Testing Library, colocated in `apps/web/src/home/illustrations.test.tsx` (the four tests named in Scope). Render only; no network.
+
+Unit: the eight components of `apps/web/src/home/illustrations.tsx`.
+
+| ID | Case: input -> expected | Checklist |
+|---|---|---|
+| U-1 | `hides every illustration from assistive technology`: render `LogoMark` (both variants), `Face`, `Heart`, `Sun`, `Cloud`, `Star`, `LockIcon`, `AddressIcon` (both kinds) -> each `svg` has `aria-hidden="true"` (10 renders, 0 without it) | 2 |
+| U-2 | `sizes Face and Heart from props`: `<Face bg="#FFC09A" size={52} />` -> `width="52"`, `height="52"`, first `circle` `fill="#FFC09A"`; `<Heart size={22} />` -> `width="22"` | 1, 2 |
+| U-3 | `draws the two logo variants`: `variant="header"` -> `width="38"`; `variant="footer"` -> `width="28"` | 1, 2 |
+| U-4 | `passes className through`: `<Star className="x" />` -> the `svg` has class `x`; without `className` -> no `class="undefined"` | 1, 2 |
+
+Security (no external `href`, no `style`, no `dangerouslySetInnerHTML`; CLAUDE.md rule 1 groundwork) is checked by grep in checklist item 4, not by a unit test.
 
 ## Links
 

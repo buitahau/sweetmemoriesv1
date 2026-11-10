@@ -216,3 +216,83 @@ Session 2026-11-10. Requirement: "Implement the Homepage page (public landing pa
 **Answer**: _(human fills in)_
 
 ---
+
+## Q012: Accept ADR 0005 for the Homepage visual cases?
+
+- Feature: homepage
+- Status: answered
+- Asked: 2026-11-10
+- Blocks: nothing (answered). It used to keep the side-by-side mockup cases E2E-2 of [homepage](../features/homepage.md) and of 9 section tasks at `Spec: prose`.
+
+**Question**: Homepage recheck (2026-11-10): each Homepage ticket has one side-by-side mockup comparison case. It now carries a `Visual:` line with measured values (colors, font sizes, padding, radii, column counts at 1280/1440 and at 390 wide). [ADR 0005](../adr/0005-e2e-signed-in-data-writing-and-visual-specs.md) would let the tester automate these as measured Playwright assertions (`toHaveCSS`, bounding boxes, no screenshots), but it is still `proposed`. The Homepage needs nothing else from ADR 0005: every case is `Auth: none`, `Data: none`, so the test sign-in and seed/reset endpoints in that ADR are not needed here. Accepting ADR 0005 also approves those two endpoints for later work, so the decision is wider than the Homepage.
+
+**Options**
+1. A: Accept ADR 0005 as written. The 10 Homepage side-by-side cases become specs from their `Visual:` values; the by-eye comparison stays prose for decorative positions only. (recommended: less manual checking per ticket, no new tool)
+2. B: Accept only the visual-fidelity row now; decide the sign-in and seed/reset rows later (needs an ADR 0005 edit that splits it).
+3. C: Keep ADR 0005 `proposed`; the side-by-side cases stay manual prose with screenshots.
+
+**Default if unanswered**: C. Nothing changes until the product owner decides: the cases stay `Spec: prose` with "missing: ADR 0005 accepted, Q012" noted. Accepting an ADR is the product owner's decision.
+
+**Answer**: Option A, approved by the product owner 2026-11-10 ("more automatic verification, less manual eye-to-eye checking"). Applied: [ADR 0005](../adr/0005-e2e-signed-in-data-writing-and-visual-specs.md) is `accepted` and [ADR 0004](../adr/0004-playwright-e2e-specs.md) is amended (Eligibility, Deferred, Visual fidelity, BE tickets, sign-in note in Consequences). The 10 Homepage mockup cases (E2E-2 of [homepage](../features/homepage.md) and of the 9 section tasks) now have `Spec: e2e/specs/homepage/<feature-or-task-slug>.spec.ts` and are asserted from their `Visual:` values per [ui/homepage.md, Visual assertions](../ui/homepage.md#visual-assertions); only decorative positions stay prose, by eye. The tester authors the spec code. Follow-up [Q015](#q015-do-the-measured-visual-assertions-replace-the-mockup-bounding-box-comparison) is answered (A).
+
+---
+
+## Q013: Viewports for Homepage Visual values
+
+- Feature: homepage
+- Status: answered
+- Asked: 2026-11-10
+- Blocks: nothing (answered)
+
+**Question**: ADR 0005 and the business-analyst rules ask for `Visual:` values at 390 and 1280 wide. The mockup is drawn at 1440 only, [Checking fidelity](../ui/homepage.md#checking-fidelity) compares bounding boxes at 1440, and `e2e/playwright.config.ts` uses 1440 x 900. No responsive rule applies between 768 and 1439 px, so every computed CSS value is the same at 1280 and 1440; only `x` positions move by 80 px. [ui/homepage.md, Test case fields](../ui/homepage.md#test-case-fields) now uses one value set "at 1280 and 1440" plus one "at 390".
+
+**Options**
+1. A: Keep this: CSS values valid at 1280 and 1440, mobile values at 390, bounding-box comparison with the mockup at 1440. (recommended: meets ADR 0005 without changing the mockup width or the config)
+2. B: Use 1280 and 390 only and move the bounding-box comparison to 1280 (the mockup then has to be viewed at 1280, where it was not drawn).
+3. C: Measure at 390, 1280 and 1440 as three separate value sets (more checks, same values twice).
+
+**Default if unanswered**: Option A.
+
+**Answer**: Option A (the default), chosen by the product owner 2026-11-10. Applied: [ui/homepage.md, Test case fields](../ui/homepage.md#test-case-fields) states the rule as decided (CSS values valid at 1280 and 1440, mobile values at 390, bounding-box comparison with the mockup at 1440); the [homepage](../features/homepage.md) feature and the 9 section tasks already use "at 1280 and 1440 wide" and "At 390 wide" `Visual:` sets, so no case changed.
+
+---
+
+## Q014: Keep task-level Homepage specs from failing a full Playwright run
+
+- Feature: homepage
+- Status: answered
+- Asked: 2026-11-10
+- Blocks: nothing (answered)
+
+**Question**: Some task-level specs assert the page as it is right after that task. For example, [add-homepage-shell](../tasks/homepage/add-homepage-shell.md) E2E-2 expects `document.querySelector('main').children.length === 0`, and that stops being true once the first section task merges. [ADR 0004](../adr/0004-playwright-e2e-specs.md) says the tester runs only the current ticket's spec file and CI does not run specs, but nothing stops anyone from running `npx playwright test` for the whole `e2e/` project. That run would then report failures even though the page is correct. Should these specs be isolated, and how?
+
+**Options**
+1. A: Each task spec wraps its tests in `test.describe('<task-slug>', ...)`. The e2e README tells people to run one ticket with `npx playwright test --grep <task-slug>`, and to run the whole project with only the feature spec (`--grep homepage`). The rule is recorded as an amendment to ADR 0004 or in the [e2e-specs](../features/e2e-specs.md) feature. (recommended: no code skips, the intent is written down, cheap)
+2. B: The tester deletes or rewrites a task's spec once a later task changes the state it asserts (no stale specs, but more churn, and the red-first history is lost).
+3. C: Keep as is and rely on the convention (zero work, but a full run fails after the second Homepage task merges).
+
+**Default if unanswered**: Option A. Until it is recorded, the tester keeps running one spec file per ticket, as ADR 0004 says.
+
+**Answer**: Option A (the default), chosen by the product owner 2026-11-10. Applied: recorded as the "Spec isolation" row amending [ADR 0004](../adr/0004-playwright-e2e-specs.md), in [e2e-specs](../features/e2e-specs.md) (Behavior), in the [homepage](../features/homepage.md) `e2e-test-suites` intro and in `e2e/README.md`. One wording correction, same intent: Playwright tests the `--grep` pattern against the file path plus the describe and test titles, so a bare `--grep homepage` would also select every task spec under `specs/homepage/`. The feature-only run is therefore written as `--grep "homepage E2E-"` (matches only titles that start with the feature slug); the one-ticket run stays `--grep <task-slug>`.
+
+---
+
+## Q015: Do the measured Visual assertions replace the mockup bounding-box comparison?
+
+- Feature: homepage
+- Status: answered
+- Asked: 2026-11-10
+- Blocks: nothing (answered)
+
+**Question**: After Q012 (A), each Homepage mockup case (E2E-2) is a spec that asserts its `Visual:` values: computed CSS exact, sizes and layout relations (one row, N columns, below) from bounding boxes within ±4 px ([ui/homepage.md, Visual assertions](../ui/homepage.md#visual-assertions)). [Checking fidelity](../ui/homepage.md#checking-fidelity) step 4 also asks for each heading, card, panel and button box (`x`, `y` from the section top, `width`, `height`) to be within ±4 px of the same box in the live mockup. Those mockup box numbers are not written in any ticket, so a spec written from the ticket only ([ADR 0004](../adr/0004-playwright-e2e-specs.md), "Who writes specs") cannot assert them; keeping step 4 as a manual check keeps eye-to-eye work the product owner asked to cut.
+
+**Options**
+1. A: The measured `Visual:` values replace step 4 for the e2e run: positions follow from the asserted padding, margins, gaps and sizes. Step 4 stays in Checking fidelity as an optional reviewer check. Only decorative positions stay prose, by eye. (recommended: no new tool, no mockup server in test runs)
+2. B: Measure the mockup boxes once (business-analyst, at 1440 x 900) and add them to each `Visual:` line, so the spec also asserts `x`, `y`, `width`, `height` within ±4 px (strictest; one more doc pass, values to keep in sync with the mockup).
+3. C: Let the spec open the mockup itself (a `MOCKUP_URL` variable) and compare boxes live (needs the mockup served during every run, so not on dev; an ADR 0004 amendment).
+
+**Default if unanswered**: Option A, as written in [ui/homepage.md, Checking fidelity](../ui/homepage.md#checking-fidelity) and the 10 E2E-2 cases.
+
+**Answer**: Option A (the default), chosen by the product owner 2026-11-10. Applied: [ui/homepage.md, Checking fidelity](../ui/homepage.md#checking-fidelity) step 5 states the decision; checklist item 4 of [homepage](../features/homepage.md) and checklist item 2 of the 9 section tasks with a mockup case (build-top-bar, build-hero-intro, build-hero-collage, build-audiences-section, build-steps-section, build-templates-section, build-moments-section, build-addresses-section, build-page-closing) now pass when the E2E-2 spec passes; the ±4 px mockup-box comparison (steps 3-4) is an optional reviewer check, and only decorative positions stay prose, by eye.
+
+---

@@ -42,23 +42,26 @@ Security: links are static; "Sign in" goes to the placeholder `SIGN_IN_HREF` onl
 The task is complete only when every item below passes. Tags name the [homepage](../../features/homepage.md) acceptance criterion (ACn).
 
 - [ ] 1. `npm test -w apps/web` passes `links the logo home` and `shows the main navigation`. (AC3, AC4)
-- [ ] 2. At 1440 x 900 the top bar matches mockup lines 63-74 side by side per [ui/homepage.md, Checking fidelity](../../ui/homepage.md#checking-fidelity) (±4 px boxes, exact colors and fonts; [Q008](../../questions/questions-2026-11-10-requirement-breakdown.md#q008-visual-fidelity-tolerance-for-the-homepage) default) (logo 38 px tile, "SweetMemories" Fredoka 600 24px, links right-aligned, white Sign in pill with yellow 4 px shadow). (AC2)
+- [ ] 2. At 1440 x 900 the top bar matches mockup lines 63-74 as measured by the E2E-2 spec (every `Visual:` value holds: computed CSS exact, layout relations within ±4 px, [Q008](../../questions/questions-2026-11-10-requirement-breakdown.md#q008-visual-fidelity-tolerance-for-the-homepage) default; this replaces the mockup-box comparison of [ui/homepage.md, Checking fidelity](../../ui/homepage.md#checking-fidelity) step 4, which stays an optional reviewer check, [Q015](../../questions/questions-2026-11-10-requirement-breakdown.md#q015-do-the-measured-visual-assertions-replace-the-mockup-bounding-box-comparison) A) (logo 38 px tile, "SweetMemories" Fredoka 600 24px, links right-aligned, white Sign in pill with yellow 4 px shadow). (AC2)
 - [ ] 3. Computed at 1440 px: bar padding `22px 40px`; nav links `font-size: 16px`, `font-weight: 600`, `min-height: 44px`; Sign in `background-color: rgb(255, 255, 255)`, `box-shadow: rgb(233, 200, 106) 0px 4px 0px 0px`, `border-radius: 999px`. (AC2)
 - [ ] 4. Hovering "Who it is for" keeps its color `rgb(59, 36, 51)`. (AC2)
 - [ ] 5. Clicking "How it works" sets `location.hash` to `#how` (the target exists once [build-steps-section](build-steps-section.md) is done; before that only the hash is checked). (AC3)
-- [ ] 6. At 320 px the nav wraps below the logo, every link is visible, and `document.documentElement.scrollWidth <= window.innerWidth`. (AC7)
+- [ ] 6. At 320 px the nav wraps below the logo, every link is visible, `document.documentElement.scrollWidth <= window.innerWidth`, and the clip check from [ui/homepage.md, Responsive rules](../../ui/homepage.md#responsive-rules) returns `0`. (AC7)
 - [ ] 7. Tab from the address bar focuses the logo, then the four nav links in order, each with a visible focus outline. (AC8)
 - [ ] 8. `npm run typecheck -w apps/web` and `npm run build -w apps/web` exit 0; no Console errors or warnings on load of `$BASE_URL/`. (AC11)
 - [ ] 9. Under `apps/`, the PR changes only the four files in Scope (`git diff --name-only origin/dev-v1...HEAD -- apps/` lists exactly them, none under `apps/api/`). Changes under `docs/` are allowed. (AC10)
 
 ## e2e-test-suites
 
-Type: FE. `$BASE_URL` = `http://localhost:5173` or `$DEV_WEB_URL`. Not signed in. Viewport 1440 x 900 unless stated. `Spec:`/`Testids:` per [ADR 0004](../../adr/0004-playwright-e2e-specs.md); when only some steps run in the browser, the brackets name the steps the spec covers and the other steps run as prose.
+Type: FE. `$BASE_URL` = `http://localhost:5173` or `$DEV_WEB_URL`. Not signed in. Viewport 1440 x 900 unless stated. `Spec:`/`Testids:` per [ADR 0004](../../adr/0004-playwright-e2e-specs.md); when only some steps run in the browser, the brackets name the steps the spec covers and the other steps run as prose. Every case is `Auth: none` and `Data: none` (public, static page). `Visual:` values appear only on the mockup case (E2E-2); under [ADR 0005](../../adr/0005-e2e-signed-in-data-writing-and-visual-specs.md) (accepted) it is a spec in this ticket's spec file, asserted per [ui/homepage.md, Visual assertions](../../ui/homepage.md#visual-assertions) (`toHaveCSS`, bounding boxes, no screenshots); viewports per [ui/homepage.md, Test case fields](../../ui/homepage.md#test-case-fields). The fixed computed values at 1440 x 900 need no mockup, so they are a spec case of their own (E2E-7, `Visual: none`).
 
 ```
 E2E-1 -> checklist items 1, 8: unit tests, build, console
 Spec: prose (npm commands)
 Testids: none
+Auth: none
+Data: none
+Visual: none
 Preconditions: npm install done; app running
 Steps:
   1. Run: npm test -w apps/web -- --reporter=verbose src/home/TopBar.test.tsx; echo "t=$?"
@@ -68,20 +71,39 @@ Expected: both test names pass, t=0; b=0; step 3 the Console shows no error or w
 ```
 
 ```
-E2E-2 -> checklist items 2, 3: look and values
-Spec: prose (visual comparison with the mockup)
+E2E-2 -> checklist item 2: mockup values, measured
+Spec: e2e/specs/homepage/build-top-bar.spec.ts
 Testids: none
-Preconditions: app running; mockup served at http://localhost:8000/Landing2.dc.html
+Auth: none
+Data: none
+Visual: at 1280 and 1440 wide: bar padding 22px 40px, logo and nav on one row, nav right-aligned; logo tile 38 x 38 px; logo text Fredoka 600 24px, letter spacing -0.24px, color rgb(59, 36, 51); nav links 16px, weight 600, min height 44px, padding 0px 14px, color rgb(59, 36, 51), gap 6px; Sign in background rgb(255, 255, 255), min height 46px, padding 0px 22px, radius 999px, box shadow rgb(233, 200, 106) 0px 4px 0px 0px. At 390 wide: bar padding 22px 20px; the nav starts below the logo
+Preconditions: app running; reduced motion emulated (no mockup opened)
 Steps:
-  1. Compare the top 100 px of both pages side by side.
-  2. In the app Console run: const nav=document.querySelector('nav[aria-label="Main"]'); const links=[...nav.querySelectorAll('a')]; const si=getComputedStyle(links.at(-1)); const l0=getComputedStyle(links[0]); [getComputedStyle(nav.parentElement).padding, l0.fontSize, l0.fontWeight, l0.minHeight, si.backgroundColor, si.boxShadow, si.borderRadius, links.map(a=>a.textContent)]
-Expected: step 1 same logo, sizes, spacing, colors; step 2 ["22px 40px","16px","600","44px","rgb(255, 255, 255)","rgb(233, 200, 106) 0px 4px 0px 0px","999px",["Who it is for","How it works","Templates","Sign in"]]
+  1. At 1440 x 900, then at 1280 x 900: assert every "at 1280 and 1440 wide" value of Visual on the element it names, per ui/homepage.md, Visual assertions.
+  2. At 390 x 900: assert every "At 390 wide" value of Visual the same way.
+Expected: every Visual value holds: computed CSS strings exactly as written, sizes exact, layout relations (one row, right-aligned, below) within ±4 px
+```
+
+```
+E2E-7 -> checklist item 3: computed values
+Spec: e2e/specs/homepage/build-top-bar.spec.ts
+Testids: none
+Auth: none
+Data: none
+Visual: none
+Preconditions: app running, 1440 x 900 (no mockup opened)
+Steps:
+  1. In the Console run: const nav=document.querySelector('nav[aria-label="Main"]'); const links=[...nav.querySelectorAll('a')]; const si=getComputedStyle(links.at(-1)); const l0=getComputedStyle(links[0]); [getComputedStyle(nav.parentElement).padding, l0.fontSize, l0.fontWeight, l0.minHeight, si.backgroundColor, si.boxShadow, si.borderRadius, links.map(a=>a.textContent)]
+Expected: ["22px 40px","16px","600","44px","rgb(255, 255, 255)","rgb(233, 200, 106) 0px 4px 0px 0px","999px",["Who it is for","How it works","Templates","Sign in"]]
 ```
 
 ```
 E2E-3 -> checklist items 4, 5: hover color and anchor
 Spec: e2e/specs/homepage/build-top-bar.spec.ts
 Testids: none
+Auth: none
+Data: none
+Visual: none
 Preconditions: app running
 Steps:
   1. Hover "Who it is for"; run: getComputedStyle(document.querySelector('nav a')).color
@@ -93,17 +115,24 @@ Expected: "rgb(59, 36, 51)"; "#how"
 E2E-4 -> checklist item 6: narrow screen
 Spec: e2e/specs/homepage/build-top-bar.spec.ts
 Testids: none
+Auth: none
+Data: none
+Visual: none
 Preconditions: app running
 Steps:
   1. Set 320 x 640, reload.
   2. Run: [document.documentElement.scrollWidth <= window.innerWidth, [...document.querySelectorAll('nav a')].every(a => { const r=a.getBoundingClientRect(); return r.left >= 0 && r.right <= innerWidth }), document.querySelector('nav').getBoundingClientRect().top >= document.querySelector('header a').getBoundingClientRect().bottom]
-Expected: [true, true, true] (the nav starts below the logo, every link is inside the viewport)
+  3. Run the clip check: [...document.querySelectorAll('header *, main *, footer *')].filter(e => !e.closest('[aria-hidden="true"]') && e.getBoundingClientRect().width > 0 && (e.getBoundingClientRect().left < -0.5 || e.getBoundingClientRect().right > innerWidth + 0.5)).length
+Expected: [true, true, true] (the nav starts below the logo, every link is inside the viewport); step 3 0
 ```
 
 ```
 E2E-5 -> checklist item 7: keyboard
 Spec: e2e/specs/homepage/build-top-bar.spec.ts (focus order only; the visible outline is judged by eye as prose)
 Testids: none
+Auth: none
+Data: none
+Visual: none
 Preconditions: app running, page freshly loaded
 Steps:
   1. Click the address bar, press Tab five times, noting document.activeElement text and the focus outline each time.
@@ -114,11 +143,27 @@ Expected: "SweetMemories", "Who it is for", "How it works", "Templates", "Sign i
 E2E-6 -> checklist item 9: PR scope
 Spec: prose (git command)
 Testids: none
+Auth: none
+Data: none
+Visual: none
 Preconditions: task branch checked out; git fetch origin done
 Steps:
   1. Run: git diff --name-only origin/dev-v1...HEAD -- apps/
 Expected: exactly apps/web/src/home/TopBar.tsx, apps/web/src/home/TopBar.module.css, apps/web/src/home/TopBar.test.tsx, apps/web/src/home/HomePage.tsx
 ```
+
+## unit-tests
+
+Vitest + Testing Library, colocated in `apps/web/src/home/TopBar.test.tsx` (the two tests named in Scope). Render only; no network.
+
+Unit: `TopBar` (`apps/web/src/home/TopBar.tsx`).
+
+| ID | Case: input -> expected | Checklist |
+|---|---|---|
+| U-1 | `links the logo home`: `render(<TopBar />)` -> link named `SweetMemories` has `href` `/` (not `#`) | 1 |
+| U-2 | `shows the main navigation`: `render(<TopBar />)` -> navigation named `Main` holds exactly 4 links, in order "Who it is for" `#who`, "How it works" `#how`, "Templates" `#templates`, "Sign in" `/sign-in`; edge: no fifth link and no `href` containing `Dashboard` | 1, 5 |
+
+Hover color, wrapping at 320 px and focus order are browser checks (E2E-3 to E2E-5).
 
 ## Links
 
