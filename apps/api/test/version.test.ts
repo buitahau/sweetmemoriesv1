@@ -26,8 +26,7 @@ describe('GET /api/version', () => {
       expect(res.status).toBe(200);
       expect(res.text).toBe('{"commit":"unknown"}');
     }
-    vi.unstubAllEnvs();
-    delete process.env.GIT_SHA;
+    vi.stubEnv('GIT_SHA', undefined);
     const res = await request(app).get('/api/version');
     expect(res.text).toBe('{"commit":"unknown"}');
   });

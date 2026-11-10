@@ -60,9 +60,14 @@ while true; do
     echo "deployed: api=$api web=$web"
     exit 0
   fi
-  if [ $((SECONDS - start)) -ge "$timeout_s" ]; then
+  remaining=$((timeout_s - (SECONDS - start)))
+  if [ "$remaining" -le 0 ]; then
     echo "timeout after ${timeout_s}s: api=$api web=$web target=$target" >&2
     exit 1
   fi
-  sleep 10
+  if [ "$remaining" -lt 10 ]; then
+    sleep "$remaining"
+  else
+    sleep 10
+  fi
 done
