@@ -17,7 +17,7 @@ Acceptance criteria:
 4. "Sign in" and both "Start with Google" links point to `SIGN_IN_HREF` (`/sign-in` by default, [Q002](../questions/questions-2026-11-10-requirement-breakdown.md#q002-where-do-sign-in-and-start-with-google-go-before-auth-exists)); the logo links to `/`.
 5. All visible copy and item data match the mockup and come from `apps/web/src/home/content.ts` ([Q003](../questions/questions-2026-11-10-requirement-breakdown.md#q003-homepage-copy-promises-features-that-are-not-designed) may change copy later).
 6. Entrance animations, hover effects and decorative motion follow [Motion and interaction](../ui/homepage.md#motion-and-interaction); with `prefers-reduced-motion: reduce` nothing moves.
-7. The page follows [Responsive rules](../ui/homepage.md#responsive-rules): no horizontal scrollbar at 320, 375, 768 or 1024 px; hero collage hidden at 559 px and narrower.
+7. The page follows [Responsive rules](../ui/homepage.md#responsive-rules): at 320, 375, 768 and 1024 px there is no horizontal scrollbar and no visible content is cut off at the sides (the page wrapper's `overflow: hidden` would hide it, so both are checked); hero collage hidden at 559 px and narrower.
 8. Accessibility: decorative graphics are `aria-hidden`, every link is reachable with Tab in visual order with a visible focus indicator, and the Lighthouse Accessibility score is at least 95.
 9. Privacy and security: no cookies, no request to another origin, no `fetch`/XHR at all, no real or private User data (fictional names only). `<title>SweetMemories</title>` and `lang="en"` stay, so the dev smoke check `web home` still passes.
 10. Static only: no change under `apps/api`; no domain code (users, memories, templates, blocks, photos, auth, database); no router.
@@ -46,29 +46,34 @@ The feature is complete only when every item below passes.
 - [ ] 1. All 12 tasks of this feature, and both tasks of [web-design-foundation](web-design-foundation.md), have Status `done`. (all ACs)
 - [ ] 2. On `$BASE_URL/`: one `header` that is not inside `main`, one `main`, one `footer` outside `main`; `document.querySelectorAll('h1').length === 1` with text `Every little moment deserves a home.`; `document.querySelectorAll('h2').length === 6`, in order: "A little corner of the internet for everyone who loves each other.", "From a pile of photos to a page, in four easy steps.", "Start simple, or tell the whole story.", "Moments worth keeping", "Your family name first, then a page for each memory.", "Start with the memory everyone keeps telling.". (AC1)
 - [ ] 3. Section ids `who`, `how`, `templates` exist and appear in that order; the footer text is "Small pages for the moments worth keeping.". (AC1)
-- [ ] 4. Side-by-side check at 1440 x 900 per [Checking fidelity](../ui/homepage.md#checking-fidelity) finds no difference beyond the listed deviations, for every section 1-8; heading, card, panel and button boxes are within the step 4 tolerance (±4 px default, [Q008](../questions/questions-2026-11-10-requirement-breakdown.md#q008-visual-fidelity-tolerance-for-the-homepage)). (AC2)
+- [ ] 4. The E2E-2 spec passes: every `Visual:` value holds at 1440 x 900, 1280 x 900 and 390 x 900 (computed CSS exact; layout relations within ±4 px, [Q008](../questions/questions-2026-11-10-requirement-breakdown.md#q008-visual-fidelity-tolerance-for-the-homepage) default), and the by-eye step finds the decorative positions as in the mockup. These measured values replace the ±4 px mockup-box comparison of [Checking fidelity](../ui/homepage.md#checking-fidelity) step 4, which stays an optional reviewer check ([Q015](../questions/questions-2026-11-10-requirement-breakdown.md#q015-do-the-measured-visual-assertions-replace-the-mockup-bounding-box-comparison), option A). (AC2)
 - [ ] 5. Spot values at 1440 px: `h1` font size `76px`, family Fredoka, weight 700; hero band background `rgb(255, 233, 168)` with bottom radii `64px`; templates band background white with radius `64px`; closing band background `rgb(255, 194, 209)`; hero "Start with Google" background `rgb(255, 165, 186)` with box shadow `rgb(229, 126, 152) 0px 6px 0px 0px`. (AC2)
-- [ ] 6. Clicking each of the three nav links and "See how it works" changes `location.hash` to `#who`, `#how`, `#templates`, `#how` and the target section's top is within the viewport. (AC3)
+- [ ] 6. Clicking each of the three nav links and "See how it works" changes `location.hash` to `#who`, `#how`, `#templates`, `#how` and the target section's top is within the viewport. Jumps use the browser default: `getComputedStyle(document.documentElement).scrollBehavior === 'auto'` and `grep -rn -E 'scrollIntoView|scroll-behavior' apps/web/src` prints nothing. (AC3; Behavior)
 - [ ] 7. The three sign-in links ("Sign in", two "Start with Google") have `href` `/sign-in`; the logo link has `href` `/`; no link points to `Dashboard.dc.html` or `#` alone. (AC4)
 - [ ] 8. `npm test -w apps/web` passes the content test that compares counts (3 nav links, 5 hero faces, 3 audiences, 4 steps, 3 template examples, 6 block chips, 8 moments, 4 address rows) and a sample of strings with the mockup. (AC5)
-- [ ] 9. Hovering the hero "Start with Google" lifts it (`transform` not `none`); with reduced motion emulated, `document.getAnimations().length === 0` after load and the first audience card's `transitionDuration` is `0s` (hover changes apply instantly, as in the mockup). (AC6; motion)
-- [ ] 10. At 320, 375, 768 and 1024 px, `document.documentElement.scrollWidth <= window.innerWidth`; at 559 px the element `[data-testid="hero-collage"]` has computed `display: none` and at 560 px it does not. (AC7)
+- [ ] 9. Hovering the hero "Start with Google" lifts it (`transform` is `matrix(1, 0, 0, 1, 0, -3)` after 0.3 s); with reduced motion emulated, `document.getAnimations().length === 0` after load and the first audience card's `transitionDuration` is `0s` (hover changes apply instantly, as in the mockup). (AC6; motion)
+- [ ] 10. At 320, 375, 768 and 1024 px, `document.documentElement.scrollWidth <= window.innerWidth` and the clip check from [ui/homepage.md, Responsive rules](../ui/homepage.md#responsive-rules) returns `0` (no visible, non-decorative element sticks out of the viewport); at 559 px the element `[data-testid="hero-collage"]` has computed `display: none` and at 560 px it does not. (AC7)
 - [ ] 11. Every `svg` in the page has `aria-hidden="true"` (`document.querySelectorAll('svg:not([aria-hidden="true"])').length === 0`); pressing Tab from the top focuses, in order: logo, Who it is for, How it works, Templates, Sign in, Start with Google, See how it works, Start with Google; each focused link shows a visible outline or the button lift. (AC8)
 - [ ] 12. Lighthouse Accessibility category score is at least 95 on `$BASE_URL/`. (AC8)
 - [ ] 13. After load: no cookies for `$BASE_URL`; every resource on the `$BASE_URL` origin; `performance.getEntriesByType('resource').filter(e => ['fetch','xmlhttprequest'].includes(e.initiatorType)).length === 0`; `grep -rn -E 'fetch\(|XMLHttpRequest|document\.cookie|localStorage' apps/web/src` prints nothing. (AC9; CLAUDE.md rules 1 and 5)
 - [ ] 14. `document.title === 'SweetMemories'`, `document.documentElement.lang === 'en'`; on dev, `scripts/smoke-dev.sh` ([dev-deploy-verification](dev-deploy-verification.md)) prints `PASS web home`. (AC9)
-- [ ] 15. No task PR of this feature changes a file under `apps/api` (`gh pr diff <n> --name-only` lists none); `apps/web/package.json` has no router or auth dependency; no file in `apps/web/src` defines types named User, Memory, Template, Block or Photo (`grep -rn -E '(type|interface) (User|Memory|Template|Block|Photo)\b' apps/web/src` prints nothing). (AC10; CLAUDE.md "Project state")
+- [ ] 15. No task PR of this feature changes a file under `apps/api` (`gh pr diff <n> --name-only` lists none); `apps/web/package.json` has no dependency whose name contains `router` or `auth` (`Object.keys(dependencies).filter(n => /router|auth/i.test(n)).length === 0`); no file in `apps/web/src` defines types named User, Memory, Template, Block or Photo (`grep -rn -E '(type|interface) (User|Memory|Template|Block|Photo)\b' apps/web/src` prints nothing). (AC10; CLAUDE.md "Project state")
 - [ ] 16. `npm test -w apps/web`, `npm run typecheck -w apps/web`, `npm run build -w apps/web` exit 0; console has no errors or warnings on load in dev and preview. (AC11)
 - [ ] 17. `$BASE_URL/anything` shows the Homepage (same `h1`). (Behavior)
 
 ## e2e-test-suites
 
-Type: FE. `$BASE_URL` is `http://localhost:5173` locally or `$DEV_WEB_URL` on dev. Fresh browser profile, not signed in, viewport 1440 x 900 unless stated, reduced motion off unless stated. Wait 3 s after load for entrance animations. Every case has `Spec:` and `Testids:` lines ([ADR 0004](../adr/0004-playwright-e2e-specs.md)). A case with a path is automated in Playwright; when only some steps run in the browser, the brackets name the steps the spec covers and the other steps run as prose. `Spec: prose` gives its reason in brackets (mockup comparison, shell/npm/gh commands, or a judgment by eye). Task-level specs (`e2e/specs/homepage/<task-slug>.spec.ts`) assert the page as it is at that task and are run only for that ticket (ADR 0004, CI row).
+Type: FE. `$BASE_URL` is `http://localhost:5173` locally or `$DEV_WEB_URL` on dev. Fresh browser profile, not signed in, viewport 1440 x 900 unless stated, reduced motion off unless stated. Wait 3 s after load for entrance animations. Every case has `Spec:` and `Testids:` lines ([ADR 0004](../adr/0004-playwright-e2e-specs.md)). A case with a path is automated in Playwright; when only some steps run in the browser, the brackets name the steps the spec covers and the other steps run as prose. `Spec: prose` gives its reason in brackets (mockup comparison, shell/npm/gh commands, or a judgment by eye). Task-level specs (`e2e/specs/homepage/<task-slug>.spec.ts`) assert the page as it is at that task, so they are isolated ([ADR 0004](../adr/0004-playwright-e2e-specs.md), Spec isolation row; [Q014](../questions/questions-2026-11-10-requirement-breakdown.md#q014-keep-task-level-homepage-specs-from-failing-a-full-playwright-run)): each wraps its tests in `test.describe('<task-slug>', ...)` and is run only for its own ticket with `npx playwright test --grep <task-slug>`. A run of the whole Homepage uses only this feature's spec: `npx playwright test --grep "homepage E2E-"`.
+
+Case fields ([ADR 0005](../adr/0005-e2e-signed-in-data-writing-and-visual-specs.md), `accepted`): every Homepage case is `Auth: none` (not signed in) and `Data: none` (static page, writes nothing), so sign-in and seed/reset infrastructure is never needed. `Visual:` holds measured mockup values only on the mockup case (E2E-2); it is a spec in `homepage.spec.ts`, asserted as [ui/homepage.md, Visual assertions](../ui/homepage.md#visual-assertions) says (`toHaveCSS`, bounding boxes, no screenshots), with one by-eye prose step for decorative positions. Cases that assert fixed computed values at the config viewport without mockup values have `Visual: none`. Viewports for `Visual:` values: [ui/homepage.md, Test case fields](../ui/homepage.md#test-case-fields) ([Q013](../questions/questions-2026-11-10-requirement-breakdown.md#q013-viewports-for-homepage-visual-values)).
 
 ```
 E2E-1 -> checklist items 2, 3, 17: structure, headings, ids
 Spec: e2e/specs/homepage/homepage.spec.ts
 Testids: none
+Auth: none
+Data: none
+Visual: none
 Preconditions: app running
 Steps:
   1. Open $BASE_URL/.
@@ -81,20 +86,26 @@ Expected: step 2 [1, false, 1, false, "Every little moment deserves a home.", 1,
 
 ```
 E2E-2 -> checklist item 4: visual fidelity
-Spec: prose (visual comparison with the mockup; screenshots as evidence)
+Spec: e2e/specs/homepage/homepage.spec.ts (steps 1-2, the Visual values; step 3, decorative positions by eye, runs as prose)
 Testids: none
-Preconditions: mockup served at http://localhost:8000/Landing2.dc.html (see ui/homepage.md); app running; both tabs at 1440 x 900
+Auth: none
+Data: none
+Visual: at 1280 and 1440 wide: content max width 1200px with 40px side padding; h1 76px Fredoka 700, line height 76px; h2 sizes in page order 48px, 48px, 48px, 44px, 46px, 54px; hero band rgb(255, 233, 168) with bottom radii 64px; hero row two columns; who grid 3 columns, how list 4 columns, templates grid 3 columns, each gap 28px; templates band rgb(255, 255, 255), radius 64px, side margins 16px; closing band and footer rgb(255, 194, 209), closing top radii 64px. At 390 wide: h1 48px; every h2 34px; side padding 20px; band radii 40px; hero collage display none; who, how and templates in 1 column
+Preconditions: app running; reduced motion emulated; all section tasks done; for step 3 only, mockup served at http://localhost:8000/Landing2.dc.html (see ui/homepage.md) in a second tab at 1440 x 900, reduced motion emulated there too
 Steps:
-  1. In both tabs wait 3 s, take a full-page screenshot (DevTools command "Capture full size screenshot").
-  2. Compare section by section (hero band, who, how, templates, moments, addresses, closing band, footer): positions, sizes, colors, radii, shadows, fonts.
-  3. For each section's h2 (h1 in the hero), first card or panel, and each button: in each tab right-click the element > Inspect, so it is $0; then right-click its section's outermost box (hero band, section band or footer) > Inspect, so the element is $1 and the band is $0; run: (() => { const r=$1.getBoundingClientRect(), s=$0.getBoundingClientRect(); return [r.x, r.y - s.y, r.width, r.height].map(Math.round) })()
-Expected: no difference except the deviations listed in ui/homepage.md and line wraps that differ by at most one word; page height may be shorter than 3500 px; step 3 each of the four numbers differs by at most 4 between app and mockup (Checking fidelity step 4)
+  1. At 1440 x 900, then at 1280 x 900: assert every "at 1280 and 1440 wide" value of Visual on the element it names, per ui/homepage.md, Visual assertions.
+  2. At 390 x 900: assert every "At 390 wide" value of Visual the same way.
+  3. (prose) At 1440 x 900, compare by eye with the mockup only the decorative positions: hero collage pieces, hero band and closing band blobs, template card previews, audience card faces.
+Expected: steps 1-2 every Visual value holds: computed CSS strings exactly as written, sizes exact, layout relations (columns, rows, one row) within ±4 px; step 3 same decorative arrangement, no difference beyond the Deviations in ui/homepage.md. Steps 1-2 replace the Checking fidelity step 4 box comparison (Q015, option A); that comparison is an optional reviewer check, not part of this case
 ```
 
 ```
 E2E-3 -> checklist item 5: spot computed values
 Spec: e2e/specs/homepage/homepage.spec.ts
 Testids: none
+Auth: none
+Data: none
+Visual: none
 Preconditions: app running, 1440 x 900
 Steps:
   1. In Console run: const h1=getComputedStyle(document.querySelector('h1')); const band=getComputedStyle(document.querySelector('header')); const tpl=getComputedStyle(document.getElementById('templates').parentElement); const cta=[...document.querySelectorAll('a')].find(a=>a.textContent==='Start with Google'); const c=getComputedStyle(cta); const close=getComputedStyle([...document.querySelectorAll('h2')].at(-1).closest('section')); [h1.fontSize, h1.fontFamily.split(',')[0], h1.fontWeight, band.backgroundColor, band.borderBottomLeftRadius, band.borderBottomRightRadius, tpl.backgroundColor, tpl.borderTopLeftRadius, close.backgroundColor, c.backgroundColor, c.boxShadow]
@@ -102,21 +113,29 @@ Expected: ["76px", "Fredoka" (quotes allowed), "700", "rgb(255, 233, 168)", "64p
 ```
 
 ```
-E2E-4 -> checklist item 6: in-page links
-Spec: e2e/specs/homepage/homepage.spec.ts
+E2E-4 -> checklist item 6: in-page links, default jump
+Spec: e2e/specs/homepage/homepage.spec.ts (steps 1-4; the grep in step 5 is a shell command and runs as prose)
 Testids: none
-Preconditions: app running, at top of $BASE_URL/
+Auth: none
+Data: none
+Visual: none
+Preconditions: app running, at top of $BASE_URL/; repository checked out for step 5
 Steps:
-  1. Click nav link "Who it is for"; in Console run: [location.hash, document.getElementById('who').getBoundingClientRect().top < innerHeight]
-  2. Repeat for "How it works" (#how) and "Templates" (#templates).
+  1. Click nav link "Who it is for"; in Console run: [location.hash, (t => t >= -1 && t < innerHeight)(document.getElementById('who').getBoundingClientRect().top)]
+  2. Repeat for "How it works" (#how) and "Templates" (#templates), with the matching id in the command.
   3. Scroll to top, click "See how it works"; read location.hash.
-Expected: ["#who", true], ["#how", true], ["#templates", true]; step 3 "#how"
+  4. Run: getComputedStyle(document.documentElement).scrollBehavior
+  5. Run: grep -rn -E 'scrollIntoView|scroll-behavior' apps/web/src; echo "g=$?"
+Expected: ["#who", true], ["#how", true], ["#templates", true]; step 3 "#how"; step 4 "auto"; step 5 only "g=1"
 ```
 
 ```
 E2E-5 -> checklist item 7: sign-in and logo links
 Spec: e2e/specs/homepage/homepage.spec.ts
 Testids: none
+Auth: none
+Data: none
+Visual: none
 Preconditions: app running
 Steps:
   1. In Console run: [...document.querySelectorAll('a')].filter(a => ['Sign in','Start with Google'].includes(a.textContent.trim())).map(a => a.getAttribute('href'))
@@ -130,47 +149,59 @@ Expected: ["/sign-in","/sign-in","/sign-in"]; "/"; 0; URL becomes $BASE_URL/sign
 E2E-6 -> checklist items 8, 16: unit tests and builds
 Spec: prose (npm commands and the preview server)
 Testids: none
+Auth: none
+Data: none
+Visual: none
 Preconditions: npm install done
 Steps:
   1. Run: npm test -w apps/web -- --reporter=verbose; echo "t=$?"
   2. Run: npm run typecheck -w apps/web && npm run build -w apps/web; echo "b=$?"
   3. Run: npm run preview -w apps/web; open http://localhost:4173/ with the Console open.
-Expected: t=0 and the output lists the content tests (counts) as passed; b=0; preview shows the Homepage, Console has no error or warning entries
+Expected: t=0 and the verbose output lists "has the item counts of the mockup" and "matches sample strings" as passed; b=0; preview shows the Homepage, Console has 0 error and 0 warning entries
 ```
 
 ```
 E2E-7 -> checklist item 9: motion and reduced motion
 Spec: e2e/specs/homepage/homepage.spec.ts
 Testids: none
+Auth: none
+Data: none
+Visual: none
 Preconditions: app running
 Steps:
-  1. Hover "Start with Google" in the hero; in Console run: getComputedStyle([...document.querySelectorAll('a')].find(a=>a.textContent==='Start with Google')).transform
+  1. Hover "Start with Google" in the hero; wait 0.3 s; in Console run: getComputedStyle([...document.querySelectorAll('a')].find(a=>a.textContent==='Start with Google')).transform
   2. DevTools > Rendering > prefers-reduced-motion = reduce; reload; wait 1 s; run: document.getAnimations().length
   3. Run: getComputedStyle(document.querySelector('#who article')).transitionDuration
-Expected: step 1 a matrix value (not "none"); step 2 0; step 3 "0s"
+Expected: step 1 "matrix(1, 0, 0, 1, 0, -3)"; step 2 0; step 3 "0s"
 ```
 
 ```
 E2E-8 -> checklist item 10: responsive
 Spec: e2e/specs/homepage/homepage.spec.ts
 Testids: hero-collage
+Auth: none
+Data: none
+Visual: none
 Preconditions: app running
 Steps:
-  1. For widths 320, 375, 768, 1024 (height 800): set the device toolbar, reload, run: document.documentElement.scrollWidth <= window.innerWidth
+  1. For widths 320, 375, 768, 1024 (height 800): set the device toolbar, reload, wait 3 s, run: [document.documentElement.scrollWidth <= window.innerWidth, [...document.querySelectorAll('header *, main *, footer *')].filter(e => !e.closest('[aria-hidden="true"]') && e.getBoundingClientRect().width > 0 && (e.getBoundingClientRect().left < -0.5 || e.getBoundingClientRect().right > innerWidth + 0.5)).length]
   2. At width 559 run: getComputedStyle(document.querySelector('[data-testid="hero-collage"]')).display
   3. At width 560 run the same command.
-Expected: step 1 true at every width; step 2 "none"; step 3 not "none"
+Expected: step 1 [true, 0] at every width (decorative aria-hidden blobs and the collage are excluded; any other element outside 0..innerWidth is clipped content and fails AC7); step 2 "none"; step 3 "block"
 ```
 
 ```
 E2E-9 -> checklist items 11, 12: accessibility
 Spec: e2e/specs/homepage/homepage.spec.ts (steps 1-2: svg count and focus order; the visible-indicator judgment in step 2 and the Lighthouse CLI in step 3 run as prose)
 Testids: none
+Auth: none
+Data: none
+Visual: none
 Preconditions: app running; Chrome installed
 Steps:
   1. In Console run: document.querySelectorAll('svg:not([aria-hidden="true"])').length
   2. Click the address bar, press Tab repeatedly; note the text of each focused link and whether a focus indicator is visible.
-  3. Run: npx lighthouse "$BASE_URL/" --only-categories=accessibility --output=json --output-path=./lh.json --quiet --chrome-flags="--headless=new" && node -p "require('./lh.json').categories.accessibility.score"
+  3. Run: LH="$(mktemp -d)/lh.json"; npx lighthouse "$BASE_URL/" --only-categories=accessibility --output=json --output-path="$LH" --quiet --chrome-flags="--headless=new" && node -p "require('$LH').categories.accessibility.score"
 Expected: 0; order "SweetMemories" (logo), "Who it is for", "How it works", "Templates", "Sign in", "Start with Google", "See how it works", "Start with Google", each with a visible indicator; score >= 0.95
 ```
 
@@ -178,6 +209,9 @@ Expected: 0; order "SweetMemories" (logo), "Who it is for", "How it works", "Tem
 E2E-10 -> checklist items 13, 14: privacy, no API, head, smoke
 Spec: e2e/specs/homepage/homepage.spec.ts (steps 1-2; steps 3-4 are shell commands and run as prose)
 Testids: none
+Auth: none
+Data: none
+Visual: none
 Preconditions: app running; DevTools Network open before load
 Steps:
   1. Load $BASE_URL/. Check Application > Cookies.
@@ -191,13 +225,16 @@ Expected: no cookies; [[$BASE_URL origin only], 0, "SweetMemories", "en"]; only 
 E2E-11 -> checklist items 1, 15: tasks done, no domain code
 Spec: prose (repository, gh and grep commands)
 Testids: none
+Auth: none
+Data: none
+Visual: none
 Preconditions: repository at the feature's last merge
 Steps:
   1. Read the Status line of every task linked under Related and of web-design-foundation's tasks.
   2. For each merged task PR <n> of this feature run: gh pr diff <n> --name-only | grep '^apps/api/'; echo "g=$?"
-  3. Run: node -p "Object.keys(require('./apps/web/package.json').dependencies).join(' ')"
+  3. Run: node -p "Object.keys(require('./apps/web/package.json').dependencies).filter(n => /router|auth/i.test(n)).length"
   4. Run: grep -rn -E '(type|interface) (User|Memory|Template|Block|Photo)\b' apps/web/src; echo "g=$?"
-Expected: all "done"; every PR prints only "g=1"; dependencies are react, react-dom and the three @fontsource packages only; only "g=1"
+Expected: all "done"; every PR prints only "g=1"; step 3 prints 0; only "g=1"
 ```
 
 ## Related
@@ -208,7 +245,8 @@ Expected: all "done"; every PR prints only "g=1"; dependencies are react, react-
 - Smoke check from [dev-deploy-verification](dev-deploy-verification.md) (`done`) must keep passing (checklist item 14).
 - E2E specs: follows [ADR 0004](../adr/0004-playwright-e2e-specs.md) (listed there under "Applies to", not a parent); spec project: [e2e-specs](e2e-specs.md).
 - Design gate: met. [ADR 0003](../adr/0003-frontend-styling-and-self-hosted-fonts.md) is `accepted` (Q001 answered A, 2026-11-10). Every task is `not-started` and starts once its own Prerequisites are `done`: tasks 1 and 2 now, [add-homepage-shell](../tasks/homepage/add-homepage-shell.md) after [add-design-tokens](../tasks/web-design-foundation/add-design-tokens.md) (the last task of [web-design-foundation](web-design-foundation.md)), tasks 4-12 after add-homepage-shell. [Q010](../questions/questions-2026-11-10-requirement-breakdown.md#q010-record-adr-0003-and-adr-0004-approval-in-claudemd) asks the product owner to record ADR 0003 and 0004 in `CLAUDE.md` "Project state".
-- Questions: [questions-2026-11-10-requirement-breakdown](../questions/questions-2026-11-10-requirement-breakdown.md) (Q001 and Q009 answered; Q002-Q008 and Q010 open, their defaults apply; Q008 is the fidelity tolerance used in [Checking fidelity](../ui/homepage.md#checking-fidelity))
+- Questions: [questions-2026-11-10-requirement-breakdown](../questions/questions-2026-11-10-requirement-breakdown.md) (Q001, Q009, Q012, Q013, Q014 and Q015 answered; Q002-Q008 and Q010 open, their defaults apply; Q008 is the ±4 px tolerance used for layout relations in [Visual assertions](../ui/homepage.md#visual-assertions); Q013 (A): `Visual:` values at 1280 and 1440 plus 390; Q014 (A): task specs wrapped in `test.describe('<task-slug>')` and run by `--grep`; Q015 (A): the measured `Visual:` assertions replace the mockup bounding-box comparison, which stays an optional reviewer check)
+- E2E specs also follow [ADR 0005](../adr/0005-e2e-signed-in-data-writing-and-visual-specs.md) (accepted, Q012): the mockup cases (E2E-2 here and in tasks 4-12) are specs; the tester authors every spec file from the tickets.
 - Tasks (1-3 in any order; 3 needs [web-design-foundation](web-design-foundation.md) done; 4-11 after the tasks listed in each one's Prerequisites; 12 last, after 1-11, because it also updates `README.md` to say the Homepage is complete):
   1. [add-home-content](../tasks/homepage/add-home-content.md)
   2. [add-home-illustrations](../tasks/homepage/add-home-illustrations.md)

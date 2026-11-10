@@ -126,6 +126,13 @@ The mockup is drawn at 1440 px only (`$preview.width: 1440`). Rules below are th
 | <= 767 px | `--radius-band` corners become `40px`. |
 | <= 559 px | Hero collage (1d) is not shown (`display: none`); the hero intro fills the width. |
 | 320 px | No horizontal scrollbar: `document.documentElement.scrollWidth <= window.innerWidth`. |
+| 320-1024 px | No visible content cut off at the sides. Because the page wrapper has `overflow: hidden`, overflow does not reach `scrollWidth`, so every responsive check also runs the **clip check** below and expects `0`. Decorative elements (`aria-hidden="true"`: blobs, collage, preview drawings, faces) are excluded. |
+
+Clip check (run in the Console or a Playwright `page.evaluate`):
+
+```js
+[...document.querySelectorAll('header *, main *, footer *')].filter(e => !e.closest('[aria-hidden="true"]') && e.getBoundingClientRect().width > 0 && (e.getBoundingClientRect().left < -0.5 || e.getBoundingClientRect().right > innerWidth + 0.5)).length
+```
 
 ## Motion and interaction
 
@@ -181,4 +188,41 @@ Copy keyframes and hover rules by value from lines 17-50 into the module CSS of 
 1. Serve the mockup (see top) and the app (`npm run dev -w apps/web`).
 2. Open both in Chrome at a 1440 x 900 viewport (DevTools device toolbar, "Responsive", 1440 x 900), reduced motion off, wait 3 s for entrance animations.
 3. Scroll both to the same section and compare. Positions, sizes, colors, radii and shadows must match; text wrapping may differ by at most one word per line (font rendering). Any other difference is a defect unless listed under Deviations.
-4. Tolerance (default until [Q008](../questions/questions-2026-11-10-requirement-breakdown.md#q008-visual-fidelity-tolerance-for-the-homepage) is answered): for section headings, cards, panels and buttons, `getBoundingClientRect()` `x`, `y` (relative to the section's own top), `width` and `height` are each within ±4 px of the same element in the mockup (read with DevTools Inspect or the Console in both tabs). Colors, radii, shadows, font family, size and weight are exact (the task's computed-value checks). Decorative positions inside illustrations (collage, blobs) are compared by eye only.
+4. Tolerance (default until [Q008](../questions/questions-2026-11-10-requirement-breakdown.md#q008-visual-fidelity-tolerance-for-the-homepage) is answered; optional reviewer check, see step 5): for section headings, cards, panels and buttons, `getBoundingClientRect()` `x`, `y` (relative to the section's own top), `width` and `height` are each within ±4 px of the same element in the mockup (read with DevTools Inspect or the Console in both tabs). Colors, radii, shadows, font family, size and weight are exact (the task's computed-value checks). Decorative positions inside illustrations (collage, blobs) are compared by eye only.
+5. Automated part: each ticket's mockup case (E2E-2) is a Playwright spec that asserts the case's `Visual:` values as [Visual assertions](#visual-assertions) says ([ADR 0005](../adr/0005-e2e-signed-in-data-writing-and-visual-specs.md)). Decided ([Q015](../questions/questions-2026-11-10-requirement-breakdown.md#q015-do-the-measured-visual-assertions-replace-the-mockup-bounding-box-comparison), option A): the measured `Visual:` values replace the ±4 px mockup-box comparison of step 4 (positions follow from the asserted padding, margins, gaps and sizes), so a passing E2E-2 spec is what the fidelity checklist item requires. Steps 3 and 4 stay an optional reviewer check, not a pass condition; only decorative positions remain a by-eye prose step of E2E-2.
+
+## Test case fields
+
+How the Homepage's `e2e-test-suites` fill the case fields of [ADR 0004](../adr/0004-playwright-e2e-specs.md) and [ADR 0005](../adr/0005-e2e-signed-in-data-writing-and-visual-specs.md) (both `accepted`):
+
+| Field | Homepage rule |
+|---|---|
+| `Auth` | always `none`: the page is public and has no sign-in. |
+| `Data` | always `none`: the page is static and writes nothing. |
+| `Visual` | measured mockup values, only on the mockup case (E2E-2) of the feature and of each section task. That case is a spec in the ticket's own spec file (`e2e/specs/homepage/<feature-or-task-slug>.spec.ts`), asserted as [Visual assertions](#visual-assertions) says; a by-eye prose step remains only for decorative positions. Cases that assert fixed computed values at the Playwright config viewport (1440 x 900) without mockup values use `Visual: none`. |
+
+Viewports for `Visual:` values (decided, [Q013](../questions/questions-2026-11-10-requirement-breakdown.md#q013-viewports-for-homepage-visual-values) option A): CSS values are valid at 1280 and 1440 wide, mobile values at 390 wide, and the optional bounding-box comparison with the mockup is at 1440. Why: ADR 0005 names 390 and 1280 wide; the mockup is drawn at 1440. Between 768 and 1439 px no responsive rule applies, so every computed CSS value (colors, font sizes, radii, shadows, padding, column counts) is the same at 1280 and 1440; only `x` positions shift by 80 px. `Visual:` lines therefore give one set of values "at 1280 and 1440" and one "at 390" (the [Responsive rules](#responsive-rules) for <= 767 px and <= 559 px apply). The bounding-box comparison with the mockup (Checking fidelity step 4, optional per [Q015](../questions/questions-2026-11-10-requirement-breakdown.md#q015-do-the-measured-visual-assertions-replace-the-mockup-bounding-box-comparison)) stays at 1440.
+
+### Visual assertions
+
+How the `tester` turns a `Visual:` line into Playwright assertions ([ADR 0005](../adr/0005-e2e-signed-in-data-writing-and-visual-specs.md), Visual fidelity). The values in `Visual:` are the expected values; the spec does not open the mockup. No `toHaveScreenshot`, no baselines ([ADR 0003](../adr/0003-frontend-styling-and-self-hosted-fonts.md)). The tester writes the spec code; docs do not hold it.
+
+| `Visual:` wording | Assertion |
+|---|---|
+| Setup | Run the "at 1280 and 1440 wide" set at viewport 1440 x 900 and again at 1280 x 900 (same expected values); run the "At 390 wide" set at 390 x 900 (height changes no listed value). Emulate `reducedMotion: 'reduce'` so entrance and decorative motion are off and transforms are static, then wait for `document.fonts.ready`. Not signed in, no hover. |
+| Element | Located as ADR 0004 "Selectors" says: role and visible text first (headings, links, lists), then the ticket's `Testids`, then the element path from the task's Scope markup (tag and child order under the nearest section id, `header`, `footer` or test id). Naming the element in `Visual:` counts as the case naming that path. Never class names. |
+| CSS value: color, background, font size, weight, line height, letter spacing, padding, margin, gap, radius, border, box shadow, opacity, overflow, display, min height, `left`/`top`/`right`/`bottom` | `toHaveCSS(<property>, '<value>')` with the exact string in `Visual:` (already in Chrome's computed form: `rgb(...)`, px). "top radii" and "bottom radii" check both corners; "border-top 1px solid ..." checks `border-top`. |
+| Font: "Fredoka 700 48px" | first family of computed `font-family`, quotes removed, equals the name; weight and size with `toHaveCSS`. |
+| Size: "W x H px", "Npx wide", "height Npx" | `toHaveCSS('width' / 'height')` exact. A size the case calls "bounding box" uses `boundingBox()` within ±4 px ([Q008](../questions/questions-2026-11-10-requirement-breakdown.md#q008-visual-fidelity-tolerance-for-the-homepage) default). |
+| "circle" | `border-radius` is `50%`. |
+| "max width Nch" | computed `max-width` is `Nch`, or in px equals N × the element's `1ch` (append a temporary `span` with `display: inline-block; width: 1ch` to the element, read its width, remove it) within ±1 px. |
+| "rotated Ndeg" | computed `transform` `matrix(a, b, c, d, e, f)`: `atan2(b, a)` in degrees equals N within ±0.5. |
+| "N columns", "N equal columns", "1 column" | among the items (cards, `li`, `article`), those whose box top is within ±4 px of the first item's top number N; "equal": their box widths are within ±1 px of each other; "1 column": every item's box `x` is within ±4 px of the first item's. "two columns" of a row: its two children share one row by the same rule. |
+| "two rows", "two lines" | rows: the item box tops form 2 groups (±4 px); lines: box height / computed line height rounds to 2. |
+| "on one row", "vertically centered" | box vertical centers within ±4 px. |
+| "A left and B right", "right of A" | A's box right <= B's box left + 0.5. |
+| "below" | the lower box top >= the upper box bottom − 0.5. |
+| "left", "left-aligned", "right", "right-aligned", "bottom-aligned with X" | the box left (or right, or bottom) edge is within ±4 px of the parent's content-box edge (or of X's edge). |
+| "centered" (an element), "text centered" | element: its box center `x` is within ±4 px of the parent's content-box center; text: `toHaveCSS('text-align', 'center')`. "chips wrap centered": the chip container has `justify-content: center` and every chip box lies within `0..innerWidth`. |
+| "wraps inside the panel" | the element's box height >= 2 × its line height − 1 and its box right <= the panel's box right. |
+| Decorative positions not listed in `Visual:` (shapes inside the collage, template previews, audience faces, blobs) | not asserted; the case's last step compares them by eye with the mockup at 1440 x 900 and runs as prose. Shapes themselves are checked in [add-home-illustrations](../tasks/homepage/add-home-illustrations.md). |

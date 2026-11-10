@@ -43,7 +43,7 @@ Hex values above without a token are one-off colors of this illustration; write 
 
 Tests in `HeroCollage.test.tsx`:
 - `is decorative`: the root (`getByTestId('hero-collage')`) has `aria-hidden="true"`; `queryAllByRole('img')` and `queryAllByRole('heading')` are empty.
-- `shows the sample address`: the root's text contains `sam.sweetmemories.com/bobs-first-day`, `Bob's first day` and `Share this link`.
+- `shows the sample address`: the root's text contains `sam.sweetmemories.com/bobs-first-day`, `Bob's first day` and `Share this link`; the root contains no `a` element.
 
 Prerequisites (must be `done`): [add-home-content](add-home-content.md), [add-home-illustrations](add-home-illustrations.md), [add-homepage-shell](add-homepage-shell.md).
 
@@ -56,22 +56,25 @@ Security: decorative and static; the sample address is fictional (`sam`), not a 
 The task is complete only when every item below passes. Tags name the [homepage](../../features/homepage.md) acceptance criterion (ACn).
 
 - [ ] 1. `npm test -w apps/web` passes `is decorative` and `shows the sample address`. (AC8)
-- [ ] 2. At 1440 x 900 the collage matches mockup lines 101-140 side by side per [ui/homepage.md, Checking fidelity](../../ui/homepage.md#checking-fidelity) (±4 px boxes, exact colors and fonts, decorative illustration positions by eye; [Q008](../../questions/questions-2026-11-10-requirement-breakdown.md#q008-visual-fidelity-tolerance-for-the-homepage) default): positions of halo, sun, cloud, tilted card, three polaroids (one with tape), heart, star, note card; colors and shadows equal. (AC2)
+- [ ] 2. At 1440 x 900 the collage matches mockup lines 101-140 as measured by the E2E-2 spec (every `Visual:` value holds: computed CSS exact, layout relations within ±4 px, [Q008](../../questions/questions-2026-11-10-requirement-breakdown.md#q008-visual-fidelity-tolerance-for-the-homepage) default; decorative illustration positions by eye in its prose step; this replaces the mockup-box comparison of [ui/homepage.md, Checking fidelity](../../ui/homepage.md#checking-fidelity) step 4, which stays an optional reviewer check, [Q015](../../questions/questions-2026-11-10-requirement-breakdown.md#q015-do-the-measured-visual-assertions-replace-the-mockup-bounding-box-comparison) A): positions of halo, sun, cloud, tilted card, three polaroids (one with tape), heart, star, note card; colors and shadows equal. (AC2)
 - [ ] 3. Computed at 1440 px: collage height `560px`; card width `380px`, border radius `28px`, `overflow: hidden`; card title font size `60px`, family Caveat; note card width `224px`, radius `22px`. (AC2)
 - [ ] 4. Sun, rays, cloud, card, polaroids, heart, star and note move continuously; with reduced motion emulated `document.getAnimations().length === 0`. (AC6)
-- [ ] 5. At 559 px the collage has `display: none` and the page has no horizontal scrollbar; at 560 px it is shown and `scrollWidth <= innerWidth`. (AC7)
+- [ ] 5. At 559 px the collage has `display: none` and the page has no horizontal scrollbar; at 560 px it is shown and `scrollWidth <= innerWidth`; at both widths the clip check from [ui/homepage.md, Responsive rules](../../ui/homepage.md#responsive-rules) returns `0`. (AC7)
 - [ ] 6. The collage root has `aria-hidden="true"`, so screen readers skip all its text. (AC8)
 - [ ] 7. `npm run typecheck -w apps/web` and `npm run build -w apps/web` exit 0; no Console errors or warnings on load of `$BASE_URL/`. (AC11)
 - [ ] 8. Under `apps/`, the PR changes only the four files in Scope (`git diff --name-only origin/dev-v1...HEAD -- apps/` lists exactly them, none under `apps/api/`). Changes under `docs/` are allowed. (AC10)
 
 ## e2e-test-suites
 
-Type: FE. `$BASE_URL` = `http://localhost:5173` or `$DEV_WEB_URL`. Not signed in. Viewport 1440 x 900 unless stated. `Spec:`/`Testids:` per [ADR 0004](../../adr/0004-playwright-e2e-specs.md); when only some steps run in the browser, the brackets name the steps the spec covers and the other steps run as prose. The implementer adds `data-testid="hero-collage"` (Scope) and no other test id.
+Type: FE. `$BASE_URL` = `http://localhost:5173` or `$DEV_WEB_URL`. Not signed in. Viewport 1440 x 900 unless stated. `Spec:`/`Testids:` per [ADR 0004](../../adr/0004-playwright-e2e-specs.md); when only some steps run in the browser, the brackets name the steps the spec covers and the other steps run as prose. The implementer adds `data-testid="hero-collage"` (Scope) and no other test id. Every case is `Auth: none` and `Data: none` (public, static page). `Visual:` values appear only on the mockup case (E2E-2); under [ADR 0005](../../adr/0005-e2e-signed-in-data-writing-and-visual-specs.md) (accepted) it is a spec in this ticket's spec file, asserted per [ui/homepage.md, Visual assertions](../../ui/homepage.md#visual-assertions) (`toHaveCSS`, bounding boxes, no screenshots), with one by-eye prose step for decorative positions not listed in `Visual:`; viewports per [ui/homepage.md, Test case fields](../../ui/homepage.md#test-case-fields). The fixed computed values and `aria-hidden` at 1440 x 900 need no mockup, so they are a spec case of their own (E2E-6, `Visual: none`).
 
 ```
 E2E-1 -> checklist items 1, 7: unit tests, build, console
 Spec: prose (npm commands)
 Testids: hero-collage (used by the unit test)
+Auth: none
+Data: none
+Visual: none
 Preconditions: npm install done; app running
 Steps:
   1. Run: npm test -w apps/web -- --reporter=verbose src/home/HeroCollage.test.tsx; echo "t=$?"
@@ -81,20 +84,40 @@ Expected: both tests pass, t=0; b=0; step 3 the Console shows no error or warnin
 ```
 
 ```
-E2E-2 -> checklist items 2, 3, 6: look and values
-Spec: prose (visual comparison with the mockup)
+E2E-2 -> checklist item 2: mockup values, measured
+Spec: e2e/specs/homepage/build-hero-collage.spec.ts (steps 1-2, the Visual values; step 3, decorative positions by eye, runs as prose)
 Testids: hero-collage
-Preconditions: app running; mockup served at http://localhost:8000/Landing2.dc.html; DevTools Rendering prefers-reduced-motion = reduce in both tabs (freezes motion for comparison)
+Auth: none
+Data: none
+Visual: at 1280 and 1440 wide: collage height 560px, min width 340px, right of the hero intro; halo 440 x 440 px circle rgb(255, 255, 255) opacity 0.55 at left 30px, top 40px; sun 110 x 110 px at right 10px, top 0px; cloud 120 x 72 px at left 0px, top 110px; card 380px wide at left 60px, top 70px, radius 28px, overflow hidden, rotated -2deg; card bar background rgb(255, 225, 204), padding 12px 16px; address pill 15px weight 600, radius 999px; card body height 380px, background rgb(205, 239, 224); card title Caveat 700 60px rgb(31, 74, 56); subtitle 15px rgb(44, 94, 73); polaroids 140px, 140px and 120px wide, photo colors rgb(255, 193, 208), rgb(191, 225, 250), rgb(255, 224, 138); heart 64 x 64 px at left 6px, bottom 90px; star 46 x 46 px at right 24px, bottom 150px; note card 224px wide at right 0px, bottom 14px, radius 22px, rotated 3deg, first line 13px rgb(107, 74, 90), second line Caveat 700 28px rgb(176, 40, 90). At 390 wide: collage display none
+Preconditions: app running; reduced motion emulated (freezes the collage motion, so transforms are static); for step 3 only, mockup served at http://localhost:8000/Landing2.dc.html in a second tab at 1440 x 900 with DevTools Rendering prefers-reduced-motion = reduce
 Steps:
-  1. Compare the hero right column side by side.
-  2. In the app Console run: const c=document.querySelector('[data-testid="hero-collage"]'); const card=[...c.querySelectorAll('div')].find(d=>getComputedStyle(d).width==='380px'); const cs=getComputedStyle(card); const title=[...c.querySelectorAll('div')].find(d=>d.textContent==="Bob's first day"); const note=[...c.querySelectorAll('div')].find(d=>getComputedStyle(d).width==='224px'); [getComputedStyle(c).height, cs.borderRadius, cs.overflow, getComputedStyle(title).fontSize, getComputedStyle(title).fontFamily.split(',')[0], getComputedStyle(note).borderRadius, c.getAttribute('aria-hidden')]
-Expected: step 1 same shapes, positions, colors, shadows; step 2 ["560px","28px","hidden","60px","Caveat" (quotes allowed),"22px","true"]
+  1. At 1440 x 900, then at 1280 x 900: assert every "at 1280 and 1440 wide" value of Visual on the element it names (inside [data-testid="hero-collage"], children in the Scope order), per ui/homepage.md, Visual assertions.
+  2. At 390 x 900: assert the "At 390 wide" value (collage display none).
+  3. (prose) At 1440 x 900, compare by eye with the mockup only what Visual does not list: the polaroids' positions and tilt inside the card, the tape on the third polaroid, the sun rays, and the look of the card, polaroid and note shadows.
+Expected: steps 1-2 every Visual value holds: computed CSS strings exactly as written, sizes exact, rotations within ±0.5deg, the collage box left >= the hero intro box right − 0.5; step 3 same arrangement as the mockup
+```
+
+```
+E2E-6 -> checklist items 3, 6: computed values and aria-hidden
+Spec: e2e/specs/homepage/build-hero-collage.spec.ts
+Testids: hero-collage
+Auth: none
+Data: none
+Visual: none
+Preconditions: app running, 1440 x 900 (no mockup opened)
+Steps:
+  1. In the Console run: const c=document.querySelector('[data-testid="hero-collage"]'); const card=[...c.querySelectorAll('div')].find(d=>getComputedStyle(d).width==='380px'); const cs=getComputedStyle(card); const title=[...c.querySelectorAll('div')].find(d=>d.textContent==="Bob's first day"); const note=[...c.querySelectorAll('div')].find(d=>getComputedStyle(d).width==='224px'); [getComputedStyle(c).height, cs.borderRadius, cs.overflow, getComputedStyle(title).fontSize, getComputedStyle(title).fontFamily.split(',')[0], getComputedStyle(note).borderRadius, c.getAttribute('aria-hidden')]
+Expected: ["560px","28px","hidden","60px","Caveat" (quotes allowed),"22px","true"]
 ```
 
 ```
 E2E-3 -> checklist item 4: motion
 Spec: e2e/specs/homepage/build-hero-collage.spec.ts (steps 2-3; the motion in step 1 is watched by eye as prose)
 Testids: hero-collage
+Auth: none
+Data: none
+Visual: none
 Preconditions: app running, reduced motion not emulated
 Steps:
   1. Watch the collage for 6 s.
@@ -107,22 +130,41 @@ Expected: sun bobs and its rays spin, cloud drifts, card floats, polaroids sway,
 E2E-4 -> checklist item 5: hidden on small screens
 Spec: e2e/specs/homepage/build-hero-collage.spec.ts
 Testids: hero-collage
+Auth: none
+Data: none
+Visual: none
 Preconditions: app running
 Steps:
-  1. Set 559 x 800, reload; run: [getComputedStyle(document.querySelector('[data-testid="hero-collage"]')).display, document.documentElement.scrollWidth <= innerWidth]
-  2. Set 560 x 800, reload; run the same.
-Expected: ["none", true]; ["block", true]
+  1. Set 559 x 800, reload, wait 3 s; run: [getComputedStyle(document.querySelector('[data-testid="hero-collage"]')).display, document.documentElement.scrollWidth <= innerWidth, [...document.querySelectorAll('header *, main *, footer *')].filter(e => !e.closest('[aria-hidden="true"]') && e.getBoundingClientRect().width > 0 && (e.getBoundingClientRect().left < -0.5 || e.getBoundingClientRect().right > innerWidth + 0.5)).length]
+  2. Set 560 x 800, reload, wait 3 s; run the same.
+Expected: ["none", true, 0]; ["block", true, 0]
 ```
 
 ```
 E2E-5 -> checklist item 8: PR scope
 Spec: prose (git command)
 Testids: none
+Auth: none
+Data: none
+Visual: none
 Preconditions: task branch checked out; git fetch origin done
 Steps:
   1. Run: git diff --name-only origin/dev-v1...HEAD -- apps/
 Expected: exactly apps/web/src/home/HeroCollage.tsx, apps/web/src/home/HeroCollage.module.css, apps/web/src/home/HeroCollage.test.tsx, apps/web/src/home/HomePage.tsx
 ```
+
+## unit-tests
+
+Vitest + Testing Library, colocated in `apps/web/src/home/HeroCollage.test.tsx` (the two tests named in Scope). Render only; no network.
+
+Unit: `HeroCollage` (`apps/web/src/home/HeroCollage.tsx`).
+
+| ID | Case: input -> expected | Checklist |
+|---|---|---|
+| U-1 | `is decorative`: `render(<HeroCollage />)` -> `getByTestId('hero-collage')` has `aria-hidden="true"`; `queryAllByRole('img')` and `queryAllByRole('heading')` are empty (edge: the card title must not become a heading) | 1, 6 |
+| U-2 | `shows the sample address`: -> root text contains `sam.sweetmemories.com/bobs-first-day`, `Bob's first day` (straight `'`) and `Share this link`; edge: the root contains no link (`querySelectorAll('a').length === 0`) | 1 |
+
+CLAUDE.md rule 5 (fictional `sam`, no User data) is covered by U-2's fixed text. Motion and the 559 px rule are browser checks (E2E-3, E2E-4).
 
 ## Links
 

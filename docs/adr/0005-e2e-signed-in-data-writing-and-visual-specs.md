@@ -1,6 +1,6 @@
 # 0005: E2E specs for signed-in, data-writing and visual cases
 
-- Status: proposed (waits for the product owner; amends [ADR 0004](0004-playwright-e2e-specs.md) once accepted).
+- Status: accepted ([Q012](../questions/questions-2026-11-10-requirement-breakdown.md#q012-accept-adr-0005-for-the-homepage-visual-cases), option A, approved by the product owner 2026-11-10: more automatic verification, less manual eye-to-eye checking). Amends [ADR 0004](0004-playwright-e2e-specs.md).
 - Date: 2026-11-10
 
 ## Context
@@ -22,7 +22,7 @@
 | Seed and reset | A token-guarded dev-only endpoint (same guard as above) that resets test data and loads named fixtures, against the dev Neon database or a Neon branch, never production or a shared database. `Data: creates` specs also use run-unique prefixes (slug, names) and clean up their own data, so two runs in a row pass. |
 | Visual fidelity | Measured assertions, not pixel diffs: `toHaveCSS`, bounding boxes and fixed viewports (390 and 1280 wide), with values copied from the mockup into the case's `Visual:` field. No screenshot-diff tool; [ADR 0003](0003-frontend-styling-and-self-hosted-fonts.md) is unchanged. Subjective mockup checks stay prose with screenshots. |
 | Baselines | None. If `toHaveScreenshot` is wanted later it needs its own ADR; agents never run `--update-snapshots`. |
-| Agents | `business-analyst` writes the new fields; `business-analyst-review` and the `requirement-breakdown` workflow check them; `tester` authors and runs the specs; neither reads or prints session files; the implementer still only adds listed `data-testid` values. `implement-and-test-ticket` authors FE and BE specs before implementation and runs them against `BASE_URL` (web) and `API_URL` (API). While this ADR is proposed, the `tester` and the skill treat signed-in, data-writing and visual cases as prose or Blocked. |
+| Agents | `business-analyst` writes the new fields; `business-analyst-review` and the `requirement-breakdown` workflow check them; `tester` authors and runs the specs; neither reads or prints session files; the implementer still only adds listed `data-testid` values. `implement-and-test-ticket` authors FE and BE specs before implementation and runs them against `BASE_URL` (web) and `API_URL` (API). Visual cases are eligible now. Signed-in and data-writing cases stay prose or Blocked until the test sign-in and seed/reset endpoints below are built (see Gating). |
 | Sessions | One saved session per role (`e2e/.auth/<role>.json`), opted into per spec with `sessionFile(role)` from `e2e/support/session.ts`. No global `STORAGE_STATE`, so anonymous specs stay signed out. |
 | Gating | Domain-dependent specs (Memories, Templates, Blocks, Photos) wait for design approval; this ADR does not approve domain code. The sign-in and seed/reset endpoints themselves are domain-adjacent (auth, database) and are built only after the product owner approves them. |
 
@@ -48,6 +48,7 @@
 
 ## Related
 
-- [ADR 0004](0004-playwright-e2e-specs.md): amended by this ADR once accepted (Eligibility, Deferred and the sign-in note in Consequences).
+- [ADR 0004](0004-playwright-e2e-specs.md): amended by this ADR (Eligibility, Deferred, Visual fidelity, BE tickets and the sign-in note in Consequences); the amended rows there point back here.
+- First use: the Homepage mockup cases ([homepage](../features/homepage.md) and its section tasks; rules in [ui/homepage.md, Visual assertions](../ui/homepage.md#visual-assertions)).
 - [ADR 0003](0003-frontend-styling-and-self-hosted-fonts.md): unchanged.
 - [e2e-specs](../features/e2e-specs.md): the `e2e/` project.
