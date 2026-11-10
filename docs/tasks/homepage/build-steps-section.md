@@ -45,29 +45,34 @@ Security: static text only.
 The task is complete only when every item below passes. Tags name the [homepage](../../features/homepage.md) acceptance criterion (ACn).
 
 - [ ] 1. `npm test -w apps/web` passes `renders the how section` and `renders four ordered steps`. (AC1, AC5)
-- [ ] 2. At 1440 x 900 the section matches mockup lines 166-178 side by side: left-aligned heading, four white cards in one row, dashed borders in yellow, peach, mint, blue, number circles overlapping the top edge. (AC2)
+- [ ] 2. At 1440 x 900 the section matches mockup lines 166-178 side by side per [ui/homepage.md, Checking fidelity](../../ui/homepage.md#checking-fidelity) (±4 px boxes, exact colors and fonts; [Q008](../../questions/questions-2026-11-10-requirement-breakdown.md#q008-visual-fidelity-tolerance-for-the-homepage) default): left-aligned heading, four white cards in one row, dashed borders in yellow, peach, mint, blue, number circles overlapping the top edge. (AC2)
 - [ ] 3. Computed at 1440 px: first `li` border `2.5px dashed rgb(240, 213, 110)`, radius `28px`, padding top `64px`; its number circle 64 x 64, background `rgb(255, 201, 60)`, border `4px solid rgb(255, 247, 234)`, font size `30px`. (AC2)
 - [ ] 4. Hovering a step lifts it 6 px and spins its number once; with reduced motion the step's `transitionDuration` is `0s` and no animation runs. (AC6)
 - [ ] 5. At 375 px the steps stack, `h2` is 34px, section padding top and bottom 64px; number circles are fully visible; at 320 px `scrollWidth <= innerWidth`. (AC7)
 - [ ] 6. Opening `$BASE_URL/#how` scrolls the page so this section starts in the upper half of the viewport. (AC3)
-- [ ] 7. `npm run typecheck -w apps/web` and `npm run build -w apps/web` exit 0; no Console errors. (AC11)
+- [ ] 7. `npm run typecheck -w apps/web` and `npm run build -w apps/web` exit 0; no Console errors or warnings on load of `$BASE_URL/`. (AC11)
 - [ ] 8. Under `apps/`, the PR changes only the four files in Scope (`git diff --name-only origin/dev-v1...HEAD -- apps/` lists exactly them, none under `apps/api/`). Changes under `docs/` are allowed. (AC10)
 
 ## e2e-test-suites
 
-Type: FE. `$BASE_URL` = `http://localhost:5173` or `$DEV_WEB_URL`. Not signed in. Viewport 1440 x 900 unless stated.
+Type: FE. `$BASE_URL` = `http://localhost:5173` or `$DEV_WEB_URL`. Not signed in. Viewport 1440 x 900 unless stated. `Spec:`/`Testids:` per [ADR 0004](../../adr/0004-playwright-e2e-specs.md); when only some steps run in the browser, the brackets name the steps the spec covers and the other steps run as prose.
 
 ```
-E2E-1 -> checklist items 1, 7: unit tests, build
-Preconditions: npm install done
+E2E-1 -> checklist items 1, 7: unit tests, build, console
+Spec: prose (npm commands)
+Testids: none
+Preconditions: npm install done; app running
 Steps:
   1. Run: npm test -w apps/web -- --reporter=verbose src/home/StepsSection.test.tsx; echo "t=$?"
   2. Run: npm run typecheck -w apps/web && npm run build -w apps/web; echo "b=$?"
-Expected: both tests pass, t=0; b=0
+  3. Open $BASE_URL/ with the DevTools Console open; reload.
+Expected: both tests pass, t=0; b=0; step 3 the Console shows no error or warning entries
 ```
 
 ```
 E2E-2 -> checklist items 2, 3: look and values
+Spec: prose (visual comparison with the mockup)
+Testids: none
 Preconditions: app running; mockup served at http://localhost:8000/Landing2.dc.html
 Steps:
   1. Compare the "How it works" section side by side.
@@ -77,6 +82,8 @@ Expected: step 1 same; step 2 ["2.5px","dashed","rgb(240, 213, 110)","28px","64p
 
 ```
 E2E-3 -> checklist item 4: hover and reduced motion
+Spec: e2e/specs/homepage/build-steps-section.spec.ts (computed values; "the number spins once" is watched by eye as prose)
+Testids: none
 Preconditions: app running
 Steps:
   1. Hover the first step; wait 0.3 s; run: [getComputedStyle(document.querySelector('#how li')).transform]
@@ -86,6 +93,8 @@ Expected: step 1 ["matrix(1, 0, 0, 1, 0, -6)"] and the number spins once; step 2
 
 ```
 E2E-4 -> checklist items 5, 6: narrow screen and anchor
+Spec: e2e/specs/homepage/build-steps-section.spec.ts
+Testids: none
 Preconditions: app running
 Steps:
   1. Set 375 x 812, reload; run: const s=document.getElementById('how'); [new Set([...s.querySelectorAll('li')].map(x=>x.getBoundingClientRect().left)).size, getComputedStyle(s.querySelector('h2')).fontSize, getComputedStyle(s).paddingTop, getComputedStyle(s).paddingBottom]
@@ -96,6 +105,8 @@ Expected: [1, "34px", "64px", "64px"]; true; [true, true, true]
 
 ```
 E2E-5 -> checklist item 8: PR scope
+Spec: prose (git command)
+Testids: none
 Preconditions: task branch checked out; git fetch origin done
 Steps:
   1. Run: git diff --name-only origin/dev-v1...HEAD -- apps/

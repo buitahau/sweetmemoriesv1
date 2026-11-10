@@ -51,30 +51,35 @@ Security: text rendered as React text (no `dangerouslySetInnerHTML`); the faces 
 The task is complete only when every item below passes. Tags name the [homepage](../../features/homepage.md) acceptance criterion (ACn).
 
 - [ ] 1. `npm test -w apps/web` passes the three tests named in Scope. (AC1, AC4)
-- [ ] 2. At 1440 x 900, after 3 s, the left hero column matches mockup lines 78-99 side by side (badge, two-line `h1` with pink "home" block, lead, pink 3D button, underlined link, note, overlapping faces with caption). (AC2)
+- [ ] 2. At 1440 x 900, after 3 s, the left hero column matches mockup lines 78-99 side by side per [ui/homepage.md, Checking fidelity](../../ui/homepage.md#checking-fidelity) (±4 px boxes, exact colors and fonts; [Q008](../../questions/questions-2026-11-10-requirement-breakdown.md#q008-visual-fidelity-tolerance-for-the-homepage) default) (badge, two-line `h1` with pink "home" block, lead, pink 3D button, underlined link, note, overlapping faces with caption). (AC2)
 - [ ] 3. Computed at 1440 px: `h1` 76px, weight 700, line height 76px, family Fredoka; lead 22px, color `rgb(90, 60, 75)`; primary link background `rgb(255, 165, 186)`, min height 60px, box shadow `rgb(229, 126, 152) 0px 6px 0px 0px`. (AC2)
 - [ ] 4. Hovering the primary link gives `transform` `matrix(1, 0, 0, 1, 0, -3)` and shadow `rgb(229, 126, 152) 0px 9px 0px 0px`; focusing it with Tab gives the same lift. (AC6, AC8)
 - [ ] 5. On load the badge, `h1`, lead and CTA row fade up in that order and the faces pop in one by one; with reduced motion emulated nothing animates (`document.getAnimations().length === 0`). (AC6)
 - [ ] 6. At 375 px: `h1` 48px, lead 19px, no horizontal scrollbar; at 320 px `scrollWidth <= innerWidth`. (AC7)
 - [ ] 7. "Start with Google" has `href` `/sign-in` and "See how it works" `#how`. (AC3, AC4)
-- [ ] 8. `npm run typecheck -w apps/web` and `npm run build -w apps/web` exit 0; no Console errors. (AC11)
+- [ ] 8. `npm run typecheck -w apps/web` and `npm run build -w apps/web` exit 0; no Console errors or warnings on load of `$BASE_URL/`. (AC11)
 - [ ] 9. Under `apps/`, the PR changes only the four files in Scope (`git diff --name-only origin/dev-v1...HEAD -- apps/` lists exactly them, none under `apps/api/`). Changes under `docs/` are allowed. (AC10)
 
 ## e2e-test-suites
 
-Type: FE. `$BASE_URL` = `http://localhost:5173` or `$DEV_WEB_URL`. Not signed in. Viewport 1440 x 900 unless stated; wait 3 s after load.
+Type: FE. `$BASE_URL` = `http://localhost:5173` or `$DEV_WEB_URL`. Not signed in. Viewport 1440 x 900 unless stated; wait 3 s after load. `Spec:`/`Testids:` per [ADR 0004](../../adr/0004-playwright-e2e-specs.md); when only some steps run in the browser, the brackets name the steps the spec covers and the other steps run as prose.
 
 ```
-E2E-1 -> checklist items 1, 8: unit tests, build
-Preconditions: npm install done
+E2E-1 -> checklist items 1, 8: unit tests, build, console
+Spec: prose (npm commands)
+Testids: none
+Preconditions: npm install done; app running
 Steps:
   1. Run: npm test -w apps/web -- --reporter=verbose src/home/HeroIntro.test.tsx; echo "t=$?"
   2. Run: npm run typecheck -w apps/web && npm run build -w apps/web; echo "b=$?"
-Expected: three tests pass, t=0; b=0
+  3. Open $BASE_URL/ with the DevTools Console open; reload.
+Expected: three tests pass, t=0; b=0; step 3 the Console shows no error or warning entries
 ```
 
 ```
 E2E-2 -> checklist items 2, 3, 7: look, values, links
+Spec: prose (visual comparison with the mockup)
+Testids: none
 Preconditions: app running; mockup served at http://localhost:8000/Landing2.dc.html
 Steps:
   1. Compare the left hero column of both pages side by side.
@@ -84,6 +89,8 @@ Expected: step 1 same layout, sizes and colors; step 2 ["76px","700","76px","Fre
 
 ```
 E2E-3 -> checklist item 4: hover and focus lift
+Spec: e2e/specs/homepage/build-hero-intro.spec.ts
+Testids: none
 Preconditions: app running
 Steps:
   1. Hover "Start with Google" (hero) and wait 0.3 s; run: const s=getComputedStyle([...document.querySelectorAll('a')].find(a=>a.textContent==='Start with Google')); [s.transform, s.boxShadow]
@@ -93,6 +100,8 @@ Expected: both ["matrix(1, 0, 0, 1, 0, -3)", "rgb(229, 126, 152) 0px 9px 0px 0px
 
 ```
 E2E-4 -> checklist item 5: entrance motion and reduced motion
+Spec: e2e/specs/homepage/build-hero-intro.spec.ts (step 2; the entrance order in step 1 is watched by eye as prose)
+Testids: none
 Preconditions: app running
 Steps:
   1. Reload and watch the hero for 2 s.
@@ -102,6 +111,8 @@ Expected: badge, title, lead, buttons rise in order, then five faces pop in left
 
 ```
 E2E-5 -> checklist item 6: narrow screens
+Spec: e2e/specs/homepage/build-hero-intro.spec.ts
+Testids: none
 Preconditions: app running
 Steps:
   1. Set 375 x 812, reload; run: [getComputedStyle(document.querySelector('h1')).fontSize, getComputedStyle(document.querySelector('h1').nextElementSibling).fontSize, document.documentElement.scrollWidth <= innerWidth]
@@ -111,6 +122,8 @@ Expected: ["48px","19px",true]; true
 
 ```
 E2E-6 -> checklist item 9: PR scope
+Spec: prose (git command)
+Testids: none
 Preconditions: task branch checked out; git fetch origin done
 Steps:
   1. Run: git diff --name-only origin/dev-v1...HEAD -- apps/

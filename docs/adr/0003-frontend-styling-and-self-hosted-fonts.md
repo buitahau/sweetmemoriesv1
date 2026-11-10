@@ -1,6 +1,6 @@
 # 0003: Frontend styling and self-hosted fonts
 
-- Status: proposed (acceptance asked in [Q001](../questions/questions-2026-11-10-requirement-breakdown.md#q001-accept-adr-0003-styling-and-self-hosted-fonts)). Design gate: like [ADR 0001](0001-monorepo-skeleton-and-tooling.md), no task that depends on this decision (fonts, tokens, the Homepage shell and every section task after it) starts until this Status is `accepted`. Only the style-agnostic tasks [add-home-content](../tasks/homepage/add-home-content.md) and [add-home-illustrations](../tasks/homepage/add-home-illustrations.md) may start earlier.
+- Status: accepted ([Q001](../questions/questions-2026-11-10-requirement-breakdown.md#q001-accept-adr-0003-styling-and-self-hosted-fonts), option A, approved by the product owner 2026-11-10). The design gate is met: every task that depends on this decision (fonts, tokens, the Homepage shell and every section task after it) may start once its own Prerequisites are `done`.
 - Date: 2026-11-10
 
 ## Context

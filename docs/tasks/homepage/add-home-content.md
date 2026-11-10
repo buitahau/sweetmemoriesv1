@@ -62,10 +62,12 @@ The task is complete only when every item below passes. Tags name the [homepage]
 
 ## e2e-test-suites
 
-Type: FE (data module, verified by commands). Run from the repo root.
+Type: FE (data module, verified by commands). Run from the repo root. `Spec:`/`Testids:` per [ADR 0004](../../adr/0004-playwright-e2e-specs.md): no case opens a page, so all are prose.
 
 ```
 E2E-1 -> checklist items 1, 2: tests and types
+Spec: prose (npm commands)
+Testids: none
 Preconditions: npm install done
 Steps:
   1. Run: npm test -w apps/web -- --reporter=verbose src/home/content.test.ts; echo "t=$?"
@@ -75,6 +77,8 @@ Expected: output lists "has the item counts of the mockup", "uses six-digit hex 
 
 ```
 E2E-2 -> checklist items 3, 4: copy matches the mockup
+Spec: prose (shell commands)
+Testids: none
 Preconditions: branch checked out
 Steps:
   1. Run: for s in "For families, little ones and whole neighborhoods" "No password to make. It is free to look around." "Grandma, Mum and 12 cousins added photos" "sam.sweetmemories.com/bobs-first-day" "Bob's first day" "Big backpack, bigger smile." "One page can be about one child, one summer or one street. Invite people in and let everyone add a piece." "Templates are built from friendly blocks. Some are a title and a photo. Others follow a child from one to ten." "It takes a template, a few photos and a few cozy minutes." "Nana’s recipes" "Curved timeline"; do grep -qF "$s" apps/web/src/home/content.ts || echo "missing: $s"; done; echo done
@@ -84,6 +88,8 @@ Expected: step 1 prints only "done"; step 2 shows the line with '/sign-in' and t
 
 ```
 E2E-3 -> checklist items 5, 6, 7: no markup, no domain names, only two app files, no Face clash
+Spec: prose (grep and git commands)
+Testids: none
 Preconditions: PR branch checked out
 Steps:
   1. Run: grep -n -E 'Dashboard|<[a-z]|dangerouslySetInnerHTML' apps/web/src/home/content.ts; echo "a=$?"

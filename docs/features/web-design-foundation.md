@@ -1,6 +1,6 @@
 # Web design foundation
 
-- Status: blocked (design gate: [ADR 0003](../adr/0003-frontend-styling-and-self-hosted-fonts.md) must be `accepted`, [Q001](../questions/questions-2026-11-10-requirement-breakdown.md#q001-accept-adr-0003-styling-and-self-hosted-fonts))
+- Status: not-started
 
 ## Summary
 
@@ -42,7 +42,7 @@ The feature is complete only when every item below passes.
 - [ ] 4. `apps/web/package.json` `dependencies` list `@fontsource/fredoka`, `@fontsource/caveat`, `@fontsource/figtree` with range `^5`; `apps/web/dist/assets/` contains `.woff2` files after `npm run build -w apps/web`. (AC1)
 - [ ] 5. For every token in the ui/homepage.md table, `getComputedStyle(document.documentElement).getPropertyValue('<token>').trim()` equals the listed value at 1440 px width. (AC2)
 - [ ] 6. At 1440 px `--gutter` is `40px` and `--radius-band` is `64px`; at 375 px they are `20px` and `40px`. (Behavior)
-- [ ] 7. `getComputedStyle(document.body)` gives `background-color: rgb(255, 247, 234)`, `color: rgb(59, 36, 51)`, `font-size: 18px`, `line-height: 27.9px`, `margin: 0px`, and `fontFamily` starting with `Figtree`; a test link added to `body` has color `rgb(176, 40, 90)`; `apps/web/src/index.css` has an `a:hover` rule using `var(--color-link-hover)`. (AC3)
+- [ ] 7. `getComputedStyle(document.body)` gives `background-color: rgb(255, 247, 234)`, `color: rgb(59, 36, 51)`, `font-size: 18px`, `line-height: 27.9px`, `margin: 0px`, and `fontFamily` whose first entry is `Figtree` (quotes allowed); a test link added to `body` has color `rgb(176, 40, 90)`; `apps/web/src/index.css` has an `a:hover` rule using `var(--color-link-hover)`. (AC3)
 - [ ] 8. With DevTools Rendering "Emulate CSS media feature prefers-reduced-motion: reduce", a test element with `animation: x 1s infinite` reports `getComputedStyle(el).animationName === 'none'`. (AC4)
 - [ ] 9. DevTools Application > Cookies for `$BASE_URL` is empty; `document.title` is `SweetMemories`; `document.documentElement.lang` is `en`. (AC5)
 - [ ] 10. `npm test -w apps/web`, `npm run typecheck -w apps/web`, `npm run build -w apps/web` exit 0. (AC6)
@@ -50,10 +50,12 @@ The feature is complete only when every item below passes.
 
 ## e2e-test-suites
 
-Type: FE. `$BASE_URL` is `http://localhost:5173` locally or `$DEV_WEB_URL` on dev ([dev-environment](../infra/dev-environment.md)). Fresh browser profile, not signed in, viewport 1440 x 900 unless stated.
+Type: FE. `$BASE_URL` is `http://localhost:5173` locally or `$DEV_WEB_URL` on dev ([dev-environment](../infra/dev-environment.md)). Fresh browser profile, not signed in, viewport 1440 x 900 unless stated. Every case has `Spec:` and `Testids:` lines ([ADR 0004](../adr/0004-playwright-e2e-specs.md)); when only some steps run in the browser, the brackets name the steps the spec covers and the other steps run as prose.
 
 ```
 E2E-1 -> checklist items 2, 3: fonts load from own origin only
+Spec: e2e/specs/web-design-foundation/web-design-foundation.spec.ts
+Testids: none
 Preconditions: app running; DevTools Network open, "Disable cache" on
 Steps:
   1. Open $BASE_URL/.
@@ -65,6 +67,8 @@ Expected: step 2 prints eight numbers, each >= 1; step 3 prints only the $BASE_U
 
 ```
 E2E-2 -> checklist item 4: dependencies and bundled font files
+Spec: prose (shell and npm commands)
+Testids: none
 Preconditions: repository checked out, npm install done
 Steps:
   1. Run: node -p "JSON.stringify(require('./apps/web/package.json').dependencies)"
@@ -74,6 +78,8 @@ Expected: step 1 shows "@fontsource/caveat":"^5...", "@fontsource/figtree":"^5..
 
 ```
 E2E-3 -> checklist items 5, 6: tokens
+Spec: e2e/specs/web-design-foundation/web-design-foundation.spec.ts (steps 1-2; the spot check of the remaining tokens runs as prose)
+Testids: none
 Preconditions: app running; viewport 1440 x 900
 Steps:
   1. In Console run: const s = getComputedStyle(document.documentElement); ['--color-page','--color-ink','--color-link','--color-hero','--color-cta','--font-display','--radius-pill','--radius-card','--page-max','--gutter','--radius-band'].map(t => s.getPropertyValue(t).trim())
@@ -83,16 +89,20 @@ Expected: step 1 prints ["#FFF7EA","#3B2433","#B0285A","#FFE9A8","#FFC2D1","'Fre
 
 ```
 E2E-4 -> checklist item 7: body and link base styles
+Spec: e2e/specs/web-design-foundation/web-design-foundation.spec.ts (steps 1-2; step 3 is a shell command and runs as prose)
+Testids: none
 Preconditions: app running; repository checked out
 Steps:
-  1. In Console run: const b = getComputedStyle(document.body); [b.backgroundColor, b.color, b.fontSize, b.margin, b.lineHeight, b.fontFamily]
+  1. In Console run: const b = getComputedStyle(document.body); [b.backgroundColor, b.color, b.fontSize, b.margin, b.lineHeight, b.fontFamily.split(',')[0]]
   2. In Console run: const a = document.createElement('a'); a.href = '#x'; a.textContent = 'x'; document.body.append(a); getComputedStyle(a).color
   3. Run: grep -n 'a:hover' apps/web/src/index.css
-Expected: step 1 ["rgb(255, 247, 234)", "rgb(59, 36, 51)", "18px", "0px", "27.9px", a string starting with "Figtree"]; step 2 "rgb(176, 40, 90)"; step 3 one line containing var(--color-link-hover)
+Expected: step 1 ["rgb(255, 247, 234)", "rgb(59, 36, 51)", "18px", "0px", "27.9px", "Figtree" (quotes allowed)]; step 2 "rgb(176, 40, 90)"; step 3 one line containing var(--color-link-hover)
 ```
 
 ```
 E2E-5 -> checklist item 8: reduced motion
+Spec: e2e/specs/web-design-foundation/web-design-foundation.spec.ts
+Testids: none
 Preconditions: app running; DevTools > Rendering > "Emulate CSS media feature prefers-reduced-motion" = reduce
 Steps:
   1. In Console run: const d = document.createElement('div'); d.style.animation = 'x 1s infinite'; d.style.transition = 'opacity 1s'; document.body.append(d); [getComputedStyle(d).animationName, getComputedStyle(d).transitionDuration]
@@ -102,6 +112,8 @@ Expected: step 1 prints ["none", "0s"]; step 2 prints ["x", "1s"]
 
 ```
 E2E-6 -> checklist items 9, 10, 11: no cookies, head unchanged, builds pass, no domain code
+Spec: e2e/specs/web-design-foundation/web-design-foundation.spec.ts (step 1; steps 2-5 are npm, gh and grep commands and run as prose)
+Testids: none
 Preconditions: app running; repository checked out
 Steps:
   1. Check DevTools Application > Cookies > $BASE_URL; in Console run: [document.title, document.documentElement.lang]
@@ -117,7 +129,9 @@ Expected: no cookies; ["SweetMemories","en"]; e=0; step 3 prints only "g=1" for 
 - Parent ADR: [0003-frontend-styling-and-self-hosted-fonts](../adr/0003-frontend-styling-and-self-hosted-fonts.md)
 - UI: [homepage](../ui/homepage.md)
 - Next feature: [homepage](homepage.md)
-- Design gate: both tasks are `blocked` until ADR 0003 is `accepted` ([Q001](../questions/questions-2026-11-10-requirement-breakdown.md#q001-accept-adr-0003-styling-and-self-hosted-fonts)).
+- E2E specs: follows [ADR 0004](../adr/0004-playwright-e2e-specs.md) (listed there under "Applies to", not a parent); spec project: [e2e-specs](e2e-specs.md).
+- Questions: [Q010](../questions/questions-2026-11-10-requirement-breakdown.md#q010-record-adr-0003-and-adr-0004-approval-in-claudemd) (open; record ADR 0003 and 0004 approval in `CLAUDE.md`).
+- Design gate: met. ADR 0003 is `accepted` ([Q001](../questions/questions-2026-11-10-requirement-breakdown.md#q001-accept-adr-0003-styling-and-self-hosted-fonts) answered A, 2026-11-10); task 1 may start now, task 2 after task 1 is `done`.
 - Tasks:
   1. [add-self-hosted-fonts](../tasks/web-design-foundation/add-self-hosted-fonts.md)
   2. [add-design-tokens](../tasks/web-design-foundation/add-design-tokens.md)

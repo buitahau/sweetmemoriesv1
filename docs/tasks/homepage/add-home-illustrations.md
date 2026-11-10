@@ -51,10 +51,12 @@ The task is complete only when every item below passes. Tags name the [homepage]
 
 ## e2e-test-suites
 
-Type: FE (component module, verified by commands). Run from the repo root.
+Type: FE (component module, verified by commands). Run from the repo root. `Spec:`/`Testids:` per [ADR 0004](../../adr/0004-playwright-e2e-specs.md): no case opens a page, so all are prose.
 
 ```
 E2E-1 -> checklist items 1, 2: exports, tests, types
+Spec: prose (npm and grep commands)
+Testids: none
 Preconditions: npm install done
 Steps:
   1. Run: npm test -w apps/web -- --reporter=verbose src/home/illustrations.test.tsx; echo "t=$?"
@@ -65,6 +67,8 @@ Expected: the four test names pass; t=0; c=0; step 3 lists LogoMark, Face, Heart
 
 ```
 E2E-2 -> checklist item 3: shapes match the mockup
+Spec: prose (shell commands)
+Testids: none
 Preconditions: branch checked out
 Steps:
   1. Run: for d in "M15 22s-6.5-4.1-6.5-8.4A3.6 3.6 0 0 1 15 11.6a3.6 3.6 0 0 1 6.5 2C21.5 17.9 15 22 15 22z" "M15 25s-10-6.3-10-13A5.5 5.5 0 0 1 15 9a5.5 5.5 0 0 1 10 3c0 6.7-10 13-10 13z" "M3.5 9.5L10 4l6.5 5.5V16h-4.2v-4.2H7.7V16H3.5z" "M14 44a13 13 0 0 1 2-26 18 18 0 0 1 34-3 15 15 0 0 1 14 29z" "M21 37q9 8 18 0"; do grep -qF "$d" apps/web/src/home/illustrations.tsx || echo "missing: $d"; done; echo done
@@ -73,6 +77,8 @@ Expected: prints only "done"
 
 ```
 E2E-3 -> checklist items 4, 5: no unsafe markup, scope
+Spec: prose (grep and git commands)
+Testids: none
 Preconditions: PR branch checked out
 Steps:
   1. Run: grep -n -E 'dangerouslySetInnerHTML|href=|xlink|style=' apps/web/src/home/illustrations.tsx; echo "g=$?"

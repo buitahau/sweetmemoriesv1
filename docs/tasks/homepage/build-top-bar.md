@@ -42,30 +42,35 @@ Security: links are static; "Sign in" goes to the placeholder `SIGN_IN_HREF` onl
 The task is complete only when every item below passes. Tags name the [homepage](../../features/homepage.md) acceptance criterion (ACn).
 
 - [ ] 1. `npm test -w apps/web` passes `links the logo home` and `shows the main navigation`. (AC3, AC4)
-- [ ] 2. At 1440 x 900 the top bar matches mockup lines 63-74 side by side (logo 38 px tile, "SweetMemories" Fredoka 600 24px, links right-aligned, white Sign in pill with yellow 4 px shadow). (AC2)
+- [ ] 2. At 1440 x 900 the top bar matches mockup lines 63-74 side by side per [ui/homepage.md, Checking fidelity](../../ui/homepage.md#checking-fidelity) (±4 px boxes, exact colors and fonts; [Q008](../../questions/questions-2026-11-10-requirement-breakdown.md#q008-visual-fidelity-tolerance-for-the-homepage) default) (logo 38 px tile, "SweetMemories" Fredoka 600 24px, links right-aligned, white Sign in pill with yellow 4 px shadow). (AC2)
 - [ ] 3. Computed at 1440 px: bar padding `22px 40px`; nav links `font-size: 16px`, `font-weight: 600`, `min-height: 44px`; Sign in `background-color: rgb(255, 255, 255)`, `box-shadow: rgb(233, 200, 106) 0px 4px 0px 0px`, `border-radius: 999px`. (AC2)
 - [ ] 4. Hovering "Who it is for" keeps its color `rgb(59, 36, 51)`. (AC2)
 - [ ] 5. Clicking "How it works" sets `location.hash` to `#how` (the target exists once [build-steps-section](build-steps-section.md) is done; before that only the hash is checked). (AC3)
 - [ ] 6. At 320 px the nav wraps below the logo, every link is visible, and `document.documentElement.scrollWidth <= window.innerWidth`. (AC7)
 - [ ] 7. Tab from the address bar focuses the logo, then the four nav links in order, each with a visible focus outline. (AC8)
-- [ ] 8. `npm run typecheck -w apps/web` and `npm run build -w apps/web` exit 0; no Console errors. (AC11)
+- [ ] 8. `npm run typecheck -w apps/web` and `npm run build -w apps/web` exit 0; no Console errors or warnings on load of `$BASE_URL/`. (AC11)
 - [ ] 9. Under `apps/`, the PR changes only the four files in Scope (`git diff --name-only origin/dev-v1...HEAD -- apps/` lists exactly them, none under `apps/api/`). Changes under `docs/` are allowed. (AC10)
 
 ## e2e-test-suites
 
-Type: FE. `$BASE_URL` = `http://localhost:5173` or `$DEV_WEB_URL`. Not signed in. Viewport 1440 x 900 unless stated.
+Type: FE. `$BASE_URL` = `http://localhost:5173` or `$DEV_WEB_URL`. Not signed in. Viewport 1440 x 900 unless stated. `Spec:`/`Testids:` per [ADR 0004](../../adr/0004-playwright-e2e-specs.md); when only some steps run in the browser, the brackets name the steps the spec covers and the other steps run as prose.
 
 ```
-E2E-1 -> checklist items 1, 8: unit tests and build
-Preconditions: npm install done
+E2E-1 -> checklist items 1, 8: unit tests, build, console
+Spec: prose (npm commands)
+Testids: none
+Preconditions: npm install done; app running
 Steps:
   1. Run: npm test -w apps/web -- --reporter=verbose src/home/TopBar.test.tsx; echo "t=$?"
   2. Run: npm run typecheck -w apps/web && npm run build -w apps/web; echo "b=$?"
-Expected: both test names pass, t=0; b=0
+  3. Open $BASE_URL/ with the DevTools Console open; reload.
+Expected: both test names pass, t=0; b=0; step 3 the Console shows no error or warning entries
 ```
 
 ```
 E2E-2 -> checklist items 2, 3: look and values
+Spec: prose (visual comparison with the mockup)
+Testids: none
 Preconditions: app running; mockup served at http://localhost:8000/Landing2.dc.html
 Steps:
   1. Compare the top 100 px of both pages side by side.
@@ -75,6 +80,8 @@ Expected: step 1 same logo, sizes, spacing, colors; step 2 ["22px 40px","16px","
 
 ```
 E2E-3 -> checklist items 4, 5: hover color and anchor
+Spec: e2e/specs/homepage/build-top-bar.spec.ts
+Testids: none
 Preconditions: app running
 Steps:
   1. Hover "Who it is for"; run: getComputedStyle(document.querySelector('nav a')).color
@@ -84,15 +91,19 @@ Expected: "rgb(59, 36, 51)"; "#how"
 
 ```
 E2E-4 -> checklist item 6: narrow screen
+Spec: e2e/specs/homepage/build-top-bar.spec.ts
+Testids: none
 Preconditions: app running
 Steps:
-  1. Set 320 x 640, reload. Look at the top bar.
-  2. Run: [document.documentElement.scrollWidth <= window.innerWidth, [...document.querySelectorAll('nav a')].every(a => { const r=a.getBoundingClientRect(); return r.left >= 0 && r.right <= innerWidth })]
-Expected: logo on the first line, links wrapped below; [true, true]
+  1. Set 320 x 640, reload.
+  2. Run: [document.documentElement.scrollWidth <= window.innerWidth, [...document.querySelectorAll('nav a')].every(a => { const r=a.getBoundingClientRect(); return r.left >= 0 && r.right <= innerWidth }), document.querySelector('nav').getBoundingClientRect().top >= document.querySelector('header a').getBoundingClientRect().bottom]
+Expected: [true, true, true] (the nav starts below the logo, every link is inside the viewport)
 ```
 
 ```
 E2E-5 -> checklist item 7: keyboard
+Spec: e2e/specs/homepage/build-top-bar.spec.ts (focus order only; the visible outline is judged by eye as prose)
+Testids: none
 Preconditions: app running, page freshly loaded
 Steps:
   1. Click the address bar, press Tab five times, noting document.activeElement text and the focus outline each time.
@@ -101,6 +112,8 @@ Expected: "SweetMemories", "Who it is for", "How it works", "Templates", "Sign i
 
 ```
 E2E-6 -> checklist item 9: PR scope
+Spec: prose (git command)
+Testids: none
 Preconditions: task branch checked out; git fetch origin done
 Steps:
   1. Run: git diff --name-only origin/dev-v1...HEAD -- apps/

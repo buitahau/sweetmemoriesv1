@@ -47,15 +47,15 @@
 ## web-design-foundation
 | Task | Status | Updated |
 |---|---|---|
-| [add-self-hosted-fonts](web-design-foundation/add-self-hosted-fonts.md) | blocked | 2026-11-10 |
-| [add-design-tokens](web-design-foundation/add-design-tokens.md) | blocked | 2026-11-10 |
+| [add-self-hosted-fonts](web-design-foundation/add-self-hosted-fonts.md) | not-started | 2026-11-10 |
+| [add-design-tokens](web-design-foundation/add-design-tokens.md) | not-started | 2026-11-10 |
 
 ## homepage
 | Task | Status | Updated |
 |---|---|---|
 | [add-home-content](homepage/add-home-content.md) | not-started | 2026-11-10 |
 | [add-home-illustrations](homepage/add-home-illustrations.md) | not-started | 2026-11-10 |
-| [add-homepage-shell](homepage/add-homepage-shell.md) | blocked | 2026-11-10 |
+| [add-homepage-shell](homepage/add-homepage-shell.md) | not-started | 2026-11-10 |
 | [build-top-bar](homepage/build-top-bar.md) | not-started | 2026-11-10 |
 | [build-hero-intro](homepage/build-hero-intro.md) | not-started | 2026-11-10 |
 | [build-hero-collage](homepage/build-hero-collage.md) | not-started | 2026-11-10 |
@@ -65,3 +65,9 @@
 | [build-moments-section](homepage/build-moments-section.md) | not-started | 2026-11-10 |
 | [build-addresses-section](homepage/build-addresses-section.md) | not-started | 2026-11-10 |
 | [build-page-closing](homepage/build-page-closing.md) | not-started | 2026-11-10 |
+
+## e2e-specs
+| Task | Status | Updated |
+|---|---|---|
+| [scaffold-e2e-project](e2e-specs/scaffold-e2e-project.md) | done | 2026-11-10 |
+| [align-e2e-readme-title-rule](e2e-specs/align-e2e-readme-title-rule.md) | not-started | 2026-11-10 |
