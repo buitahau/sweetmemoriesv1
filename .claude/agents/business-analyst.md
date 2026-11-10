@@ -84,6 +84,12 @@ Steps:
 Expected: step 1 shows Back (disabled), Next and Save, and no Publish; the last step shows Back, Save and Publish
 ```
 
+Add two structured fields to every FE case, next to its ID and checklist link:
+- `Spec:` the path `e2e/specs/<feature-slug>/<feature-or-task-slug>.spec.ts` (the tester creates it; test titles start with `<ticket-slug> E2E-n`) or `prose`.
+- `Testids:` the `data-testid` values the case needs (kebab-case), or `none`. The implementer adds exactly these; the spec prefers role and text and uses them only where no accessible role or text fits.
+
+Eligibility ([ADR 0004](../../docs/adr/0004-playwright-e2e-specs.md)): an FE case that needs no authentication and writes no data gets `Spec: <path>`; every other case (signed-in, data-writing, visual-fidelity comparison with a mockup) gets `Spec: prose`. Write the Expected line so it can be copied into an assertion as is (exact text, numbers, computed values).
+
 Include cases for empty or invalid input, Back and Next without losing data, Save then reload, and the wizard and template-builder conventions from `CLAUDE.md` wherever the ticket touches them.
 
 Rules for both: no vague expectations ("works", "looks right"); every checklist item has at least one case; every case maps to a checklist item; where a case checks a security rule from `CLAUDE.md`, say which rule.

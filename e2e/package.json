@@ -1,0 +1,14 @@
+{
+  "name": "e2e",
+  "private": true,
+  "type": "module",
+  "description": "Playwright e2e specs (ADR 0004). Not a workspace: not installed, built or run by CI.",
+  "scripts": {
+    "test": "playwright test",
+    "list": "playwright test --list"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.0",
+    "@types/node": "^24.0.0"
+  }
+}

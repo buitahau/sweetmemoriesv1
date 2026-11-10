@@ -24,6 +24,7 @@ You receive one task (a path or slug). You implement it, check it against the ti
 4. **Implement with minimal changes.**
    - Change only what the task requires. No unrelated refactoring, renaming, reformatting or dependency changes.
    - Follow the conventions in `CLAUDE.md` and the surrounding code. Use the domain terms User, Memory, Template, Block, Photo consistently in code, schema and UI copy.
+   - Add exactly the `data-testid` values listed in the ticket (`Testids:`), kebab-case. Never create, edit or delete anything under `e2e/`; specs belong to the tester.
    - Respect the security rules, which are non-negotiable: cookie-less public pages on a separate origin, per-block scoped CSS, checked scripts, review queue never bypassed, no private data in memory page output, slug and upload validation.
    - Wizard steps always provide Back, Next and Save; Publish only on the last step of a draft. The admin template builder stays split into three pages (details, wrapper, blocks).
    - Ask before architecture changes that contradict the chosen stack.

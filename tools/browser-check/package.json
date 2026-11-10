@@ -1,0 +1,9 @@
+{
+  "name": "browser-check",
+  "private": true,
+  "type": "module",
+  "description": "Browser checks for the tester agent. Not a workspace: not installed or built by CI.",
+  "dependencies": {
+    "playwright-core": "1.65.0"
+  }
+}

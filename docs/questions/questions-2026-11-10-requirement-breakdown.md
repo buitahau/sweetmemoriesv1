@@ -158,3 +158,25 @@ Session 2026-11-10. Requirement: "Implement the Homepage page (public landing pa
 **Answer**: _(human fills in)_
 
 ---
+
+## Q009: Accept ADR 0004 (Playwright e2e specs)?
+
+- Feature: homepage
+- Status: answered
+- Asked: 2026-11-10
+- Blocks: nothing
+
+**Question**: [ADR 0004](../adr/0004-playwright-e2e-specs.md) proposes making Playwright specs a code deliverable of each frontend ticket: a separate `e2e/` project (not an npm workspace, so root scripts and CI are unaffected), authored by the `tester` from the ticket only, run against dev, not in CI. Authenticated and data-writing flows stay prose and Blocked until a test-sign-in ADR, a dev database with seed/reset and domain design approval exist. It adds one dev-only dependency (`@playwright/test`) outside the root install and does not change the application stack.
+
+**Options**
+1. A: Accept ADR 0004 as written. (recommended)
+2. B: Accept, but also run the specs in CI against the dev deploy (needs Chrome in CI and a post-deploy job; changes the pipelines).
+3. C: Reject; keep prose cases and `tools/browser-check` only.
+
+**Default if unanswered**: Option A is used for the tester workflow, with the ADR still marked `proposed`; no pipeline changes.
+
+**Answer**: A (recommended), approved by the product owner 2026-11-10. Applied in ADR 0004 (accepted).
+
+**Answer**: _(human fills in)_
+
+---

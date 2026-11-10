@@ -135,6 +135,10 @@ Do not guess on anything that is the user's decision. Instead:
 ### When finished
 Set Status to `done` (in the feature/task doc and `Progress.md`), tick everything, and make sure lasting knowledge is in `features/`, `api/`, `adr/` etc. Delete answered questions; remove the questions file only if nothing else in it is open.
 
+## Playwright specs
+
+FE tickets ([ADR 0004](../../../docs/adr/0004-playwright-e2e-specs.md)): each case in `e2e-test-suites` has `Spec: <path>` or `Spec: prose`, and `Testids: <list>` (kebab-case, or `none`). A case is spec-eligible only if it needs no sign-in, writes no data and is not a mockup comparison. Specs live in `e2e/specs/<feature-slug>/<feature-or-task-slug>.spec.ts`; each `test()` title starts with the ticket slug and case ID (`homepage E2E-1 ...`). Docs say which specs exist; do not copy spec code into docs. Keep the case's Expected line exact enough to become an assertion.
+
 ## Rules
 
 - Docs describe the current truth. Update the doc in the same change as the code or design it describes.

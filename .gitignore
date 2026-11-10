@@ -7,3 +7,7 @@ coverage/
 .DS_Store
 *.log
 .wrangler/
+
+# e2e
+e2e/test-results/
+e2e/playwright-report/

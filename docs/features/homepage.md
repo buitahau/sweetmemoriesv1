@@ -63,10 +63,12 @@ The feature is complete only when every item below passes.
 
 ## e2e-test-suites
 
-Type: FE. `$BASE_URL` is `http://localhost:5173` locally or `$DEV_WEB_URL` on dev. Fresh browser profile, not signed in, viewport 1440 x 900 unless stated, reduced motion off unless stated. Wait 3 s after load for entrance animations.
+Type: FE. `$BASE_URL` is `http://localhost:5173` locally or `$DEV_WEB_URL` on dev. Fresh browser profile, not signed in, viewport 1440 x 900 unless stated, reduced motion off unless stated. Wait 3 s after load for entrance animations. Cases with `Spec:` are automated in Playwright ([ADR 0004](../adr/0004-playwright-e2e-specs.md)); E2E-1, E2E-3, E2E-4 and E2E-8 have specs, E2E-2 stays prose; the other cases are not yet classified.
 
 ```
 E2E-1 -> checklist items 2, 3, 17: structure, headings, ids
+Spec: e2e/specs/homepage/homepage.spec.ts
+Testids: none
 Preconditions: app running
 Steps:
   1. Open $BASE_URL/.
@@ -79,6 +81,7 @@ Expected: step 2 [1, false, 1, false, "Every little moment deserves a home.", 1,
 
 ```
 E2E-2 -> checklist item 4: visual fidelity
+Spec: prose (visual comparison with the mockup; screenshots as evidence)
 Preconditions: mockup served at http://localhost:8000/Landing2.dc.html (see ui/homepage.md); app running; both tabs at 1440 x 900
 Steps:
   1. In both tabs wait 3 s, take a full-page screenshot (DevTools command "Capture full size screenshot").
@@ -89,6 +92,8 @@ Expected: no difference except the deviations listed in ui/homepage.md and line 
 
 ```
 E2E-3 -> checklist item 5: spot computed values
+Spec: e2e/specs/homepage/homepage.spec.ts
+Testids: none
 Preconditions: app running, 1440 x 900
 Steps:
   1. In Console run: const h1=getComputedStyle(document.querySelector('h1')); const band=getComputedStyle(document.querySelector('header')); const tpl=getComputedStyle(document.getElementById('templates').parentElement); const cta=[...document.querySelectorAll('a')].find(a=>a.textContent==='Start with Google'); const c=getComputedStyle(cta); const close=getComputedStyle([...document.querySelectorAll('h2')].at(-1).closest('section')); [h1.fontSize, h1.fontFamily.split(',')[0], h1.fontWeight, band.backgroundColor, band.borderBottomLeftRadius, band.borderBottomRightRadius, tpl.backgroundColor, tpl.borderTopLeftRadius, close.backgroundColor, c.backgroundColor, c.boxShadow]
@@ -97,6 +102,8 @@ Expected: ["76px", "Fredoka" (quotes allowed), "700", "rgb(255, 233, 168)", "64p
 
 ```
 E2E-4 -> checklist item 6: in-page links
+Spec: e2e/specs/homepage/homepage.spec.ts
+Testids: none
 Preconditions: app running, at top of $BASE_URL/
 Steps:
   1. Click nav link "Who it is for"; in Console run: [location.hash, document.getElementById('who').getBoundingClientRect().top < innerHeight]
@@ -138,6 +145,8 @@ Expected: step 1 a matrix value (not "none"); step 2 0; step 3 "0s"
 
 ```
 E2E-8 -> checklist item 10: responsive
+Spec: e2e/specs/homepage/homepage.spec.ts
+Testids: hero-collage
 Preconditions: app running
 Steps:
   1. For widths 320, 375, 768, 1024 (height 800): set the device toolbar, reload, run: document.documentElement.scrollWidth <= window.innerWidth

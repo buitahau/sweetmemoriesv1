@@ -23,7 +23,7 @@ git fetch origin
 git checkout -b <type>/<slug> origin/dev-v1
 ```
 
-`type` is `feat`, `fix`, `task` or `docs`. If the branch exists (retry), check it out and update it from `origin/dev-v1`. For fix cycles use `<type>/<slug>-fix-<n>`.
+`type` is `feat`, `fix`, `task`, `docs` or `test`. If the branch exists (retry), check it out and update it from `origin/dev-v1`. For fix cycles use `<type>/<slug>-fix-<n>`.
 
 ## Step 2: Implement
 
