@@ -5,7 +5,8 @@
   "description": "Playwright e2e specs (ADR 0004). Not a workspace: not installed, built or run by CI.",
   "scripts": {
     "test": "playwright test",
-    "list": "playwright test --list"
+    "list": "playwright test --list",
+    "auth:save": "node auth/save-session.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.65.0",

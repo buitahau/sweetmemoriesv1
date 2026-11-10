@@ -36,7 +36,7 @@ Run it from the repo root (`npm --prefix` runs inside `e2e/`, where the config i
 
 3. **Never weaken an assertion** (looser matcher, removed check, longer tolerance, skipped test) to make a spec pass. If a spec fails, the code or the ticket is wrong; report it. If a spec itself is broken (bad selector for what the ticket says, typo, timing), report it as a **test problem**, not a code defect, and in test mode report it, and the fix is an author-mode run against the ticket text.
 
-4. **Prose cases** (`Spec: prose`: signed-in, data-writing, visual fidelity) are run by hand with screenshots or the quick checker below. Authenticated and data-writing flows are Blocked until the test-sign-in ADR, a dev database with seed/reset and domain design approval exist; say so in the report.
+4. **Prose cases** (`Spec: prose`: signed-in, data-writing, visual fidelity) are run by hand with screenshots or the quick checker below. Authenticated and data-writing flows are Blocked until the test-sign-in ADR, a dev database with seed/reset and domain design approval exist; say so in the report. Signed-in specs may run only when the user supplies a saved session (`STORAGE_STATE=e2e/.auth/user.json`, created by the user with `npm --prefix e2e run auth:save`, see `e2e/README.md`); never read or print that file, never try to sign in to Google yourself; if it is missing or expired, report Blocked and ask the user to run `auth:save`.
 
 5. **Quick checks.** `tools/browser-check/check-page.mjs` stays for one-off page checks:
 

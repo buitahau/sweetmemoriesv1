@@ -40,7 +40,7 @@
 - Tickets must list their `data-testid` values; a missing testid is a ticket defect, found when the spec fails.
 - Not running in CI means a spec can rot between ticket runs; revisit once a dev deploy gate exists.
 - Chrome must be installed where the tester runs.
-- Authenticated cases get no automation until the prerequisites in the table exist.
+- Authenticated cases get no automation until the prerequisites in the table exist. Until the test-only sign-in exists, the user may sign in once by hand with `npm --prefix e2e run auth:save` (visible Chrome, Google 2FA on the user's phone); the saved session (`e2e/.auth/user.json`, git-ignored, live cookies, dedicated test account) is passed to specs through `STORAGE_STATE`. The tester never signs in to Google itself and never reads that file.
 
 ## Alternatives
 
@@ -53,6 +53,7 @@
 | Keep prose cases plus Console snippets only | Not repeatable; results depend on who types them. |
 | Run specs in CI now | Needs a deployed target and Chrome in CI; out of scope for the current pipelines. |
 | Screenshot-diff tool (Percy, Playwright snapshots) | Rejected by [ADR 0003](0003-frontend-styling-and-self-hosted-fonts.md); fonts render differently across machines. |
+| Automate Google sign-in and 2FA | Google blocks automated logins and 2FA needs the user's device; a manual one-time sign-in is reused instead. |
 | Extend `tools/browser-check` | One-page checker by design; no test runner, reporter or case IDs. |
 
 ## Features

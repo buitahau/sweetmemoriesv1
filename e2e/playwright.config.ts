@@ -1,3 +1,4 @@
+import { resolve } from 'node:path';
 import { defineConfig } from '@playwright/test';
 
 const baseURL = process.env.BASE_URL;
@@ -7,12 +8,16 @@ if (!baseURL) {
   );
 }
 
+// Optional signed-in session saved by `npm --prefix e2e run auth:save` (see README).
+const storageState = process.env.STORAGE_STATE ? resolve(process.env.STORAGE_STATE) : undefined;
+
 export default defineConfig({
   testDir: 'specs',
   retries: 1,
   reporter: [['list'], ['json', { outputFile: 'test-results/report.json' }]],
   use: {
     baseURL,
+    ...(storageState ? { storageState } : {}),
     channel: 'chrome',
     headless: true,
     viewport: { width: 1440, height: 900 },
