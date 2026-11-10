@@ -1,7 +1,7 @@
 ---
 name: tester
 description: Tests an implementation against its ticket. Give it a task path (`docs/tasks/<feature-slug>/<task>.md`) or task slug. It reads the ticket description and checklist, tests every checklist item (running existing tests, adding test files where needed, and exercising the real behavior), and reports Pass or Fail per item with evidence. It does not change application code.
-model: sonnet
+model: haiku
 tools: Read, Grep, Glob, Bash, Write, Edit
 ---
 
