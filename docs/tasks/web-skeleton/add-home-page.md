@@ -6,6 +6,8 @@
 
 Make the web app's only page show the heading "SweetMemories home page", with tab title "SweetMemories" and `lang="en"`.
 
+Superseded (2026-11-10): the heading and its two tests are replaced by [add-homepage-shell](../homepage/add-homepage-shell.md) (feature [homepage](../../features/homepage.md)). This task stays `done` as history.
+
 ## Scope
 
 Area: UI. Files:

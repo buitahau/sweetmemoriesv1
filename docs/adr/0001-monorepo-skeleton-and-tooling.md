@@ -60,4 +60,4 @@ Details: [architecture/repository-layout.md](../architecture/repository-layout.m
 
 - [project-workspace](../features/project-workspace.md): root npm workspace, root scripts, documented commands.
 - [api-skeleton](../features/api-skeleton.md): Node/Express API app with `GET /api/health`.
-- [web-skeleton](../features/web-skeleton.md): React/Vite app with a home page showing "SweetMemories home page".
+- [web-skeleton](../features/web-skeleton.md): React/Vite app with a home page showing "SweetMemories home page". (The placeholder is replaced by the [homepage](../features/homepage.md) feature under [ADR 0003](0003-frontend-styling-and-self-hosted-fonts.md); this ADR's decisions are unchanged.)
