@@ -177,6 +177,4 @@ Session 2026-11-10. Requirement: "Implement the Homepage page (public landing pa
 
 **Answer**: A (recommended), approved by the product owner 2026-11-10. Applied in ADR 0004 (accepted).
 
-**Answer**: _(human fills in)_
-
 ---
