@@ -1,6 +1,6 @@
 # Version API
 
-Status: proposed ([ADR 0002](../adr/0002-ci-cd-and-dev-environment-on-cloudflare.md)). Implemented by [add-version-endpoint](../tasks/dev-deploy-verification/add-version-endpoint.md).
+Status: current ([ADR 0002](../adr/0002-ci-cd-and-dev-environment-on-cloudflare.md)). Implemented by [add-version-endpoint](../tasks/dev-deploy-verification/add-version-endpoint.md).
 
 ## Purpose
 
