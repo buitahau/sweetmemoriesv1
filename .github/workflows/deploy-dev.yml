@@ -76,4 +76,13 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      # post-deploy checks: see add-dev-smoke-script
+      - name: Wait for dev deploy
+        run: WAIT_TIMEOUT_SECONDS=180 scripts/wait-for-dev-deploy.sh "$GITHUB_SHA"
+        env:
+          DEV_API_URL: ${{ vars.DEV_API_URL }}
+          DEV_WEB_URL: ${{ vars.DEV_WEB_URL }}
+      - name: Smoke test dev
+        run: scripts/smoke-dev.sh
+        env:
+          DEV_API_URL: ${{ vars.DEV_API_URL }}
+          DEV_WEB_URL: ${{ vars.DEV_WEB_URL }}

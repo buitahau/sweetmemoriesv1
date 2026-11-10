@@ -1,6 +1,7 @@
 import express from 'express';
 import type { Express, NextFunction, Request, Response } from 'express';
 import { healthRouter } from './routes/health.js';
+import { versionRouter } from './routes/version.js';
 
 export function createApp(options: { testRoutes?: (app: Express) => void } = {}): Express {
   const app = express();
@@ -8,6 +9,7 @@ export function createApp(options: { testRoutes?: (app: Express) => void } = {})
 
   // Routes of later tasks are registered here.
   app.use('/api', healthRouter);
+  app.use('/api', versionRouter);
 
   options.testRoutes?.(app);
 
