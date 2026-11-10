@@ -1,6 +1,6 @@
 # Dev deploy verification
 
-- Status: not-started
+- Status: done
 
 ## Summary
 
@@ -43,14 +43,14 @@ Acceptance criteria:
 
 The feature is complete only when every item below passes.
 
-- [ ] 1. All three tasks of this feature have Status `done`. (all ACs)
-- [ ] 2. After a deploy of commit `X`, `curl -s $DEV_API_URL/api/version` prints `{"commit":"X"}` and `curl -i $DEV_WEB_URL/version.json` prints `{"commit":"X"}` with `Cache-Control: no-store`. (AC1, AC2)
-- [ ] 3. Locally (`npm run build -w apps/api && npm start -w apps/api`, `GIT_SHA` unset), `curl -s http://localhost:3000/api/version` prints `{"commit":"unknown"}`. (AC1)
-- [ ] 4. `scripts/wait-for-dev-deploy.sh X` exits 0 for the live commit and for its parent commit; exits 1 within `WAIT_TIMEOUT_SECONDS` + 15 s for a commit that is not on `dev-v1`; exits 2 for `abc` and when `DEV_API_URL` is unset. (AC3)
-- [ ] 5. `scripts/smoke-dev.sh` exits 0 against dev and prints 4 `PASS` lines; pointed at a wrong URL (`DEV_API_URL=https://example.invalid`) it exits 1 and prints `FAIL`. (AC4)
-- [ ] 6. The newest `Deploy dev` run log shows the steps "Wait for dev deploy" and "Smoke test dev" after both deploy steps, both successful; `grep -c -F 'WAIT_TIMEOUT_SECONDS=180' .github/workflows/deploy-dev.yml` prints 1 (timeout 180 s); and `grep -c -E 'continue-on-error|^\s+if:' .github/workflows/deploy-dev.yml` prints 0, so a failing wait or smoke fails the run (checked in the file, see [add-dev-smoke-script](../tasks/dev-deploy-verification/add-dev-smoke-script.md) item 10). (AC5)
-- [ ] 7. No marker or script output contains a cookie, token, account ID or user data; `GET /api/version` sets no cookie, also when sent `Cookie: session=fake-value`. (CLAUDE.md rules 1 and 5)
-- [ ] 8. A full dry run by an agent, using only `docs/infra/dev-environment.md`: merge a probe PR ([ci-cd "Test PRs"](../infra/ci-cd.md#test-prs-probe-file)), run steps 1-4 of "How an agent verifies" (run conclusion `success`, wait exit 0), then step 5 for both suite types: the [api-skeleton](api-skeleton.md) E2E-1 to E2E-4 at `BASE_URL=$DEV_API_URL` all pass (BE), and the browser checks of E2E-8 (based on [web-skeleton](web-skeleton.md) E2E-1 and E2E-2, minus the heading text) at `BASE_URL=$DEV_WEB_URL` show exactly one non-empty `h1`, tab title "SweetMemories", `lang="en"`, no cookies for the dev web origin and no request to another origin (FE). The heading text is not checked, so this item holds both for the skeleton placeholder and for the [homepage](homepage.md) that replaces it. (AC6, the requirement's goal; CLAUDE.md rule 1 groundwork)
+- [x] 1. All three tasks of this feature have Status `done`. (all ACs)
+- [x] 2. After a deploy of commit `X`, `curl -s $DEV_API_URL/api/version` prints `{"commit":"X"}` and `curl -i $DEV_WEB_URL/version.json` prints `{"commit":"X"}` with `Cache-Control: no-store`. (AC1, AC2)
+- [x] 3. Locally (`npm run build -w apps/api && npm start -w apps/api`, `GIT_SHA` unset), `curl -s http://localhost:3000/api/version` prints `{"commit":"unknown"}`. (AC1)
+- [x] 4. `scripts/wait-for-dev-deploy.sh X` exits 0 for the live commit and for its parent commit; exits 1 within `WAIT_TIMEOUT_SECONDS` + 15 s for a commit that is not on `dev-v1`; exits 2 for `abc` and when `DEV_API_URL` is unset. (AC3)
+- [x] 5. `scripts/smoke-dev.sh` exits 0 against dev and prints 4 `PASS` lines; pointed at a wrong URL (`DEV_API_URL=https://example.invalid`) it exits 1 and prints `FAIL`. (AC4)
+- [x] 6. The newest `Deploy dev` run log shows the steps "Wait for dev deploy" and "Smoke test dev" after both deploy steps, both successful; `grep -c -F 'WAIT_TIMEOUT_SECONDS=180' .github/workflows/deploy-dev.yml` prints 1 (timeout 180 s); and `grep -c -E 'continue-on-error|^\s+if:' .github/workflows/deploy-dev.yml` prints 0, so a failing wait or smoke fails the run (checked in the file, see [add-dev-smoke-script](../tasks/dev-deploy-verification/add-dev-smoke-script.md) item 10). (AC5)
+- [x] 7. No marker or script output contains a cookie, token, account ID or user data; `GET /api/version` sets no cookie, also when sent `Cookie: session=fake-value`. (CLAUDE.md rules 1 and 5)
+- [x] 8. A full dry run by an agent, using only `docs/infra/dev-environment.md`: merge a probe PR ([ci-cd "Test PRs"](../infra/ci-cd.md#test-prs-probe-file)), run steps 1-4 of "How an agent verifies" (run conclusion `success`, wait exit 0), then step 5 for both suite types: the [api-skeleton](api-skeleton.md) E2E-1 to E2E-4 at `BASE_URL=$DEV_API_URL` all pass (BE), and the browser checks of E2E-8 (based on [web-skeleton](web-skeleton.md) E2E-1 and E2E-2, minus the heading text) at `BASE_URL=$DEV_WEB_URL` show exactly one non-empty `h1`, tab title "SweetMemories", `lang="en"`, no cookies for the dev web origin and no request to another origin (FE). The heading text is not checked, so this item holds both for the skeleton placeholder and for the [homepage](homepage.md) that replaces it. (AC6, the requirement's goal; CLAUDE.md rule 1 groundwork)
 
 ## e2e-test-suites
 
@@ -149,6 +149,13 @@ Steps:
   5. Check every row in the Network tab.
 Expected: tab title "SweetMemories"; console prints [1, true, "SweetMemories", "en"] (heading text deliberately not checked: it is the skeleton placeholder before the homepage merges and "Every little moment deserves a home." after); cookie list empty (CLAUDE.md rule 1 groundwork); every request URL starts with $DEV_WEB_URL; console has no error entries
 ```
+
+## Summary
+
+- Built: version endpoint, `wait-for-dev-deploy.sh`, `smoke-dev.sh`, two new `Deploy dev` steps.
+- PR: https://github.com/buitahau/sweetmemoriesv1/pull/44 (merge c0c6e81). Review: approve.
+- Test: items 1-8 Pass. Item 8 used the already-merged commit instead of a new probe PR; the web check was done in headless Chrome (one non-empty `h1`, title "SweetMemories", `lang="en"`) with cookies and same-origin requests checked by curl, not DevTools.
+- Cycles: 1. Leftovers: a human updates the `.claude/` skills to use the scripts (Q010).
 
 ## Related
 

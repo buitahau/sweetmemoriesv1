@@ -1,6 +1,6 @@
 # Add version endpoint
 
-- Status: not-started
+- Status: done
 
 ## Goal
 
@@ -31,14 +31,14 @@ Security: public endpoint, no auth, no cookies (CLAUDE.md rule 1 groundwork). On
 
 The task is complete only when every item below passes. Tags name the [dev-deploy-verification](../../features/dev-deploy-verification.md) acceptance criterion (ACn).
 
-- [ ] 1. Test: with `GIT_SHA` = a 40-char lowercase hex string, `GET /api/version` -> 200, `Content-Type` `application/json`, body exactly `{"commit":"<that string>"}`. (AC1)
-- [ ] 2. Test: `GIT_SHA` unset, `""`, `abc`, a 40-char string with uppercase `A`, a 41-char hex string, and `<script>` each give body `{"commit":"unknown"}`. (AC1; validation)
-- [ ] 3. Test: response has `cache-control: no-store`, no `set-cookie`, no `x-powered-by`, also when the request sends `Cookie: session=fake-value`. (AC1; CLAUDE.md rule 1)
-- [ ] 4. Test: `HEAD /api/version` -> 200, empty body; `GET /api/version/` and `GET /api/version?x=1` -> 200 same body. (AC1)
-- [ ] 5. Test: `POST /api/version` -> 404 `{"error":"not_found"}`. (AC1; whole-API rule)
-- [ ] 6. Test: `GET /api/health` still returns body exactly `{"status":"ok"}`. (Out of scope: health unchanged)
-- [ ] 7. `npm test -w apps/api` and `npm run typecheck -w apps/api` exit 0; `npm run build -w apps/api && npm start -w apps/api` (with `GIT_SHA` unset), then `curl -s localhost:3000/api/version` prints `{"commit":"unknown"}`. (AC1)
-- [ ] 8. `docs/api/version.md` status line starts with `Status: current`; `apps/api/src/routes/version.ts` imports only from `express`. (writing-docs: docs describe the current truth)
+- [x] 1. Test: with `GIT_SHA` = a 40-char lowercase hex string, `GET /api/version` -> 200, `Content-Type` `application/json`, body exactly `{"commit":"<that string>"}`. (AC1)
+- [x] 2. Test: `GIT_SHA` unset, `""`, `abc`, a 40-char string with uppercase `A`, a 41-char hex string, and `<script>` each give body `{"commit":"unknown"}`. (AC1; validation)
+- [x] 3. Test: response has `cache-control: no-store`, no `set-cookie`, no `x-powered-by`, also when the request sends `Cookie: session=fake-value`. (AC1; CLAUDE.md rule 1)
+- [x] 4. Test: `HEAD /api/version` -> 200, empty body; `GET /api/version/` and `GET /api/version?x=1` -> 200 same body. (AC1)
+- [x] 5. Test: `POST /api/version` -> 404 `{"error":"not_found"}`. (AC1; whole-API rule)
+- [x] 6. Test: `GET /api/health` still returns body exactly `{"status":"ok"}`. (Out of scope: health unchanged)
+- [x] 7. `npm test -w apps/api` and `npm run typecheck -w apps/api` exit 0; `npm run build -w apps/api && npm start -w apps/api` (with `GIT_SHA` unset), then `curl -s localhost:3000/api/version` prints `{"commit":"unknown"}`. (AC1)
+- [x] 8. `docs/api/version.md` status line starts with `Status: current`; `apps/api/src/routes/version.ts` imports only from `express`. (writing-docs: docs describe the current truth)
 
 ## e2e-test-suites
 
@@ -89,6 +89,13 @@ Request:
   grep -E '^import' apps/api/src/routes/version.ts
 Expected: t=0 with version tests passed; tc=0; 1; only an import from 'express'
 ```
+
+## Summary
+
+- Built: `apps/api/src/routes/version.ts`, registration in `app.ts`, `test/version.test.ts`, `docs/api/version.md` now current.
+- PR: https://github.com/buitahau/sweetmemoriesv1/pull/44. Review: approve; Nit/Minor fixed.
+- Test: items 1-8 Pass (24 API tests, typecheck, live `/api/version` on dev shows the merge commit, no cookie).
+- Cycles: 1. Leftovers: none.
 
 ## Links
 
