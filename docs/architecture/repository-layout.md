@@ -73,7 +73,7 @@ Planned in [ADR 0002](../adr/0002-ci-cd-and-dev-environment-on-cloudflare.md), n
 
 ### Added by ADR 0003 (styling, fonts, Homepage)
 
-Planned in [ADR 0003](../adr/0003-frontend-styling-and-self-hosted-fonts.md), not built yet. Features [web-design-foundation](../features/web-design-foundation.md) and [homepage](../features/homepage.md).
+Decided in [ADR 0003](../adr/0003-frontend-styling-and-self-hosted-fonts.md) (accepted 2026-11-10), not built yet. Features [web-design-foundation](../features/web-design-foundation.md) and [homepage](../features/homepage.md).
 
 ```
 apps/web/

@@ -58,4 +58,11 @@
 
 ## Features
 
+- [e2e-specs](../features/e2e-specs.md): the `e2e/` project (scaffolded in PR #46) and its upkeep.
+
+## Applies to
+
+Not child features (their parent is [ADR 0003](0003-frontend-styling-and-self-hosted-fonts.md)); they follow this ADR through the `Spec:` and `Testids:` fields of their `e2e-test-suites`:
+
+- [web-design-foundation](../features/web-design-foundation.md)
 - [homepage](../features/homepage.md): first specs (`e2e/specs/homepage/homepage.spec.ts`).

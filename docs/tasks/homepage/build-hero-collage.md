@@ -56,29 +56,34 @@ Security: decorative and static; the sample address is fictional (`sam`), not a 
 The task is complete only when every item below passes. Tags name the [homepage](../../features/homepage.md) acceptance criterion (ACn).
 
 - [ ] 1. `npm test -w apps/web` passes `is decorative` and `shows the sample address`. (AC8)
-- [ ] 2. At 1440 x 900 the collage matches mockup lines 101-140 side by side: positions of halo, sun, cloud, tilted card, three polaroids (one with tape), heart, star, note card; colors and shadows equal. (AC2)
+- [ ] 2. At 1440 x 900 the collage matches mockup lines 101-140 side by side per [ui/homepage.md, Checking fidelity](../../ui/homepage.md#checking-fidelity) (±4 px boxes, exact colors and fonts, decorative illustration positions by eye; [Q008](../../questions/questions-2026-11-10-requirement-breakdown.md#q008-visual-fidelity-tolerance-for-the-homepage) default): positions of halo, sun, cloud, tilted card, three polaroids (one with tape), heart, star, note card; colors and shadows equal. (AC2)
 - [ ] 3. Computed at 1440 px: collage height `560px`; card width `380px`, border radius `28px`, `overflow: hidden`; card title font size `60px`, family Caveat; note card width `224px`, radius `22px`. (AC2)
 - [ ] 4. Sun, rays, cloud, card, polaroids, heart, star and note move continuously; with reduced motion emulated `document.getAnimations().length === 0`. (AC6)
 - [ ] 5. At 559 px the collage has `display: none` and the page has no horizontal scrollbar; at 560 px it is shown and `scrollWidth <= innerWidth`. (AC7)
 - [ ] 6. The collage root has `aria-hidden="true"`, so screen readers skip all its text. (AC8)
-- [ ] 7. `npm run typecheck -w apps/web` and `npm run build -w apps/web` exit 0; no Console errors. (AC11)
+- [ ] 7. `npm run typecheck -w apps/web` and `npm run build -w apps/web` exit 0; no Console errors or warnings on load of `$BASE_URL/`. (AC11)
 - [ ] 8. Under `apps/`, the PR changes only the four files in Scope (`git diff --name-only origin/dev-v1...HEAD -- apps/` lists exactly them, none under `apps/api/`). Changes under `docs/` are allowed. (AC10)
 
 ## e2e-test-suites
 
-Type: FE. `$BASE_URL` = `http://localhost:5173` or `$DEV_WEB_URL`. Not signed in. Viewport 1440 x 900 unless stated.
+Type: FE. `$BASE_URL` = `http://localhost:5173` or `$DEV_WEB_URL`. Not signed in. Viewport 1440 x 900 unless stated. `Spec:`/`Testids:` per [ADR 0004](../../adr/0004-playwright-e2e-specs.md); when only some steps run in the browser, the brackets name the steps the spec covers and the other steps run as prose. The implementer adds `data-testid="hero-collage"` (Scope) and no other test id.
 
 ```
-E2E-1 -> checklist items 1, 7: unit tests, build
-Preconditions: npm install done
+E2E-1 -> checklist items 1, 7: unit tests, build, console
+Spec: prose (npm commands)
+Testids: hero-collage (used by the unit test)
+Preconditions: npm install done; app running
 Steps:
   1. Run: npm test -w apps/web -- --reporter=verbose src/home/HeroCollage.test.tsx; echo "t=$?"
   2. Run: npm run typecheck -w apps/web && npm run build -w apps/web; echo "b=$?"
-Expected: both tests pass, t=0; b=0
+  3. Open $BASE_URL/ with the DevTools Console open; reload.
+Expected: both tests pass, t=0; b=0; step 3 the Console shows no error or warning entries
 ```
 
 ```
 E2E-2 -> checklist items 2, 3, 6: look and values
+Spec: prose (visual comparison with the mockup)
+Testids: hero-collage
 Preconditions: app running; mockup served at http://localhost:8000/Landing2.dc.html; DevTools Rendering prefers-reduced-motion = reduce in both tabs (freezes motion for comparison)
 Steps:
   1. Compare the hero right column side by side.
@@ -88,6 +93,8 @@ Expected: step 1 same shapes, positions, colors, shadows; step 2 ["560px","28px"
 
 ```
 E2E-3 -> checklist item 4: motion
+Spec: e2e/specs/homepage/build-hero-collage.spec.ts (steps 2-3; the motion in step 1 is watched by eye as prose)
+Testids: hero-collage
 Preconditions: app running, reduced motion not emulated
 Steps:
   1. Watch the collage for 6 s.
@@ -98,6 +105,8 @@ Expected: sun bobs and its rays spin, cloud drifts, card floats, polaroids sway,
 
 ```
 E2E-4 -> checklist item 5: hidden on small screens
+Spec: e2e/specs/homepage/build-hero-collage.spec.ts
+Testids: hero-collage
 Preconditions: app running
 Steps:
   1. Set 559 x 800, reload; run: [getComputedStyle(document.querySelector('[data-testid="hero-collage"]')).display, document.documentElement.scrollWidth <= innerWidth]
@@ -107,6 +116,8 @@ Expected: ["none", true]; ["block", true]
 
 ```
 E2E-5 -> checklist item 8: PR scope
+Spec: prose (git command)
+Testids: none
 Preconditions: task branch checked out; git fetch origin done
 Steps:
   1. Run: git diff --name-only origin/dev-v1...HEAD -- apps/

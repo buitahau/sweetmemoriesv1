@@ -56,14 +56,14 @@ The feature is complete only when every item below passes.
 - [ ] 11. Every `svg` in the page has `aria-hidden="true"` (`document.querySelectorAll('svg:not([aria-hidden="true"])').length === 0`); pressing Tab from the top focuses, in order: logo, Who it is for, How it works, Templates, Sign in, Start with Google, See how it works, Start with Google; each focused link shows a visible outline or the button lift. (AC8)
 - [ ] 12. Lighthouse Accessibility category score is at least 95 on `$BASE_URL/`. (AC8)
 - [ ] 13. After load: no cookies for `$BASE_URL`; every resource on the `$BASE_URL` origin; `performance.getEntriesByType('resource').filter(e => ['fetch','xmlhttprequest'].includes(e.initiatorType)).length === 0`; `grep -rn -E 'fetch\(|XMLHttpRequest|document\.cookie|localStorage' apps/web/src` prints nothing. (AC9; CLAUDE.md rules 1 and 5)
-- [ ] 14. `document.title === 'SweetMemories'`, `document.documentElement.lang === 'en'`; on dev, if `scripts/smoke-dev.sh` exists ([dev-deploy-verification](dev-deploy-verification.md)) it prints `PASS web home`; otherwise `curl -s $DEV_WEB_URL/` contains `<title>SweetMemories</title>` and `<div id="root">` (the same check the script makes). (AC9)
+- [ ] 14. `document.title === 'SweetMemories'`, `document.documentElement.lang === 'en'`; on dev, `scripts/smoke-dev.sh` ([dev-deploy-verification](dev-deploy-verification.md)) prints `PASS web home`. (AC9)
 - [ ] 15. No task PR of this feature changes a file under `apps/api` (`gh pr diff <n> --name-only` lists none); `apps/web/package.json` has no router or auth dependency; no file in `apps/web/src` defines types named User, Memory, Template, Block or Photo (`grep -rn -E '(type|interface) (User|Memory|Template|Block|Photo)\b' apps/web/src` prints nothing). (AC10; CLAUDE.md "Project state")
 - [ ] 16. `npm test -w apps/web`, `npm run typecheck -w apps/web`, `npm run build -w apps/web` exit 0; console has no errors or warnings on load in dev and preview. (AC11)
 - [ ] 17. `$BASE_URL/anything` shows the Homepage (same `h1`). (Behavior)
 
 ## e2e-test-suites
 
-Type: FE. `$BASE_URL` is `http://localhost:5173` locally or `$DEV_WEB_URL` on dev. Fresh browser profile, not signed in, viewport 1440 x 900 unless stated, reduced motion off unless stated. Wait 3 s after load for entrance animations. Cases with `Spec:` are automated in Playwright ([ADR 0004](../adr/0004-playwright-e2e-specs.md)); E2E-1, E2E-3, E2E-4 and E2E-8 have specs, E2E-2 stays prose; the other cases are not yet classified.
+Type: FE. `$BASE_URL` is `http://localhost:5173` locally or `$DEV_WEB_URL` on dev. Fresh browser profile, not signed in, viewport 1440 x 900 unless stated, reduced motion off unless stated. Wait 3 s after load for entrance animations. Every case has `Spec:` and `Testids:` lines ([ADR 0004](../adr/0004-playwright-e2e-specs.md)). A case with a path is automated in Playwright; when only some steps run in the browser, the brackets name the steps the spec covers and the other steps run as prose. `Spec: prose` gives its reason in brackets (mockup comparison, shell/npm/gh commands, or a judgment by eye). Task-level specs (`e2e/specs/homepage/<task-slug>.spec.ts`) assert the page as it is at that task and are run only for that ticket (ADR 0004, CI row).
 
 ```
 E2E-1 -> checklist items 2, 3, 17: structure, headings, ids
@@ -82,6 +82,7 @@ Expected: step 2 [1, false, 1, false, "Every little moment deserves a home.", 1,
 ```
 E2E-2 -> checklist item 4: visual fidelity
 Spec: prose (visual comparison with the mockup; screenshots as evidence)
+Testids: none
 Preconditions: mockup served at http://localhost:8000/Landing2.dc.html (see ui/homepage.md); app running; both tabs at 1440 x 900
 Steps:
   1. In both tabs wait 3 s, take a full-page screenshot (DevTools command "Capture full size screenshot").
@@ -114,6 +115,8 @@ Expected: ["#who", true], ["#how", true], ["#templates", true]; step 3 "#how"
 
 ```
 E2E-5 -> checklist item 7: sign-in and logo links
+Spec: e2e/specs/homepage/homepage.spec.ts
+Testids: none
 Preconditions: app running
 Steps:
   1. In Console run: [...document.querySelectorAll('a')].filter(a => ['Sign in','Start with Google'].includes(a.textContent.trim())).map(a => a.getAttribute('href'))
@@ -125,6 +128,8 @@ Expected: ["/sign-in","/sign-in","/sign-in"]; "/"; 0; URL becomes $BASE_URL/sign
 
 ```
 E2E-6 -> checklist items 8, 16: unit tests and builds
+Spec: prose (npm commands and the preview server)
+Testids: none
 Preconditions: npm install done
 Steps:
   1. Run: npm test -w apps/web -- --reporter=verbose; echo "t=$?"
@@ -135,6 +140,8 @@ Expected: t=0 and the output lists the content tests (counts) as passed; b=0; pr
 
 ```
 E2E-7 -> checklist item 9: motion and reduced motion
+Spec: e2e/specs/homepage/homepage.spec.ts
+Testids: none
 Preconditions: app running
 Steps:
   1. Hover "Start with Google" in the hero; in Console run: getComputedStyle([...document.querySelectorAll('a')].find(a=>a.textContent==='Start with Google')).transform
@@ -157,6 +164,8 @@ Expected: step 1 true at every width; step 2 "none"; step 3 not "none"
 
 ```
 E2E-9 -> checklist items 11, 12: accessibility
+Spec: e2e/specs/homepage/homepage.spec.ts (steps 1-2: svg count and focus order; the visible-indicator judgment in step 2 and the Lighthouse CLI in step 3 run as prose)
+Testids: none
 Preconditions: app running; Chrome installed
 Steps:
   1. In Console run: document.querySelectorAll('svg:not([aria-hidden="true"])').length
@@ -167,17 +176,21 @@ Expected: 0; order "SweetMemories" (logo), "Who it is for", "How it works", "Tem
 
 ```
 E2E-10 -> checklist items 13, 14: privacy, no API, head, smoke
+Spec: e2e/specs/homepage/homepage.spec.ts (steps 1-2; steps 3-4 are shell commands and run as prose)
+Testids: none
 Preconditions: app running; DevTools Network open before load
 Steps:
   1. Load $BASE_URL/. Check Application > Cookies.
   2. In Console run: [[...new Set(performance.getEntriesByType('resource').map(e=>new URL(e.name).origin))], performance.getEntriesByType('resource').filter(e=>['fetch','xmlhttprequest'].includes(e.initiatorType)).length, document.title, document.documentElement.lang]
   3. Run: grep -rn -E 'fetch\(|XMLHttpRequest|document\.cookie|localStorage' apps/web/src; echo "g=$?"
-  4. On dev only: if [ -x scripts/smoke-dev.sh ]; then scripts/smoke-dev.sh; else curl -s "$DEV_WEB_URL/" | grep -c -E '<title>SweetMemories</title>|<div id="root">'; fi
-Expected: no cookies; [[$BASE_URL origin only], 0, "SweetMemories", "en"]; only "g=1"; step 4 includes "PASS web home" when the script exists, otherwise prints 2 (CLAUDE.md rules 1 and 5)
+  4. On dev only: scripts/smoke-dev.sh
+Expected: no cookies; [[$BASE_URL origin only], 0, "SweetMemories", "en"]; only "g=1"; step 4 output includes the line "PASS web home" (CLAUDE.md rules 1 and 5)
 ```
 
 ```
 E2E-11 -> checklist items 1, 15: tasks done, no domain code
+Spec: prose (repository, gh and grep commands)
+Testids: none
 Preconditions: repository at the feature's last merge
 Steps:
   1. Read the Status line of every task linked under Related and of web-design-foundation's tasks.
@@ -192,9 +205,10 @@ Expected: all "done"; every PR prints only "g=1"; dependencies are react, react-
 - Parent ADR: [0003-frontend-styling-and-self-hosted-fonts](../adr/0003-frontend-styling-and-self-hosted-fonts.md)
 - UI: [homepage](../ui/homepage.md), mockup [Homepage/](../ui/Homepage/README.md)
 - Depends on: [web-design-foundation](web-design-foundation.md); replaces the placeholder of [web-skeleton](web-skeleton.md)
-- Independent of: [dev-deploy-verification](dev-deploy-verification.md). Either may merge first: its smoke check needs only the unchanged `index.html`, its item 8 no longer expects the placeholder text, and checklist item 14 here falls back to `curl` when `scripts/smoke-dev.sh` does not exist yet.
-- Design gate: [add-homepage-shell](../tasks/homepage/add-homepage-shell.md) is `blocked` until [ADR 0003](../adr/0003-frontend-styling-and-self-hosted-fonts.md) is `accepted` (Q001). Tasks 4-12 stay `not-started` but cannot start until add-homepage-shell is `done` (their Prerequisites). Tasks 1 and 2 are style-agnostic and may start now.
-- Questions: [questions-2026-11-10-requirement-breakdown](../questions/questions-2026-11-10-requirement-breakdown.md) (Q001-Q008; Q008 is the fidelity tolerance used in [Checking fidelity](../ui/homepage.md#checking-fidelity))
+- Smoke check from [dev-deploy-verification](dev-deploy-verification.md) (`done`) must keep passing (checklist item 14).
+- E2E specs: follows [ADR 0004](../adr/0004-playwright-e2e-specs.md) (listed there under "Applies to", not a parent); spec project: [e2e-specs](e2e-specs.md).
+- Design gate: met. [ADR 0003](../adr/0003-frontend-styling-and-self-hosted-fonts.md) is `accepted` (Q001 answered A, 2026-11-10). Every task is `not-started` and starts once its own Prerequisites are `done`: tasks 1 and 2 now, [add-homepage-shell](../tasks/homepage/add-homepage-shell.md) after [add-design-tokens](../tasks/web-design-foundation/add-design-tokens.md) (the last task of [web-design-foundation](web-design-foundation.md)), tasks 4-12 after add-homepage-shell. [Q010](../questions/questions-2026-11-10-requirement-breakdown.md#q010-record-adr-0003-and-adr-0004-approval-in-claudemd) asks the product owner to record ADR 0003 and 0004 in `CLAUDE.md` "Project state".
+- Questions: [questions-2026-11-10-requirement-breakdown](../questions/questions-2026-11-10-requirement-breakdown.md) (Q001 and Q009 answered; Q002-Q008 and Q010 open, their defaults apply; Q008 is the fidelity tolerance used in [Checking fidelity](../ui/homepage.md#checking-fidelity))
 - Tasks (1-3 in any order; 3 needs [web-design-foundation](web-design-foundation.md) done; 4-11 after the tasks listed in each one's Prerequisites; 12 last, after 1-11, because it also updates `README.md` to say the Homepage is complete):
   1. [add-home-content](../tasks/homepage/add-home-content.md)
   2. [add-home-illustrations](../tasks/homepage/add-home-illustrations.md)

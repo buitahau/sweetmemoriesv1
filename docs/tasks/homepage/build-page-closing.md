@@ -57,33 +57,38 @@ Security: the CTA only links to the placeholder `SIGN_IN_HREF`; no auth code, no
 The task is complete only when every item below passes. Tags name the [homepage](../../features/homepage.md) acceptance criterion (ACn).
 
 - [ ] 1. `npm test -w apps/web` passes `renders the closing call to action` and `renders the footer`. (AC1, AC4)
-- [ ] 2. At 1440 x 900 the end of the page matches mockup lines 258-279 side by side: pink band with 64 px top corners and two soft blobs, heading and text left, white 3D button right, footer row with logo and tagline. (AC2)
+- [ ] 2. At 1440 x 900 the end of the page matches mockup lines 258-279 side by side per [ui/homepage.md, Checking fidelity](../../ui/homepage.md#checking-fidelity) (±4 px boxes, exact colors and fonts; [Q008](../../questions/questions-2026-11-10-requirement-breakdown.md#q008-visual-fidelity-tolerance-for-the-homepage) default): pink band with 64 px top corners and two soft blobs, heading and text left, white 3D button right, footer row with logo and tagline. (AC2)
 - [ ] 3. Computed at 1440 px: closing section background `rgb(255, 194, 209)`, top radii `64px`; `h2` 54px; CTA background `rgb(255, 255, 255)`, min height `64px`, shadow `rgb(232, 154, 174) 0px 6px 0px 0px`; footer background `rgb(255, 194, 209)`, font size 15px; footer brand 20px Fredoka 600. (AC2)
 - [ ] 4. The closing section is the last child of `main`; the `footer` is the next sibling of `main`. (AC1)
 - [ ] 5. Hovering or focusing the CTA gives `matrix(1, 0, 0, 1, 0, -3)` and shadow `rgb(229, 126, 152) 0px 9px 0px 0px`; with reduced motion the blobs do not animate (`document.getAnimations().length === 0`). (AC6, AC8)
 - [ ] 6. At 375 px the button wraps below the text, `h2` 34px, inner padding top/bottom 64px; at 320 px `scrollWidth <= innerWidth`. (AC7)
 - [ ] 7. The CTA `href` is `/sign-in`. (AC4)
-- [ ] 8. `npm run typecheck -w apps/web` and `npm run build -w apps/web` exit 0; no Console errors. (AC11)
+- [ ] 8. `npm run typecheck -w apps/web` and `npm run build -w apps/web` exit 0; no Console errors or warnings on load of `$BASE_URL/`. (AC11)
 - [ ] 9. `README.md` no longer says "placeholder home page" and contains "static public Homepage" (`grep -c 'placeholder home page' README.md` prints 0; `grep -c 'static public Homepage' README.md` prints 1). (Summary: Homepage replaces the placeholder)
 - [ ] 10. Before this PR merges, the Status of all eight other section tasks listed in Prerequisites is `done` (the README must not claim a finished Homepage while sections are missing). (AC1)
 - [ ] 11. Under `apps/`, the PR changes only the six `apps/` files in Scope (`git diff --name-only origin/dev-v1...HEAD -- apps/` lists exactly them, none under `apps/api/`); outside `apps/` only `README.md` and `docs/` change. (AC10)
 
 ## e2e-test-suites
 
-Type: FE. `$BASE_URL` = `http://localhost:5173` or `$DEV_WEB_URL`. Not signed in. Viewport 1440 x 900 unless stated.
+Type: FE. `$BASE_URL` = `http://localhost:5173` or `$DEV_WEB_URL`. Not signed in. Viewport 1440 x 900 unless stated. `Spec:`/`Testids:` per [ADR 0004](../../adr/0004-playwright-e2e-specs.md).
 
 ```
-E2E-1 -> checklist items 1, 8, 9: unit tests, build, README
-Preconditions: npm install done
+E2E-1 -> checklist items 1, 8, 9: unit tests, build, console, README
+Spec: prose (npm and grep commands)
+Testids: none
+Preconditions: npm install done; app running
 Steps:
   1. Run: npm test -w apps/web -- --reporter=verbose src/home/PageClosing.test.tsx; echo "t=$?"
   2. Run: npm run typecheck -w apps/web && npm run build -w apps/web; echo "b=$?"
   3. Run: grep -c 'placeholder home page' README.md; grep -c 'static public Homepage' README.md
-Expected: both tests pass, t=0; b=0; 0 then 1
+  4. Open $BASE_URL/ with the DevTools Console open; reload.
+Expected: both tests pass, t=0; b=0; 0 then 1; step 4 the Console shows no error or warning entries
 ```
 
 ```
 E2E-2 -> checklist items 2, 3, 4, 7: look, values, structure, link
+Spec: prose (visual comparison with the mockup)
+Testids: none
 Preconditions: app running; mockup served at http://localhost:8000/Landing2.dc.html
 Steps:
   1. Scroll both pages to the bottom and compare side by side.
@@ -93,6 +98,8 @@ Expected: step 1 same; step 2 ["rgb(255, 194, 209)","64px","64px","54px","rgb(25
 
 ```
 E2E-3 -> checklist item 5: button lift and reduced motion
+Spec: e2e/specs/homepage/build-page-closing.spec.ts
+Testids: none
 Preconditions: app running
 Steps:
   1. Hover the closing "Start with Google"; wait 0.3 s; run: const s=getComputedStyle(document.querySelector('main').lastElementChild.querySelector('a')); [s.transform, s.boxShadow]
@@ -103,6 +110,8 @@ Expected: steps 1 and 2 ["matrix(1, 0, 0, 1, 0, -3)","rgb(229, 126, 152) 0px 9px
 
 ```
 E2E-4 -> checklist item 6: narrow screen
+Spec: e2e/specs/homepage/build-page-closing.spec.ts
+Testids: none
 Preconditions: app running
 Steps:
   1. Set 375 x 812, reload; run: const sec=document.querySelector('main').lastElementChild; const inner=sec.lastElementChild; [sec.querySelector('a').getBoundingClientRect().top > sec.querySelector('p').getBoundingClientRect().bottom, getComputedStyle(sec.querySelector('h2')).fontSize, getComputedStyle(inner).paddingTop, getComputedStyle(inner).paddingBottom]
@@ -112,6 +121,8 @@ Expected: [true,"34px","64px","64px"]; true
 
 ```
 E2E-5 -> checklist items 10, 11: merge order and PR scope
+Spec: prose (grep and git commands)
+Testids: none
 Preconditions: task branch checked out; git fetch origin done
 Steps:
   1. Run: grep -h '^- Status:' docs/tasks/homepage/build-{top-bar,hero-intro,hero-collage,audiences-section,steps-section,templates-section,moments-section,addresses-section}.md

@@ -1,6 +1,6 @@
 # Add homepage shell
 
-- Status: blocked (design gate below)
+- Status: not-started
 
 ## Goal
 
@@ -53,7 +53,7 @@ CSS values:
 | `heroRow` | `position: relative; max-width: var(--page-max); margin: 0 auto; box-sizing: border-box; padding: 28px var(--gutter) 110px; display: flex; flex-wrap: wrap; gap: 48px; align-items: center;` (76); inside `@media (max-width: 767px)`: `padding-bottom: 64px;` |
 | `@keyframes blob` | copy line 31 (`sm-blob`) by value, renamed `blob` |
 
-Prerequisites (must be `done`): [add-design-tokens](../web-design-foundation/add-design-tokens.md). Design gate: [ADR 0003](../../adr/0003-frontend-styling-and-self-hosted-fonts.md) Status is `accepted` ([Q001](../../questions/questions-2026-11-10-requirement-breakdown.md#q001-accept-adr-0003-styling-and-self-hosted-fonts) answered A); until then this task stays `blocked`.
+Prerequisites (must be `done`): [add-design-tokens](../web-design-foundation/add-design-tokens.md), and therefore [add-self-hosted-fonts](../web-design-foundation/add-self-hosted-fonts.md) (all of [web-design-foundation](../../features/web-design-foundation.md)). Design gate: met ([ADR 0003](../../adr/0003-frontend-styling-and-self-hosted-fonts.md) `accepted`, [Q001](../../questions/questions-2026-11-10-requirement-breakdown.md#q001-accept-adr-0003-styling-and-self-hosted-fonts) answered A on 2026-11-10). Start once the prerequisite is `done`.
 
 Out of scope: any section content (top bar, hero text, collage, sections 2-8), `index.html`, router, footer element (added by [build-page-closing](build-page-closing.md)).
 
@@ -74,10 +74,12 @@ The task is complete only when every item below passes. Tags name the [homepage]
 
 ## e2e-test-suites
 
-Type: FE. `$BASE_URL` = `http://localhost:5173` or `$DEV_WEB_URL`. Not signed in. Viewport 1440 x 900 unless stated.
+Type: FE. `$BASE_URL` = `http://localhost:5173` or `$DEV_WEB_URL`. Not signed in. Viewport 1440 x 900 unless stated. `Spec:`/`Testids:` per [ADR 0004](../../adr/0004-playwright-e2e-specs.md). The spec asserts the page as it is after this task (empty `main`); it is run only for this ticket.
 
 ```
 E2E-1 -> checklist items 1, 2, 8: tests, slots, build
+Spec: prose (npm and grep commands)
+Testids: none
 Preconditions: npm install done
 Steps:
   1. Run: npm test -w apps/web -- --reporter=verbose; echo "t=$?"
@@ -88,6 +90,8 @@ Expected: both new test names pass, t=0; 10 then "g=1"; b=0
 
 ```
 E2E-2 -> checklist items 3, 4: band and blobs
+Spec: e2e/specs/homepage/add-homepage-shell.spec.ts
+Testids: none
 Preconditions: app running
 Steps:
   1. Open $BASE_URL/. In Console run: const h=document.querySelector('header'); const hs=getComputedStyle(h); [document.querySelectorAll('header').length, hs.backgroundColor, hs.borderBottomLeftRadius, hs.borderBottomRightRadius, document.querySelector('main').children.length, document.body.innerText.includes('SweetMemories home page')]
@@ -97,6 +101,8 @@ Expected: step 1 [1, "rgb(255, 233, 168)", "64px", "64px", 0, false]; step 2 [["
 
 ```
 E2E-3 -> checklist items 5, 6: hero row and narrow screens
+Spec: e2e/specs/homepage/add-homepage-shell.spec.ts
+Testids: none
 Preconditions: app running
 Steps:
   1. At 1440 x 900 run: const r=getComputedStyle(document.querySelector('header > div:not([aria-hidden])')); [r.display, r.maxWidth, r.padding]
@@ -107,6 +113,8 @@ Expected: step 1 ["flex","1200px","28px 40px 110px"]; step 2 ["flex","1200px","2
 
 ```
 E2E-4 -> checklist item 7: head, cookies, console
+Spec: e2e/specs/homepage/add-homepage-shell.spec.ts
+Testids: none
 Preconditions: app running; DevTools Console open before load
 Steps:
   1. Reload $BASE_URL/. Run: document.title. Check Application > Cookies.

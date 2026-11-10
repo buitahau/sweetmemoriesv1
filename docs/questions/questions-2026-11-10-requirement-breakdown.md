@@ -5,9 +5,9 @@ Session 2026-11-10. Requirement: "Implement the Homepage page (public landing pa
 ## Q001: Accept ADR 0003 (styling and self-hosted fonts)?
 
 - Feature: web-design-foundation
-- Status: open
+- Status: answered
 - Asked: 2026-11-10
-- Blocks: [add-self-hosted-fonts](../tasks/web-design-foundation/add-self-hosted-fonts.md), [add-design-tokens](../tasks/web-design-foundation/add-design-tokens.md), [add-homepage-shell](../tasks/homepage/add-homepage-shell.md) (Status `blocked`) and, through their prerequisites, homepage tasks 4-12. Not blocked: add-home-content, add-home-illustrations.
+- Blocks: nothing (answered). It used to block [add-self-hosted-fonts](../tasks/web-design-foundation/add-self-hosted-fonts.md), [add-design-tokens](../tasks/web-design-foundation/add-design-tokens.md) and [add-homepage-shell](../tasks/homepage/add-homepage-shell.md) and, through their prerequisites, homepage tasks 4-12; all are now `not-started`.
 
 **Question**: The Homepage needs a styling approach and fonts, which no ADR covers yet. [ADR 0003](../adr/0003-frontend-styling-and-self-hosted-fonts.md) proposes plain CSS Modules with CSS custom-property tokens, and self-hosting the mockup's fonts (Fredoka, Caveat, Figtree) from npm (`@fontsource/*`, OFL-1.1) instead of the mockup's Google Fonts link. Google Fonts would send every visitor's IP address to Google and break the skeleton's "no request to another origin" guarantee. It adds three runtime dependencies to `apps/web` but does not change the stack in `CLAUDE.md`. All work stays frontend-only and adds no domain code.
 
@@ -18,7 +18,7 @@ Session 2026-11-10. Requirement: "Implement the Homepage page (public landing pa
 
 **Default if unanswered**: none for the gated tasks: like ADR 0001, accepting an architecture decision is the product owner's call, so the three tasks above stay `blocked` until ADR 0003 is `accepted`. Only add-home-content and add-home-illustrations (no styling choice) may start. If the answer is B or C, the foundation tasks and add-homepage-shell are rewritten before they are unblocked.
 
-**Answer**: _(human fills in)_
+**Answer**: Option A, approved by the product owner 2026-11-10. Applied: [ADR 0003](../adr/0003-frontend-styling-and-self-hosted-fonts.md) is `accepted`; the design-gate notes in [web-design-foundation](../features/web-design-foundation.md), [homepage](../features/homepage.md), add-self-hosted-fonts, add-design-tokens and add-homepage-shell now read "Design gate: met"; those three tasks and the web-design-foundation feature changed from `blocked` to `not-started` (docs and both `Progress.md` boards). No task was rewritten (the B/C rewrites do not apply).
 
 ---
 
@@ -176,5 +176,43 @@ Session 2026-11-10. Requirement: "Implement the Homepage page (public landing pa
 **Default if unanswered**: Option A is used for the tester workflow, with the ADR still marked `proposed`; no pipeline changes.
 
 **Answer**: A (recommended), approved by the product owner 2026-11-10. Applied in ADR 0004 (accepted).
+
+---
+
+## Q010: Record ADR 0003 and ADR 0004 approval in CLAUDE.md
+
+- Feature: web-design-foundation (also gates [homepage](../features/homepage.md) and [e2e-specs](../features/e2e-specs.md))
+- Status: open
+- Asked: 2026-11-10
+- Blocks: nothing, using default below
+
+**Question**: `CLAUDE.md` "Project state" names only ADR 0001 and ADR 0002 as approved. ADR 0003 (styling, fonts, Homepage) and ADR 0004 (e2e specs) are both `accepted` (Q001 and Q009 answered A). The `implementer` agent confirms design approval before it starts; one that reads only `CLAUDE.md` may stop and report the Homepage tasks as blocked, although they are not domain code. `CLAUDE.md` is human-owned, so agents do not edit it.
+
+**Options**
+1. A: The product owner adds one sentence to "Project state", e.g. "Styling, fonts and Homepage approved ([ADR 0003](docs/adr/0003-frontend-styling-and-self-hosted-fonts.md)); Playwright e2e specs approved ([ADR 0004](docs/adr/0004-playwright-e2e-specs.md))." before [add-self-hosted-fonts](../tasks/web-design-foundation/add-self-hosted-fonts.md) starts. (recommended)
+2. B: Leave `CLAUDE.md` as is; the caller states the approval each time it starts implement-ticket for these tasks.
+
+**Default if unanswered**: B until the edit is made: the caller states "ADR 0003 and ADR 0004 are accepted" when it starts a task of web-design-foundation, homepage or e2e-specs.
+
+**Answer**: _(human fills in)_
+
+---
+
+## Q011: Delete the fully answered 2026-11-08 and 2026-11-09 questions files?
+
+- Feature: none (docs housekeeping; files of earlier sessions for project-workspace, api-skeleton, web-skeleton, ci-checks, dev-deploy, dev-deploy-verification)
+- Status: open
+- Asked: 2026-11-10
+- Blocks: nothing, using default below
+
+**Question**: Every question in `questions-2026-11-08-requirement-breakdown.md` and `questions-2026-11-09-requirement-breakdown.md` is `answered`. The writing-docs skill ("When resuming", step 3) says to delete such a file. But 27 docs link to anchors in them (73 links, including ADR 0001 and ADR 0002 Status lines, done features and tasks, infra and API docs), and some answers (for example Q010 of 2026-11-09, "a human updates the skill") record follow-ups. Deleting them breaks those links and removes the recorded rationale.
+
+**Options**
+1. A: In one doc-only change, move each lasting answer into the owning ADR or doc, repoint every link to it, then delete both files. (recommended: follows the skill)
+2. B: Keep both files and add an exception to the skill: answered files whose anchors are cited by ADRs stay as an archive.
+
+**Default if unanswered**: neither file is deleted and no link changes until the product owner chooses; this correction does not touch them.
+
+**Answer**: _(human fills in)_
 
 ---
