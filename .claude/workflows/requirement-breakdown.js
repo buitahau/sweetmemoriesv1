@@ -41,7 +41,11 @@ Verification checklist rule (mandatory for every feature and every task doc):
 - Feature checklist: covers every acceptance criterion, the relevant security rules from CLAUDE.md, and key edge cases.
 - Task checklist: covers what must be true for that task alone to be done.
 - State at the top of the section: "The feature/task is complete only when every item below passes."
-- Every checklist item must trace to an acceptance criterion or requirement.`
+- Every checklist item must trace to an acceptance criterion or requirement.
+
+Test sections rule (mandatory; follow your agent instructions for the exact format):
+- Every feature and task doc gets an "e2e-test-suites" section directly under its checklist: cases with IDs linked to checklist items (E2E-n -> checklist item m), BE cases as curl + expected result, FE cases as steps + expected result, each with the fields Spec, Auth, Data (and Testids, Visual for FE). Set Spec by ADR status: check docs/adr/0005-* (Spec: <path> for signed-in, data-writing and visual cases only when it is accepted, otherwise Spec: prose with the missing ADR noted).
+- Every task that changes code gets a "unit-tests" section after e2e-test-suites: the units (function, module, component, hook) and the cases (input -> expected, edge and failure cases) the implementer must cover with Vitest, each linked to a checklist item. Docs-only and infra-only tasks state "unit-tests: none (reason)".`
 
 const CLASSIFY_SCHEMA = {
   type: 'object',
@@ -198,6 +202,8 @@ Also verify the hierarchy ADR -> Feature -> Task: each doc is its own .md file; 
 Also verify placement and format against .claude/skills/writing-docs/SKILL.md (read it): correct folder by content, kebab-case names, ADRs numbered NNNN- sequentially without gaps or renumbering, skill templates followed, no duplicate of an existing doc, relative links between docs, no per-feature progress files (all questions in the single session file ${QFILE}; flag any questions/ folder, per-feature or per-question question files as Major); tasks under docs/tasks/<feature-slug>/ matching their parent feature, none directly in docs/tasks/. Flag violations as Major.${misplaced.length ? `\nKnown placement problems detected by the workflow: ${misplaced.map(i => `${i.kind}:${i.path}`).join(', ')}` : ''}
 
 Also verify: every feature and task has a "Verification checklist" whose items are concrete, checkable, traceable to acceptance criteria, and sufficient so that all items passing really means the feature/task is complete. Flag missing or weak checklists as Major.
+
+Also verify the test sections: every feature and task has an "e2e-test-suites" section right under its checklist; every checklist item has at least one case and every case links to a checklist item; each case has Spec, Auth and Data (FE also Testids and Visual); Expected lines are exact enough to become assertions (no "works", "looks right"; Visual holds measured values, not "matches the mockup"); a BE case has a complete curl; Spec values agree with the status of docs/adr/0005-* (not accepted -> signed-in, data-writing and visual cases must be Spec: prose). Every task that changes code has a "unit-tests" section (units, cases, edge and failure cases, linked to checklist items) or "unit-tests: none (reason)" for docs-only tasks. Flag a missing or vague test section as Major.
 You are read-only; report findings only.`,
     { agentType: 'business-analyst-review', label: `review r${round}`, phase: 'Review', schema: REVIEW_SCHEMA },
   )
@@ -223,7 +229,7 @@ For every finding (include Nits only if trivial to fix):
 - accepted: fix the doc now (edit in place, keep ADR <-> feature <-> task links and checklists consistent). List changed files.
 - rejected: give a short rationale why the finding is wrong or out of scope.
 - needs-product-owner: do not decide; add to Open questions with a suggested default.
-Move any doc that is in the wrong folder or misnamed to the correct place (create the corrected file, delete the wrong one, fix every link to it; never renumber existing ADRs). If you add, split, merge or remove a doc, keep the tree valid and report it in changedFiles. Then append unresolved product-owner questions to the single file ${QFILE} (with a Feature line each) and list them in the feature's progress.md. Do not write application code.
+Move any doc that is in the wrong folder or misnamed to the correct place (create the corrected file, delete the wrong one, fix every link to it; never renumber existing ADRs). If you add, split, merge or remove a doc, keep the tree valid and report it in changedFiles. Then append unresolved product-owner questions to the single file ${QFILE} (with a Feature line each). Do not write application code.
 ${HIERARCHY_RULE}
 ${DOCS_RULE}
 ${CHECKLIST_RULE}

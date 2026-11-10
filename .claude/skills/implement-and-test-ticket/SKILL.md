@@ -11,18 +11,18 @@ Input: the ticket as a path or slug. Ask if none is given.
 
 Read the ticket plus its feature/ADR, checklist and any mockup under `docs/ui`. Write down the **goal** and **purpose**, and the acceptance points the tester must prove. Find the dev environment base URL in `docs/infra` or `docs/questions`; if unknown, ask the user. Never guess.
 
-Also decide which `e2e-test-suites` cases are spec-eligible ([ADR 0004](../../../docs/adr/0004-playwright-e2e-specs.md)): FE case, no authentication, no data writes, not a visual-fidelity comparison. Each case carries `Spec: <path>` or `Spec: prose`; the spec file is `e2e/specs/<feature-slug>/<feature-or-task-slug>.spec.ts` and test titles start with `<ticket-slug> E2E-n`. BE tickets have no specs (curl suites).
+Also find the spec cases to author. The ticket's `Spec:` field on each `e2e-test-suites` case is the source of truth: `Spec: <path>` means a spec, `Spec: prose` means by hand. Before authoring, check the Status of [ADR 0005](../../../docs/adr/0005-e2e-signed-in-data-writing-and-visual-specs.md): if it is not accepted, only cases that need no sign-in, write no data and are no mockup comparison ([ADR 0004](../../../docs/adr/0004-playwright-e2e-specs.md)) are authored, and any other case that says `Spec: <path>` is treated as prose and noted in the report. Paths: FE `e2e/specs/<feature-slug>/<feature-or-task-slug>.spec.ts`, BE `e2e/specs/<feature-slug>/<feature-or-task-slug>.api.spec.ts` (Playwright API tests); titles start with `<ticket-slug> E2E-n`.
 
-## Step 1b: Author specs first (FE tickets with spec-eligible cases)
+## Step 1b: Author specs first (tickets with spec cases)
 
 Specs are written before the implementation, in their own small PR, so `implement-ticket` stays unchanged and the implementer never sees or edits them.
 
 1. `git fetch origin`; `git checkout -b test/<slug>-specs origin/dev-v1`.
-2. Spawn the `tester` in **author mode** with the ticket path only (no diff, no implementation hints, no merge commit). It writes `e2e/specs/<feature-slug>/<feature-or-task-slug>.spec.ts` from the ticket, runs `npm --prefix e2e run list` to prove it parses, and reports. It may fail against dev now, since the code does not exist yet; that is expected.
+2. Spawn the `tester` in **author mode** with the ticket path, the ADR 0005 status (accepted or not) and the session questions file path (no diff, no implementation hints, no merge commit). It writes the FE `.spec.ts` and BE `.api.spec.ts` files from the ticket, runs `BASE_URL=... API_URL=... npm --prefix e2e run list` to prove they parse, and reports. It may fail against dev now, since the code does not exist yet; that is expected.
 3. Commit, push, open a PR into `dev-v1`, have the `reviewer` agent review it (one round, read-only), check `gh pr checks`, then `gh pr merge --squash --delete-branch`. Same rules as `implement-ticket` step 5 (no force-merge, no bypass). Specs are not run in CI.
 4. Then continue with step 2 from a fresh `origin/dev-v1`.
 
-Skip this step only when every spec-eligible case ID already has a matching `test()` title (`<ticket-slug> E2E-n`) in the spec file, or no case is spec-eligible. A spec file that exists but lacks some IDs is not skipped.
+Skip this step only when every case with `Spec: <path>` (that is eligible per the ADR 0005 check above) already has a matching `test()` title (`<ticket-slug> E2E-n`) in its spec file, or no case is eligible. A spec file that exists but lacks some IDs is not skipped.
 
 ## Step 2: Execute the implement-ticket workflow
 
@@ -34,11 +34,11 @@ Wait about 3 minutes (background sleep, no busy poll). Then check `gh run list -
 
 ## Step 4: Test
 
-Spawn the `tester` agent with the ticket path, the dev URL and the merge commit. It runs in **test mode**: first only the current ticket's spec file (a feature's spec file only when the ticket is the feature; `BASE_URL=$DEV_WEB_URL`, JSON report at `e2e/test-results/report.json`), then tests the remaining prose cases and checklist items by hand. It reports Pass/Fail/Blocked with evidence (responses, logs, screenshots, report excerpts, text). The tester never edits `e2e/` in this mode. A spec that is broken, wrong or missing is a test problem: the tester reports it, and the fix goes through a fresh author-mode run in a small `test/<slug>-specs-fix-<n>` PR as in step 1b, not through the implementer. Spec-fix PRs do not count toward the 3 cycles; cap them at 2 per run, then report the spec as blocked. If items are Blocked by the environment, not the code, report to the user instead of looping.
+Spawn the `tester` agent with the ticket path, the dev URL and the merge commit. It runs in **test mode**: first only the current ticket's spec files (FE `.spec.ts` and BE `.api.spec.ts`; a feature's files only when the ticket is the feature; `BASE_URL=$DEV_WEB_URL`, `API_URL=$DEV_API_URL`, JSON report at `e2e/test-results/report.json`), then tests the remaining prose cases and checklist items by hand. It reports Pass/Fail/Blocked with evidence (responses, logs, screenshots, report excerpts, text). The tester never edits `e2e/` in this mode. A spec that is broken, wrong or missing is a test problem: the tester reports it, and the fix goes through a fresh author-mode run in a small `test/<slug>-specs-fix-<n>` PR as in step 1b, not through the implementer. Spec-fix PRs do not count toward the 3 cycles; cap them at 2 per run, then report the spec as blocked. If items are Blocked by the environment, not the code, report to the user instead of looping.
 
 ## Step 5: Compare with goal and mockup
 
-Judge the evidence yourself against the ticket goal and the mockup, not just the tester's verdict. Map only this ticket's case IDs (`<ticket-slug> E2E-n`) in the JSON report to the checklist items it proves (`E2E-n -> checklist item m` in the ticket); a failed spec fails its items, and a checklist item that no case (spec or prose) proves counts as a fail. Check each checklist item and visible behaviour/layout against the mockup. Result: **pass** only if the goal is met and nothing in the checklist fails. Otherwise **fail**.
+Judge the evidence yourself against the ticket goal and the mockup, not just the tester's verdict. Map only this ticket's case IDs (`<ticket-slug> E2E-n`) in the JSON report to the checklist items it proves (`E2E-n -> checklist item m` in the ticket); a failed spec fails its items, and a checklist item that no case (spec or prose) proves counts as a fail. Check each checklist item and visible behaviour/layout against the mockup. Also confirm the merged PR reports unit tests for the changed code and that CI's `npm test` passed on the merge commit; a code ticket with no unit tests is a fail. Result: **pass** only if the goal is met and nothing in the checklist fails. Otherwise **fail**.
 
 ## Step 6: On fail, analyze and loop
 

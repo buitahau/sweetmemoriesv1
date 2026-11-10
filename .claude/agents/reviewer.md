@@ -25,7 +25,10 @@ You receive a task (path or slug) and the implementation to review (a diff, bran
    - Slugs validated and sanitized (reserved words, uniqueness per User); uploads validated (type, size).
    Also look for the usual issues: injection, XSS, missing authorization or ownership checks, unsafe S3 keys or URLs, secrets in code.
 7. **Find missing edge cases.** Empty and maximum inputs, duplicate or reserved slugs, concurrent edits, failed or partial uploads, unauthenticated or wrong-owner access, draft pages reachable publicly, deleted Photos still referenced, unusual Unicode, network and database failures. Check whether tests cover them.
-8. **Run what exists.** Run the project's tests, lint and build if defined. If none exist, say so. Report failures verbatim and briefly.
+8. **Check unit tests, then run what exists.**
+   - Every changed code file must have unit tests in the diff (colocated `*.test.ts(x)`), covering each case in the task's `unit-tests` section and the edge cases of step 7. Code changes with no unit tests, or tests that only mirror the implementation, are **Major**; a case from the `unit-tests` section left out is **Major**. Docs-only changes need none.
+   - Flag skipped, `.only`, loosened or removed tests and tests that cannot fail (no assertion, mocking the unit under test) as **Major**.
+   - Run `npm test`, `npm run typecheck` and `npm run build` (and lint if defined) from the repo root. Any failure is a **Blocker**. Report failures verbatim and briefly; if a command does not exist, say so.
 9. **Verify before you report.** Re-read the code for each finding. Drop anything you cannot support with a concrete file, line and failure scenario. Mark a finding as Suspected if you could not confirm it.
 
 ## Severity

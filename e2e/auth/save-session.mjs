@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 // One-time manual sign-in for signed-in specs. Opens a visible Chrome, you sign in yourself
-// (Google, 2FA on your phone, ...), then the browser state is saved to e2e/.auth/user.json.
-// Specs reuse it through STORAGE_STATE, so they never touch Google.
+// (Google, 2FA on your phone, ...), then the browser state is saved to e2e/.auth/<role>.json.
+// Specs reuse it with test.use({ storageState: sessionFile(role) }), so they never touch Google.
 //
-// Usage: npm --prefix e2e run auth:save -- <start-url> [--until <url-substring>] [--out <file>] [--timeout <seconds>]
+// Usage: npm --prefix e2e run auth:save -- <start-url> [--role user|admin] [--until <url-substring>] [--out <file>] [--timeout <seconds>]
+//   --role       which role's session this is (default user); saved to e2e/.auth/<role>.json
 //   <start-url>  page to open first, e.g. $DEV_WEB_URL/ (or the sign-in page)
 //   --until      finish automatically once the page URL contains this text (e.g. /dashboard);
 //                without it, press Enter in this terminal when you are signed in
-//   --out        default e2e/.auth/user.json (git-ignored)
+//   --out        overrides the default e2e/.auth/<role>.json (git-ignored)
 //   --timeout    seconds to wait for --until, default 300
 // The file holds live session cookies: treat it like a password, use a dedicated test account.
 // Prints cookie names and counts only, never values. Exit 0 saved, 1 timeout/failure, 2 bad usage.
@@ -34,7 +35,12 @@ if (!Number.isFinite(timeoutS) || timeoutS <= 0) {
   process.exit(2)
 }
 const here = dirname(fileURLToPath(import.meta.url))
-const out = resolve(opt('--out') ?? resolve(here, '../.auth/user.json'))
+const role = opt('--role') ?? 'user'
+if (!['user', 'admin'].includes(role)) {
+  console.error('--role must be user or admin')
+  process.exit(2)
+}
+const out = resolve(opt('--out') ?? resolve(here, `../.auth/${role}.json`))
 const headless = process.env.SAVE_SESSION_HEADLESS === '1' // only for testing this script
 
 let browser
