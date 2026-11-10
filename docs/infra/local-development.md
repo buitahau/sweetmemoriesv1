@@ -38,6 +38,19 @@ The deployed dev environment is described in [dev-environment](dev-environment.m
 | `npm run typecheck` | Type-checks every workspace, including test files (api: `tsc -p tsconfig.test.json`; web: `tsc -b`). |
 | `npm start -w apps/api` | Runs the built API (`node dist/server.js`). |
 
+## Running e2e specs
+
+Playwright specs for frontend tickets live in `e2e/` ([ADR 0004](../adr/0004-playwright-e2e-specs.md)). It is not an npm workspace: root `npm install`, `npm test`, `npm run build` and CI do not touch it. It needs Google Chrome installed (no browser download).
+
+```
+npm ci --prefix e2e                                                  # once
+BASE_URL=http://localhost:5173 npm --prefix e2e test                 # local app (npm run dev)
+BASE_URL=$DEV_WEB_URL npm --prefix e2e test -- specs/homepage/homepage.spec.ts       # dev
+BASE_URL=http://localhost:5173 npm --prefix e2e run list             # list cases
+```
+
+`BASE_URL` is required. Results: `e2e/test-results/report.json` (git-ignored). See [e2e/README.md](../../e2e/README.md).
+
 ## Config / env vars
 
 | Name | App | Default | Rule |
