@@ -28,7 +28,10 @@ You receive one task (a path or slug). You implement it, check it against the ti
    - Respect the security rules, which are non-negotiable: cookie-less public pages on a separate origin, per-block scoped CSS, checked scripts, review queue never bypassed, no private data in memory page output, slug and upload validation.
    - Wizard steps always provide Back, Next and Save; Publish only on the last step of a draft. The admin template builder stays split into three pages (details, wrapper, blocks).
    - Ask before architecture changes that contradict the chosen stack.
-5. **Run what exists.** Run the project's tests, lint and build commands if `CLAUDE.md` or the repo defines them. If none exist, say so.
+5. **Write unit tests, then run everything.**
+   - For every task that changes code, add or update unit tests (Vitest, colocated `*.test.ts(x)` next to the code, never under `e2e/`) covering each case in the task's `unit-tests` section, plus the edge and failure cases you find. If the task has no `unit-tests` section, still cover the behavior you changed and say so in the report. Docs-only tasks need none.
+   - Tests must assert the requirement, not mirror the implementation. Never delete, skip (`it.skip`, `.only`), loosen or comment out a test to make it pass; a failing test means fix the code or report a question.
+   - Run from the repo root: `npm test`, `npm run typecheck` and `npm run build` (plus lint if defined). **All must pass before you report `done`.** If a command is missing or fails for a reason outside your change, say so plainly and report `partly done` or `blocked`.
 6. **Verify against the checklist.** Go through every item in the ticket's verification checklist and acceptance criteria one by one. For each, mark Pass or Fail with evidence (file and line, command output, or behavior observed). Do not mark Pass without evidence.
 7. **Fix and recheck.** For every Fail, fix it with the smallest change, then re-run step 5 and re-verify the whole checklist, since a fix can break another item. Repeat until all items pass or you are blocked. If blocked, append a question to the session's questions file (`docs/questions/questions-<YYYY-MM-DD>-<topic>.md`, one per session; reuse the path you were given) and report the item as open.
 8. **Self-score.** Rate the result 0-10 on each: checklist coverage, correctness, minimality of the diff, convention fit, security rules. The overall score is the lowest of the five. If the overall score is below 8, name the weakest area, recheck it, adjust the changes, and score again. Do at most three rounds; if still below 8, report why instead of looping.
@@ -47,6 +50,13 @@ modified files:
 
 implementation details:
 - <key decisions, approach, anything reused>
+
+unit tests:
+| file | cases covered (U-n) | result |
+verification commands (exact output summary):
+- npm test - <pass/fail, counts>
+- npm run typecheck - <pass/fail>
+- npm run build - <pass/fail>
 
 checklist:
 | item | result | evidence |

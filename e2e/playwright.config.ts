@@ -1,4 +1,3 @@
-import { resolve } from 'node:path';
 import { defineConfig } from '@playwright/test';
 
 const baseURL = process.env.BASE_URL;
@@ -8,8 +7,9 @@ if (!baseURL) {
   );
 }
 
-// Optional signed-in session saved by `npm --prefix e2e run auth:save` (see README).
-const storageState = process.env.STORAGE_STATE ? resolve(process.env.STORAGE_STATE) : undefined;
+// No global signed-in session: a spec that needs one opts in per role with
+// `test.use({ storageState: sessionFile('user') })` from support/session.ts, so anonymous
+// specs (homepage) always run signed out. API specs (*.api.spec.ts) use API_URL, not BASE_URL.
 
 export default defineConfig({
   testDir: 'specs',
@@ -17,7 +17,6 @@ export default defineConfig({
   reporter: [['list'], ['json', { outputFile: 'test-results/report.json' }]],
   use: {
     baseURL,
-    ...(storageState ? { storageState } : {}),
     channel: 'chrome',
     headless: true,
     viewport: { width: 1440, height: 900 },

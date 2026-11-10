@@ -52,6 +52,11 @@ First decide whether the ticket is BE or FE. A ticket that changes both is split
 - **Preconditions**: needed data, signed-in User or none, headers or cookies.
 - **Request**: a complete `curl` command with method, URL, headers and JSON payload, using placeholders such as `$BASE_URL` and `$TOKEN`. Never real secrets.
 - **Expected result**: HTTP status, the key response fields or body shape, and any side effect to check (row created, Photo stored, status changed).
+- **Structured fields**, next to the ID and checklist link:
+  - `Spec:` the path `e2e/specs/<feature-slug>/<feature-or-task-slug>.api.spec.ts` (the tester creates it as a Playwright API test; titles start with `<ticket-slug> E2E-n`) or `prose`.
+  - `Auth: none|user|admin`: the role whose session the request uses (replaces a bare `$SESSION`; never put real credentials in a ticket).
+  - `Data: none|seed:<fixture>|creates`: a `creates` case states how its data is made unique per run (e.g. slug prefix) and how it is cleaned up.
+- Eligibility ([ADR 0005](../../docs/adr/0005-e2e-signed-in-data-writing-and-visual-specs.md)): every BE case gets `Spec: <path>` once the infrastructure it needs is accepted (`Auth: user|admin` needs the test sign-in, `Data: seed|creates` needs seed/reset); until then, or for infra checks that cannot run over HTTP, use `Spec: prose` and keep the `curl` as the written case. The `curl` stays in the ticket either way so a human can reproduce it.
 
 Example:
 
@@ -84,13 +89,24 @@ Steps:
 Expected: step 1 shows Back (disabled), Next and Save, and no Publish; the last step shows Back, Save and Publish
 ```
 
-Add two structured fields to every FE case, next to its ID and checklist link:
+Add these structured fields to every FE case, next to its ID and checklist link:
 - `Spec:` the path `e2e/specs/<feature-slug>/<feature-or-task-slug>.spec.ts` (the tester creates it; test titles start with `<ticket-slug> E2E-n`) or `prose`.
 - `Testids:` the `data-testid` values the case needs (kebab-case), or `none`. The implementer adds exactly these; the spec prefers role and text and uses them only where no accessible role or text fits.
+- `Auth:` `none`, `user` or `admin`: the role the case runs as (the tester loads that role's saved session; never put credentials in a ticket).
+- `Data:` `none`, `seed:<fixture>` (needs seeded data) or `creates` (the case writes data; state how the data is made unique per run, e.g. a slug prefix, and how it is cleaned up).
+- `Visual:` for a mockup-fidelity case, the measurable facts taken from the mockup in `docs/ui/` (colors, font sizes, spacing, sizes, layout at viewport 390 and 1280 wide), or `none`. Never write "matches the mockup"; write the values.
 
-Eligibility ([ADR 0004](../../docs/adr/0004-playwright-e2e-specs.md)): an FE case that needs no authentication and writes no data gets `Spec: <path>`; every other case (signed-in, data-writing, visual-fidelity comparison with a mockup) gets `Spec: prose`. Write the Expected line so it can be copied into an assertion as is (exact text, numbers, computed values).
+Eligibility ([ADR 0004](../../docs/adr/0004-playwright-e2e-specs.md)): every FE case gets `Spec: <path>`, including signed-in, data-writing and mockup-fidelity cases, **provided the test infrastructure it needs is accepted**: `Auth: user|admin` needs the test sign-in ADR, `Data: seed|creates` needs the dev seed/reset ADR, and `Visual:` needs the visual-assertion decision (an amendment of [ADR 0003](../../docs/adr/0003-frontend-styling-and-self-hosted-fonts.md) if baselines are used). Check `docs/adr/` for these; if one is not accepted yet, give the case `Spec: prose` and note the missing ADR. Use `Spec: prose` also for purely subjective judgement (tone, "feels right") that cannot be turned into a measurement. Write the Expected line so it can be copied into an assertion as is (exact text, numbers, computed values).
 
 Include cases for empty or invalid input, Back and Next without losing data, Save then reload, and the wizard and template-builder conventions from `CLAUDE.md` wherever the ticket touches them.
+
+## Unit tests section
+
+Every task that changes code also gets a `unit-tests` section right after `e2e-test-suites`. The implementer writes these tests in the same PR (Vitest, colocated `*.test.ts(x)`), so list what to cover, not the test code:
+- **Unit**: the function, module, component or hook under test, with its path if known.
+- **Cases**: input -> expected output or behavior, each linked to a checklist item (`U-1 -> checklist item 2`). Include edge and failure cases (empty, maximum, invalid, wrong owner, reserved slug, rejected upload) and the `CLAUDE.md` security rules the unit enforces.
+- Docs-only or infra-only tasks write `unit-tests: none (reason)`. A feature has no `unit-tests` section; its tasks own them.
+- Unit tests check logic in isolation (no network, no real database or S3); e2e suites check behavior end to end. Do not duplicate one as the other.
 
 Rules for both: no vague expectations ("works", "looks right"); every checklist item has at least one case; every case maps to a checklist item; where a case checks a security rule from `CLAUDE.md`, say which rule.
 

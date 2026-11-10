@@ -38,7 +38,7 @@ Before writing, check the target folder for an existing doc on the topic. Update
 
 **Feature** (`features/`): Status · Summary · User story · Behavior · Out of scope · Related (ADRs, API, UI, tasks).
 
-**Task** (`tasks/<feature-slug>/`): Status · Goal · Scope · Acceptance criteria (checklist) · Links to feature/ADR.
+**Task** (`tasks/<feature-slug>/`): Status · Goal · Scope · Acceptance criteria (checklist) · `e2e-test-suites` · `unit-tests` · Links to feature/ADR. `unit-tests` lists the units (function, module, component, hook) and cases (input -> expected, edge and failure cases) the implementer covers with Vitest, each linked to a checklist item; docs-only or infra-only tasks write `unit-tests: none (reason)`. Unit tests are colocated with the code (`*.test.ts(x)`), never under `e2e/`.
 
 Both start with a status line right under the title:
 
@@ -137,7 +137,7 @@ Set Status to `done` (in the feature/task doc and `Progress.md`), tick everythin
 
 ## Playwright specs
 
-FE tickets ([ADR 0004](../../../docs/adr/0004-playwright-e2e-specs.md)): each case in `e2e-test-suites` has `Spec: <path>` or `Spec: prose`, and `Testids: <list>` (kebab-case, or `none`). A case is spec-eligible only if it needs no sign-in, writes no data and is not a mockup comparison. Specs live in `e2e/specs/<feature-slug>/<feature-or-task-slug>.spec.ts`; each `test()` title starts with the ticket slug and case ID (`homepage E2E-1 ...`). Docs say which specs exist; do not copy spec code into docs. Keep the case's Expected line exact enough to become an assertion.
+FE tickets ([ADR 0004](../../../docs/adr/0004-playwright-e2e-specs.md), extended by [ADR 0005](../../../docs/adr/0005-e2e-signed-in-data-writing-and-visual-specs.md)): each case in `e2e-test-suites` has `Spec: <path>` or `Spec: prose`, `Testids: <list>` (kebab-case, or `none`), `Auth: none|user|admin`, `Data: none|seed:<fixture>|creates` (a `creates` case states its unique-data and cleanup rule) and `Visual: <measured values from the mockup>|none` (colors, sizes, spacing at 390 and 1280 wide; never "matches the mockup"). A case is spec-eligible if it needs no sign-in, writes no data and is not a mockup comparison; signed-in, data-writing and mockup-fidelity cases are also eligible once ADR 0005 is accepted (check its Status in `docs/adr/`), otherwise they get `Spec: prose` with the missing ADR noted. Subjective checks stay `Spec: prose`. BE cases (`curl` + Expected result) get the same `Spec:`, `Auth:` and `Data:` fields; their spec path is `e2e/specs/<feature-slug>/<feature-or-task-slug>.api.spec.ts` (Playwright API test), eligible under the same ADR 0005 rule. Specs live in `e2e/specs/<feature-slug>/<feature-or-task-slug>.spec.ts`; each `test()` title starts with the ticket slug and case ID (`homepage E2E-1 ...`). Docs say which specs exist; do not copy spec code into docs. Keep the case's Expected line exact enough to become an assertion.
 
 ## Rules
 
