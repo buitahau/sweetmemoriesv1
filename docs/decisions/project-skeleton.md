@@ -13,7 +13,7 @@ Options:
 
 Recommended answer: /api/health: keeps all API routes under /api and is self-explanatory.
 
-Answer:
+Answer: /api/health
 
 ### Should the health check stay liveness-only, or also report database connectivity once Neon is added?
 
@@ -24,7 +24,7 @@ Options:
 
 Recommended answer: Liveness only now, with a separate readiness endpoint later if needed: no database exists in the skeleton, and keeping liveness simple avoids restart loops when the DB has a hiccup.
 
-Answer:
+Answer: Liveness only now, with a separate readiness endpoint later if needed
 
 ### Should shadcn/ui be initialised in the skeleton (config only, no components), or added with the first feature that needs a component?
 
@@ -34,4 +34,4 @@ Options:
 
 Recommended answer: Initialise now: it is part of the stated stack and avoids re-touching the scaffold config later.
 
-Answer:
+Answer: Initialise now (config only)
