@@ -2,7 +2,7 @@
 
 ## Status
 
-proposed
+accepted
 
 Open questions: [../decisions/0001-single-tanstack-start-app.md](../decisions/0001-single-tanstack-start-app.md)
 
@@ -18,7 +18,7 @@ Options:
 
 ## Decision
 
-Option 1. Use a single TanStack Start app at the repo root, with Tailwind CSS and shadcn/ui initialised, Vitest for unit tests, and the API under `/api/*` server routes. The cookie-free public origin gets its own ADR when subdomain routing is designed. If it needs a separate deployable, that ADR supersedes this one.
+Option 1. Use pnpm and a single TanStack Start app at the repo root, with Tailwind CSS and shadcn/ui initialised, Vitest for unit tests, and the API under `/api/*` server routes. The cookie-free public origin gets its own ADR when subdomain routing is designed. If it needs a separate deployable, that ADR supersedes this one.
 
 ## Consequences
 
