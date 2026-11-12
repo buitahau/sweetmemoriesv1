@@ -56,6 +56,8 @@ describe('dev-test-database: DATABASE_URL hygiene', () => {
       if (
         /postgres(ql)?:\/\/[^\s'"<>:]+:[^\s'"<>@]+@/.test(text) ||
         /postgres(ql)?:\/\/[^\s'"<>@/]+@[a-z0-9.-]+/i.test(text) ||
+        // If this hits a doc or fixture, write a placeholder such as
+        // `<password>` or `$VAR` instead. Do not widen the file exclusions.
         /\b(PGPASSWORD|password)\s*=\s*[^\s'"<>$]{3,}/i.test(text) ||
         /[a-z0-9-]+\.neon\.tech/.test(text)
       ) {
@@ -87,13 +89,25 @@ describe('dev-test-database: DATABASE_URL hygiene', () => {
     }
   })
 
-  it('route files never reference DATABASE_URL', () => {
-    for (const f of [
-      'src/routes/api/health.ts',
-      'src/routes/index.tsx',
-      'src/routes/__root.tsx',
-    ]) {
-      expect(read(f)).not.toMatch(/DATABASE_URL/)
-    }
+  it('no source file under src/ references DATABASE_URL except typings and tests', () => {
+    // Once a DB module exists, add it to `allowed` explicitly.
+    const allowed = ['src/env.d.ts']
+    const files = execFileSync(
+      'git',
+      ['ls-files', '-co', '--exclude-standard', 'src'],
+      {
+        cwd: root,
+        encoding: 'utf8',
+      },
+    )
+      .split('\n')
+      .filter(
+        (f) =>
+          /\.(tsx?|jsx?)$/.test(f) &&
+          !allowed.includes(f) &&
+          !/\.test\.tsx?$/.test(f),
+      )
+    const bad = files.filter((f) => /DATABASE_URL/.test(read(f)))
+    expect(bad).toEqual([])
   })
 })

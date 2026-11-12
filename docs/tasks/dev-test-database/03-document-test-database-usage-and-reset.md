@@ -16,7 +16,7 @@ Extend `docs/infra/dev-environment.md` with which database dev uses, who can acc
 - [x] Dev database usage, access and synthetic-data rule documented
 - [ ] Reset steps documented (written as a proposal; tick once the reset policy is agreed)
 - [x] Local DB setup in `docs/infra/local-development.md`
-- [ ] `Progress.md` updated
+- [x] `Progress.md` updated (feature set to `in progress`; set to done once ops tasks 01 and 02 finish)
 
 ## Verification
 
