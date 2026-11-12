@@ -8,6 +8,7 @@ import json
 import os
 import re
 import shutil
+import urllib.error
 import urllib.request
 
 import pytest
@@ -33,16 +34,20 @@ NEON_API_HOST = "console.neon." + "tech"
 
 
 def neon_get(path):
-    """GET the Neon API (read-only). Skips the test unless NEON_API_KEY and NEON_PROJECT_ID are set."""
+    """GET the Neon API (this suite only reads). Skips the test unless NEON_API_KEY and NEON_PROJECT_ID are set."""
     key, project = os.environ.get("NEON_API_KEY"), os.environ.get("NEON_PROJECT_ID")
     if not (key and project):
-        pytest.skip(BLOCKED_NEON + " (set NEON_API_KEY and NEON_PROJECT_ID, read-only, to verify)")
+        pytest.skip(BLOCKED_NEON + " (set NEON_API_KEY and NEON_PROJECT_ID to verify; the suite only sends GETs, but use a project-scoped key)")
     req = urllib.request.Request(
         f"https://{NEON_API_HOST}/api/v2/projects/{project}{path}",
         headers={"Authorization": f"Bearer {key}", "Accept": "application/json"},
     )
-    with urllib.request.urlopen(req, timeout=30) as resp:
-        return json.load(resp)
+    try:
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            return json.load(resp)
+    except urllib.error.HTTPError as e:
+        # Never include the key (or the request headers) in the message.
+        pytest.fail(f"Neon API GET {path or '/'} failed with HTTP {e.code}: check NEON_PROJECT_ID and NEON_API_KEY")
 
 
 def neon_dev_branch():
@@ -60,7 +65,8 @@ def test_US_devdb_1_1_neon_dev_branch_exists_separate_from_main():
     assert "`dev`" in text and "child of the project's main branch" in text
     dev, branches = neon_dev_branch()
     parent = next((b for b in branches if b["id"] == dev.get("parent_id")), None)
-    assert parent is not None and parent["name"] != "dev", "dev must be a child of another branch"
+    assert parent is not None and parent["id"] != dev["id"], "dev must have a parent branch"
+    assert parent.get("default") or parent.get("primary"), "dev must be a child of the project's main (default) branch"
     assert not dev.get("default") and not dev.get("primary"), "dev must not be the default branch"
 
 
@@ -156,6 +162,14 @@ def test_US_devdb_2_4_least_privilege_role():
     databases = neon_get(f"/branches/{dev['id']}/databases")["databases"]
     assert databases, "dev branch has no database"
     assert all(d["owner_name"] != role for d in databases), "dev role must not own the database"
+    dev_roles = neon_get(f"/branches/{dev['id']}/roles")["roles"]
+    match = [r for r in dev_roles if r["name"] == role]
+    assert match, "NEON_DEV_ROLE does not exist on the dev branch"
+    assert not match[0].get("protected"), "dev role must not be a protected (owner-level) role"
+    parent_id = dev.get("parent_id")
+    assert parent_id, "dev has no parent branch to compare roles against"
+    parent_roles = neon_get(f"/branches/{parent_id}/roles")["roles"]
+    assert all(r["name"] != role for r in parent_roles), "dev role must not exist on the parent branch"
 
 
 # ---------- US-devdb-3: Testers can reset the test database ----------

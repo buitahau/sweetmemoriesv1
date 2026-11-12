@@ -20,4 +20,4 @@ python3 .claude/skills/webapp-testing/scripts/with_server.py --server "pnpm star
 
 ## dev-test-database: optional ops checks
 
-`e2e/dev-test-database` verifies the Neon dev branch read-only when `NEON_API_KEY` and `NEON_PROJECT_ID` are set (add `NEON_DEV_ROLE`, the role name, for the least-privilege check), and the Worker secret when `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` are set. Without them those scenarios skip as BLOCKED. The ops steps themselves (task 01, task 02 secret) are done by a maintainer.
+`e2e/dev-test-database` reads the Neon dev branch (GET requests only) when `NEON_API_KEY` and `NEON_PROJECT_ID` are set (add `NEON_DEV_ROLE`, the role name, for the least-privilege check), and the Worker secret when `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` are set. Without them those scenarios skip as BLOCKED. A Neon API key can change the project even though this suite only reads, so use a project-scoped key and keep it out of the repo and CI logs. The ops steps themselves (task 01, task 02 secret) are done by a maintainer.
