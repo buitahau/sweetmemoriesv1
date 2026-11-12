@@ -6,6 +6,7 @@ How to run, build and test SweetMemories on your machine. Tool choices are in [A
 
 - Node.js 24.x (developed on v24.14.1).
 - pnpm 10.x (`npm i -g pnpm@10`; `package.json` does not pin it yet).
+- `jq` (unit tests evaluate the branch protection predicate with it).
 - For e2e tests only: Python 3 with `venv`.
 
 No database, S3 or Google credentials are needed yet; the skeleton has none of them.

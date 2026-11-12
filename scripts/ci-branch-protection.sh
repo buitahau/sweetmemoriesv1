@@ -23,9 +23,14 @@ fetch() { # prints JSON; empty output and status 0 when the branch is unprotecte
 }
 for branch in dev-v2 main; do
   if [ "$mode" = apply ]; then
-    echo "Current rule on $branch (will be REPLACED):"; fetch "$branch" | jq . 2>/dev/null || echo "(none)"
-    if [ "${CONFIRM:-}" != yes ]; then read -r -p "Apply to $branch? [y/N] " a; [ "$a" = y ] || { echo "skipped $branch"; continue; }; fi
-    gh api -X PUT "repos/$repo/branches/$branch/protection" --input - <<JSON >/dev/null
+    cur="$(fetch "$branch")"
+    echo "Current rule on $branch (will be REPLACED):"
+    if [ -n "$cur" ]; then printf '%s' "$cur" | jq .; else echo "(none)"; fi
+    if [ "${CONFIRM:-}" != yes ]; then
+      a=n; read -r -p "Apply to $branch? [y/N] " a || a=n
+      [ "$a" = y ] || { echo "skipped $branch"; continue; }
+    fi
+    gh api -X PUT "repos/$repo/branches/$branch/protection" --input - >/dev/null <<JSON || { echo "error: PUT failed for $branch" >&2; exit 2; }
 {"required_status_checks":{"strict":true,"checks":[{"context":"ci","app_id":15368}]},"enforce_admins":true,
  "required_pull_request_reviews":{"required_approving_review_count":0},"restrictions":null,
  "allow_force_pushes":false,"allow_deletions":false}
