@@ -1,6 +1,6 @@
 # Feature: ci-pr-checks
 
-**Status:** in progress
+**Status:** done
 **Side:** backend (GitHub Actions workflow, repo branch protection, infra docs; no app UI)
 
 Tasks: [../tasks/ci-pr-checks/](../tasks/ci-pr-checks/) (01 to 03). ADR: [0003](../adr/0003-ci-cd-github-actions.md). Open questions: [../decisions/ci-cd-deploy-to-cloudflare-dev-adr.md](../decisions/ci-cd-deploy-to-cloudflare-dev-adr.md), [../decisions/ci-cd-deploy-to-cloudflare-dev-feature.md](../decisions/ci-cd-deploy-to-cloudflare-dev-feature.md). Mockups: none.
