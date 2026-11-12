@@ -1,6 +1,6 @@
 # 05 Document the dev environment for testers
 
-**Status:** in progress
+**Status:** done
 **Side:** backend
 **Size:** S
 **Dependencies:** dev-deploy 03, 04

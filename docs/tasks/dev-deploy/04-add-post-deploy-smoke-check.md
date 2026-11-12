@@ -1,6 +1,6 @@
 # 04 Add the post-deploy smoke check
 
-**Status:** in progress
+**Status:** done
 **Side:** backend
 **Size:** S
 **Dependencies:** dev-deploy 03
