@@ -1,6 +1,6 @@
 # 03 Document the CI pipeline
 
-**Status:** todo
+**Status:** done
 **Side:** backend
 **Size:** S
 **Dependencies:** 01, 02

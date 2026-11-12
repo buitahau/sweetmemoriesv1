@@ -3,7 +3,7 @@ name: ci
 # Plain PR trigger only: PR code must run with no credentials.
 on:
   pull_request:
-    branches: [dev-v2]
+    branches: [dev-v2, main]
 
 permissions:
   contents: read

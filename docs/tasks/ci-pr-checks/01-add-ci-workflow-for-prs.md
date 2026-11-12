@@ -1,6 +1,6 @@
 # 01 Add the CI workflow for PRs
 
-**Status:** todo
+**Status:** done
 **Side:** backend
 **Size:** S
 **Dependencies:** none

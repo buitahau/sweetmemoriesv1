@@ -28,9 +28,9 @@ Open the PR, click Details on `ci`, and expand the red step. Install failures me
 
 The workflow uses `pull_request` (never `pull_request_target`), `permissions: contents: read`, and references no secrets, so PR code (including forks) cannot read the Cloudflare token or `DATABASE_URL`. PRs never deploy. Actions are pinned to commit SHAs.
 
-## Branch protection on `dev-v2` (repo admin applies once)
+## Branch protection on `dev-v2` and `main` (repo admin applies once)
 
-Applied in GitHub settings after `ci` has run once so it can be selected:
+Apply the same settings to both `dev-v2` and `main`, in GitHub settings after `ci` has run once so it can be selected (the workflow runs on PRs to both):
 
 - Require status check `ci`, with "Require branches to be up to date" on.
 - Block direct pushes and force pushes; include administrators.
