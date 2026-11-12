@@ -35,6 +35,7 @@ Memories are fully public. Only an admin reviews templates before they go live.
 - Neon/Postgres (database)
 - S3 (photo storage)
 - Better Auth with Google sign-in
+- Cloudflare Workers (hosting, see ADR 0002)
 
 Ask before making architecture changes that contradict this stack.
 

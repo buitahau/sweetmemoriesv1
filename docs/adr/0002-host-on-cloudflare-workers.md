@@ -2,9 +2,9 @@
 
 ## Status
 
-proposed
+accepted
 
-Open questions: [../decisions/ci-cd-deploy-to-cloudflare-dev-adr.md](../decisions/ci-cd-deploy-to-cloudflare-dev-adr.md)
+Approved ('Approve Cloudflare Workers') in [../decisions/ci-cd-deploy-to-cloudflare-dev-adr.md](../decisions/ci-cd-deploy-to-cloudflare-dev-adr.md)
 
 ## Context
 
@@ -26,6 +26,6 @@ Option 1. Build target is `cloudflare-module`. Use one `wrangler.jsonc` with a `
 
 - Easier: free tier, fast global deploys, atomic versions and `wrangler rollback`, and a clear path to wildcard subdomains.
 - Harder: every future dependency must run on workerd. That rules out Node-only Postgres drivers and native modules, and the S3 SDK must be checked against `nodejs_compat`. Local `pnpm start` now needs Wrangler. The cookie-free public origin ADR (still to be written) must be designed around Workers routes and custom domains.
-- Once accepted, add Cloudflare Workers to the stack table in `CLAUDE.md` and `ARCHITECTURE.md`.
+- Cloudflare Workers is listed as Hosting in the stack in `CLAUDE.md` and `ARCHITECTURE.md`.
 
 Related: [ADR 0003](0003-ci-cd-github-actions.md), [ADR 0004](0004-neon-dev-branch-test-database.md), feature [dev-deploy](../features/dev-deploy.md).

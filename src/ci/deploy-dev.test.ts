@@ -94,6 +94,32 @@ describe('deploy-dev workflow', () => {
     expect(summary?.run).toContain('VERSION_ID')
   })
 
+  it('writes the summary after smoke and rollback, with an outcome', () => {
+    const ids = job.steps.map((s) => s.id)
+    const idx = job.steps.findIndex((s) =>
+      s.run?.includes('GITHUB_STEP_SUMMARY'),
+    )
+    expect(idx).toBeGreaterThan(ids.indexOf('rollback'))
+    expect(job.steps[idx].if).toContain('always()')
+    expect(job.steps[idx].run).toContain('ROLLED BACK')
+  })
+
+  it('refuses stale runs before deploying', () => {
+    const ids = job.steps.map((s) => s.id)
+    const idx = job.steps.findIndex((s) => s.name === 'Refuse stale run')
+    expect(idx).toBeGreaterThan(-1)
+    expect(idx).toBeLessThan(ids.indexOf('deploy'))
+    expect(job.steps[idx].run).toContain('dev-v2')
+    expect(job.steps[idx].run).toContain('stale run, use workflow_dispatch')
+  })
+
+  it('falls back to vars.DEV_URL when the deployment URL is missing', () => {
+    const smoke = job.steps.find((s) => s.id === 'smoke') as Step
+    expect((smoke.env as Record<string, string>).DEV_URL).toContain(
+      'vars.DEV_URL',
+    )
+  })
+
   it('does not interpolate step outputs directly into shell scripts', () => {
     for (const s of job.steps) {
       if (s.run) expect(s.run).not.toContain('${{')
@@ -105,16 +131,40 @@ describe('deploy-dev workflow', () => {
     expect(ids.indexOf('smoke')).toBeGreaterThan(ids.indexOf('deploy'))
     const smoke = job.steps[ids.indexOf('smoke')]
     expect(smoke.run).toBe('node src/ci/smoke-health.ts "$DEV_URL"')
-    const rollback = job.steps[job.steps.length - 1]
+    const rollback = job.steps.find((s) => s.id === 'rollback') as Step
+    expect(ids.indexOf('rollback')).toBeGreaterThan(ids.indexOf('smoke'))
     expect(rollback.if).toBe("failure() && steps.smoke.outcome == 'failure'")
     expect(rollback.with?.command).toContain('rollback')
     expect(rollback.with?.command).toContain('--env dev')
   })
 })
 
+// Remove // and /* */ comments (outside strings) and trailing commas.
+function stripJsonc(src: string): string {
+  let out = ''
+  let i = 0
+  while (i < src.length) {
+    const c = src[i]
+    if (c === '"') {
+      let j = i + 1
+      while (src[j] !== '"') j += src[j] === '\\' ? 2 : 1
+      out += src.slice(i, j + 1)
+      i = j + 1
+    } else if (src.startsWith('//', i)) {
+      while (i < src.length && src[i] !== '\n') i++
+    } else if (src.startsWith('/*', i)) {
+      i = src.indexOf('*/', i) + 2
+    } else {
+      out += c
+      i++
+    }
+  }
+  return out.replace(/,(\s*[}\]])/g, '$1')
+}
+
 describe('wrangler.jsonc', () => {
   const raw = read('wrangler.jsonc')
-  const config = parse(raw) as Record<string, any> // eslint-disable-line @typescript-eslint/no-explicit-any
+  const config = JSON.parse(stripJsonc(raw)) as Record<string, any> // eslint-disable-line @typescript-eslint/no-explicit-any
 
   it('defines the dev Worker with nodejs_compat and a pinned date', () => {
     expect(config.env.dev.name).toBe('sweetmemories-dev')

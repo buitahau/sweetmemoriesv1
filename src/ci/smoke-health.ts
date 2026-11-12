@@ -2,6 +2,8 @@
 // Passes only on 200, body exactly {"status":"ok"} and no Set-Cookie.
 // Keep it dependency-free and erasable-syntax-only so Node can run it directly.
 
+import { pathToFileURL } from 'node:url'
+
 export interface HealthResult {
   ok: boolean
   status?: number
@@ -92,7 +94,12 @@ async function main(): Promise<void> {
     console.error('usage: node src/ci/smoke-health.ts <base-url>')
     process.exit(2)
   }
-  const result = await pollHealth(baseUrl, { log: console.log })
+  const result = await pollHealth(baseUrl, {
+    log: console.log,
+    ...(process.env.SMOKE_TIMEOUT_MS
+      ? { timeoutMs: Number(process.env.SMOKE_TIMEOUT_MS), intervalMs: 100 }
+      : {}),
+  })
   if (!result.ok) {
     console.error(
       `smoke check FAILED: ${result.reason}; status=${result.status ?? 'none'} body=${JSON.stringify(result.body ?? '')}`,
@@ -104,7 +111,7 @@ async function main(): Promise<void> {
 
 if (
   process.argv[1] &&
-  import.meta.url === new URL(`file://${process.argv[1]}`).href
+  import.meta.url === pathToFileURL(process.argv[1]).href
 ) {
   void main()
 }

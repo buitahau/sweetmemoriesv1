@@ -1,3 +1,7 @@
+import { spawn, spawnSync } from 'node:child_process'
+import { createServer } from 'node:http'
+import type { AddressInfo } from 'node:net'
+import { resolve } from 'node:path'
 import { describe, expect, it, vi } from 'vitest'
 import { checkHealth, healthUrl, pollHealth } from './smoke-health'
 
@@ -106,5 +110,64 @@ describe('pollHealth', () => {
     expect(fetchFn.mock.calls.length).toBeGreaterThan(1)
     expect(fetchFn.mock.calls.length).toBeLessThanOrEqual(13)
     expect(t).toBeLessThanOrEqual(60_000)
+  })
+})
+
+describe('smoke-health CLI (entry point)', () => {
+  const script = resolve(__dirname, 'smoke-health.ts')
+  const run = (args: Array<string>) =>
+    spawnSync(process.execPath, [script, ...args], {
+      encoding: 'utf8',
+      timeout: 30_000,
+    })
+  const serve = async (status: number, body: string) => {
+    const server = createServer((_req, res) => {
+      res.writeHead(status, { 'content-type': 'application/json' })
+      res.end(body)
+    })
+    await new Promise<void>((r) => server.listen(0, '127.0.0.1', r))
+    const { port } = server.address() as AddressInfo
+    return { url: `http://127.0.0.1:${port}`, server }
+  }
+  const spawnAsync = (args: Array<string>) =>
+    new Promise<{ code: number | null; out: string; err: string }>((res) => {
+      const p = spawn(process.execPath, [script, ...args], {
+        env: { ...process.env, SMOKE_TIMEOUT_MS: '500' },
+      })
+      let out = ''
+      let err = ''
+      p.stdout.on('data', (d) => (out += d))
+      p.stderr.on('data', (d) => (err += d))
+      p.on('close', (code) => res({ code, out, err }))
+    })
+
+  it('exits 2 with usage when no URL is given', () => {
+    const r = run([])
+    expect(r.status).toBe(2)
+    expect(r.stderr).toContain('usage')
+  })
+
+  it('exits 0 against a healthy server', async () => {
+    const { url, server } = await serve(200, '{"status":"ok"}')
+    try {
+      const r = await spawnAsync([url])
+      expect(r.code).toBe(0)
+      expect(r.out).toContain('smoke check passed')
+    } finally {
+      server.close()
+    }
+  })
+
+  it('exits 1 and prints status and body against an unhealthy server', async () => {
+    const { url, server } = await serve(500, 'boom')
+    try {
+      const r = await spawnAsync([url])
+      expect(r.code).toBe(1)
+      expect(r.err).toContain('smoke check FAILED')
+      expect(r.err).toContain('status=500')
+      expect(r.err).toContain('boom')
+    } finally {
+      server.close()
+    }
   })
 })
