@@ -39,7 +39,7 @@ def package_json():
 @pytest.fixture(scope="session", params=PROTECTED_BRANCHES)
 def protection(request):
     """Live branch protection for dev-v2 and main (parametrized) via gh, as a (branch, data) tuple. Skips only when gh is missing or
-    unauthenticated/offline; a 404 (not protected) fails."""
+    unauthenticated/offline; a 404 (not protected) yields (branch, None) and the tests fail on it."""
     branch = request.param
     if not shutil.which("gh"):
         pytest.skip("BLOCKED: gh CLI not installed")
@@ -50,7 +50,8 @@ def protection(request):
     if r.returncode != 0:
         err = r.stderr + r.stdout
         if "404" in err or "Branch not protected" in err:
-            pytest.fail(f"{branch} has no branch protection (gh: {err.strip()[:200]})")
+            # Sentinel: tests assert on it so a missing rule is a FAIL, not a fixture ERROR.
+            return branch, None
         pytest.skip(f"BLOCKED: cannot read branch protection via gh: {r.stderr.strip()[:200]}")
     return branch, json.loads(r.stdout)
 
