@@ -5,9 +5,23 @@ import { parse } from 'yaml'
 
 const root = resolve(__dirname, '../..')
 const workflow = readFileSync(resolve(root, '.github/workflows/ci.yml'), 'utf8')
-type Json = Record<string, any> // eslint-disable-line @typescript-eslint/no-explicit-any
-const doc = parse(workflow) as Json
-const steps: Array<Json> = doc.jobs.ci.steps
+interface Step {
+  uses?: string
+  with?: Record<string, unknown>
+  run?: string
+  if?: unknown
+  'continue-on-error'?: unknown
+  [key: string]: unknown
+}
+interface Workflow {
+  on: { pull_request: { branches: Array<string> } }
+  permissions: Record<string, string>
+  concurrency: { group: string; 'cancel-in-progress'?: boolean }
+  jobs: { ci: { steps: Array<Step>; [key: string]: unknown } }
+  [key: string]: unknown
+}
+const doc = parse(workflow) as Workflow
+const steps: Array<Step> = doc.jobs.ci.steps
 const pkg = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8'))
 
 describe('ci workflow', () => {
@@ -37,7 +51,7 @@ describe('ci workflow', () => {
 
   it('runs the checks with a frozen lockfile on Node 24', () => {
     const node = steps.find((s) => String(s.uses).includes('setup-node'))
-    expect(String(node?.with['node-version'])).toBe('24')
+    expect(String(node?.with?.['node-version'])).toBe('24')
     const runs = steps.map((s) => s.run)
     for (const cmd of [
       'pnpm install --frozen-lockfile',

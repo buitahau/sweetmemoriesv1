@@ -20,7 +20,7 @@ Add `.github/workflows/ci.yml`. It triggers on `pull_request` to `dev-v2` and ha
 
 ## Verification
 
-- [ ] A PR containing only this change shows a green `ci` check, and the log shows Node 24.x and the pinned pnpm.
+- [ ] (SHA pins verified against tags 2026-11-12; needs a real run) A PR containing only this change shows a green `ci` check, and the log shows Node 24.x and the pinned pnpm.
 - [ ] In a throwaway PR, a Vitest test asserting `1 === 2` turns `ci` red and names the test. A type error also turns it red (if typecheck is required). Close the throwaway PR without merging.
 - [ ] In a throwaway PR, a `package.json` dependency change without a lockfile update fails at install.
 - [x] The workflow file uses `pull_request` (not `pull_request_target`), `permissions: contents: read`, and SHA-pinned actions.
