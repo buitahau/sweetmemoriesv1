@@ -4,14 +4,16 @@ import tailwindcss from '@tailwindcss/vite'
 import { nitro } from 'nitro/vite'
 import { defineConfig } from 'vitest/config'
 
-export default defineConfig({
+// The Worker preset is build-only: under `pnpm dev` it leaves SSR output stale
+// after edits, so dev uses the default Nitro dev server.
+export default defineConfig(({ command }) => ({
   server: { port: 3000 },
   resolve: { tsconfigPaths: true },
   plugins: [
     tanstackStart(),
-    nitro({ preset: 'cloudflare-module' }),
+    nitro(command === 'build' ? { preset: 'cloudflare-module' } : {}),
     viteReact(),
     tailwindcss(),
   ],
   test: { environment: 'node', include: ['src/**/*.test.{ts,tsx}'] },
-})
+}))
