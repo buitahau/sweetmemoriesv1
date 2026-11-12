@@ -1,6 +1,8 @@
 # 02 Protect `dev-v2` with the required `ci` check
 
 **Status:** todo
+
+Note: pending a repo admin. As of the last review, `dev-v2` has no required check (`contexts: []`, `strict: false`) and `main` is unprotected. After the first PR run of `ci`, require `ci` with strict mode on both branches and paste the `gh api repos/{owner}/{repo}/branches/<branch>/protection` output here.
 **Side:** backend
 **Size:** S
 **Dependencies:** 01 (the `ci` check must have run once so it can be selected)

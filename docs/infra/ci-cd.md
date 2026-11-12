@@ -36,4 +36,4 @@ Apply the same settings to both `dev-v2` and `main`, in GitHub settings after `c
 - Block direct pushes and force pushes; include administrators.
 - Allow squash merge only.
 
-Status: partly applied. `dev-v2` already has a rule with administrators included and force pushes blocked. Still pending (needs a repo admin, after the first PR run of `ci`): require status check `ci` with "Require branches to be up to date" on `dev-v2` and `main`. Verify with `gh api repos/{owner}/{repo}/branches/dev-v2/protection` (see task 02).
+Status: partly applied. `dev-v2` already has a rule with administrators included and force pushes blocked; it still needs the required status check `ci` with "Require branches to be up to date". `main` is not protected yet: it has no rule at all, so it needs every setting listed above. Both need a repo admin, after the first PR run of `ci`. Verify with `gh api repos/{owner}/{repo}/branches/dev-v2/protection` (see task 02).

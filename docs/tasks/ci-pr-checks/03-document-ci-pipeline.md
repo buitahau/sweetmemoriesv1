@@ -20,5 +20,5 @@ Create `docs/infra/ci-cd.md` (load the `docs-placement` skill): what `ci` runs, 
 ## Verification
 
 - [ ] Following the doc from a clean clone reproduces the `ci` steps locally with the same results.
-- [ ] Progress.md lists ci-pr-checks with its spec and task links.
+- [x] Progress.md lists ci-pr-checks with its spec and task links.
 - [x] Links to ADR 0003 and the feature spec resolve.
