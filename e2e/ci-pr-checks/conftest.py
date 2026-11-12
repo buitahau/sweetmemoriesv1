@@ -10,6 +10,7 @@ the reason) because this suite must not push or open PRs.
 """
 import json
 import pathlib
+import re
 import shutil
 import subprocess
 
@@ -58,7 +59,9 @@ def protection(request):
         if "Branch not found" in err:
             # The protected branch names are fixed; a missing or renamed branch is a failure, not a skip.
             pytest.fail(f"protected branch {branch} not found on the repository")
-        pytest.skip(f"BLOCKED: cannot read branch protection via gh: {r.stderr.strip()[:200]}")
+        status = re.search(r"HTTP (\d{3})", err)
+        code = f" (HTTP {status.group(1)})" if status else ""
+        pytest.skip(f"BLOCKED: cannot read branch protection via gh{code}: {r.stderr.strip()[:200]}")
     return branch, json.loads(r.stdout)
 
 
