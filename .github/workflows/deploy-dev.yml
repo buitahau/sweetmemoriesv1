@@ -1,0 +1,73 @@
+name: deploy-dev
+
+# Deploys the head of dev-v2 to the dev Worker. Secrets live in the GitHub
+# Environment `dev` (limited to dev-v2). PR code never reaches this workflow.
+on:
+  push:
+    branches: [dev-v2]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# One deploy at a time; newer runs queue behind the running one.
+concurrency:
+  group: deploy-dev
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: deploy-dev
+    # workflow_dispatch can pick any ref; only dev-v2 may deploy.
+    if: github.ref == 'refs/heads/dev-v2'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: dev
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      # Checks below must stay identical to ci.yml (enforced by src/ci/deploy-dev.test.ts).
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: node --version && pnpm --version
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build
+      - name: Deploy to dev
+        id: deploy
+        uses: cloudflare/wrangler-action@953926a2e2182532811c01a25e53647d93bf07c0 # v4.1.3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy -c wrangler.jsonc --env dev --tag ${{ github.sha }} --message "deploy-dev ${{ github.sha }}"
+      - name: Job summary
+        env:
+          SHA: ${{ github.sha }}
+          DEV_URL: ${{ steps.deploy.outputs.deployment-url }}
+          DEPLOY_OUTPUT: ${{ steps.deploy.outputs.command-output }}
+        run: |
+          VERSION_ID=$(printf '%s\n' "$DEPLOY_OUTPUT" | sed -n 's/.*Current Version ID: *\([0-9a-fA-F-]\{36\}\).*/\1/p' | head -n1)
+          {
+            echo "## deploy-dev"
+            echo "- Commit: \`$SHA\`"
+            echo "- Dev URL: $DEV_URL"
+            echo "- Cloudflare version ID: \`${VERSION_ID:-unknown}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Smoke check /api/health
+        id: smoke
+        env:
+          DEV_URL: ${{ steps.deploy.outputs.deployment-url }}
+        run: node src/ci/smoke-health.ts "$DEV_URL"
+      - name: Roll back dev after failed smoke check
+        if: failure() && steps.smoke.outcome == 'failure'
+        uses: cloudflare/wrangler-action@953926a2e2182532811c01a25e53647d93bf07c0 # v4.1.3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: rollback -c wrangler.jsonc --env dev --message "auto-rollback after failed smoke check ${{ github.sha }}" --yes
