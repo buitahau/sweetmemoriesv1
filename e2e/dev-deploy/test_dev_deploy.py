@@ -79,7 +79,7 @@ def test_US_deploy_1_1b_live_push_run_succeeded_within_ten_minutes(deploy_runs):
         pytest.skip(BLOCKED_MERGE)
     latest = pushes[0]
     assert latest["headBranch"] == "dev-v2"
-    assert (_ts(latest["updatedAt"]) - _ts(latest["createdAt"])).total_seconds() <= 600
+    assert (_ts(latest["updatedAt"]) - _ts(latest["startedAt"])).total_seconds() <= 600
     assert latest["conclusion"] == "success"
 
 

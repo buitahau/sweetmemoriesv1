@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { parse } from 'yaml'
 
 const root = resolve(__dirname, '../..')
@@ -192,11 +192,18 @@ describe('package.json and build config', () => {
     expect(pkg.devDependencies.wrangler).toBeDefined()
   })
 
-  it('applies the cloudflare-module Nitro preset only for build', () => {
-    const src = read('vite.config.ts')
-    expect(src).toContain(
-      "command === 'build' ? { preset: 'cloudflare-module' } : {}",
-    )
+  it('applies the cloudflare-module Nitro preset only for build', async () => {
+    vi.resetModules()
+    const nitro = vi.fn(() => ({ name: 'nitro-stub' }))
+    vi.doMock('nitro/vite', () => ({ nitro }))
+    const { default: factory } = (await import('../../vite.config')) as {
+      default: (env: { command: string; mode: string }) => unknown
+    }
+    factory({ command: 'build', mode: 'production' })
+    expect(nitro).toHaveBeenLastCalledWith({ preset: 'cloudflare-module' })
+    factory({ command: 'serve', mode: 'development' })
+    expect(nitro).toHaveBeenLastCalledWith({})
+    vi.doUnmock('nitro/vite')
   })
 
   it('gitignores .wrangler/', () => {

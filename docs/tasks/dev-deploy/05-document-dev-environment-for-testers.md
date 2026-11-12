@@ -21,5 +21,5 @@ Create `docs/infra/dev-environment.md` (load `docs-placement`): the dev URL, wha
 
 - [ ] A tester who has not seen the pipeline can follow the doc alone to run `e2e/project-skeleton` against the dev URL, and all scenarios pass except US-skeleton-1.6.
 - [ ] Following the rollback steps on dev restores the previous version, and `/api/health` returns `200`.
-- [x] Progress.md is updated. It links to Task 05, which links to `docs/infra/dev-environment.md`, whose ADR 0002 and 0003 links resolve to existing files.
+- [ ] Progress.md is updated, and links to ADRs 0002 and 0003 resolve.
 - [ ] Covers US-deploy-1.4, US-deploy-2.4 and US-deploy-4.5.

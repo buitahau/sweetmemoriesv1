@@ -23,7 +23,7 @@ pnpm install
 | --- | --- | --- |
 | Dev server | `pnpm dev` | http://localhost:3000, hot reload; runs the default Nitro dev server, not the Worker runtime |
 | Production build | `pnpm build` | writes `.output/` |
-| Run the build | `pnpm start` | `wrangler dev` on http://localhost:3000 (same Worker runtime as dev), run `pnpm build` first |
+| Run the build | `pnpm start` | `wrangler dev` on http://localhost:3000 (same Worker runtime as the Cloudflare dev environment), run `pnpm build` first |
 
 Check Worker-runtime behavior (`nodejs_compat`, bindings) with `pnpm build && pnpm start`, not `pnpm dev`.
 
