@@ -1,6 +1,6 @@
 # 04 Document local development and commands
 
-**Status:** todo
+**Status:** done
 **Side:** backend
 **Size:** S
 **Dependencies:** 01, 02, 03
@@ -13,12 +13,12 @@ Add `docs/infra/local-development.md` (prerequisites, Node version, install, run
 
 ## Checklist
 
-- [ ] `docs/infra/local-development.md`
-- [ ] `CLAUDE.md` Status section updated
-- [ ] `Progress.md` in sync
+- [x] `docs/infra/local-development.md`
+- [x] `CLAUDE.md` Status section updated
+- [x] `Progress.md` in sync
 
 ## Verification
 
-- [ ] Following only `docs/infra/local-development.md` on a clean clone gets the dev server running, "SweetMemories home page" at `/` and `{"status":"ok"}` at `/api/health`.
-- [ ] The single-test command in `CLAUDE.md` runs just the named test.
-- [ ] `Progress.md` lists `project-skeleton` with links to spec and tasks, and its status matches the task statuses.
+- [x] Following only `docs/infra/local-development.md` on a clean clone gets the dev server running, "SweetMemories home page" at `/` and `{"status":"ok"}` at `/api/health`.
+- [x] The single-test command in `CLAUDE.md` runs just the named test.
+- [x] `Progress.md` lists `project-skeleton` with links to spec and tasks, and its status matches the task statuses.

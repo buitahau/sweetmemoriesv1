@@ -4,15 +4,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Status
 
-The TanStack Start app is scaffolded at the repo root (pnpm, TypeScript strict, Tailwind v4, shadcn/ui config only, Vitest, ESLint, Prettier). Health route and home page come in later project-skeleton tasks.
+TanStack Start skeleton is in place: `GET /api/health` and the home page `/`. No auth, database or S3 yet. Full setup guide: `docs/infra/local-development.md`.
 
-## Commands
+Commands (pnpm, Node 24):
 
 - `pnpm install`: install dependencies.
-- `pnpm dev`: dev server on http://localhost:3000.
-- `pnpm build` / `pnpm start`: production build and run (`.output/server/index.mjs`).
+- `pnpm dev`: dev server at http://localhost:3000.
+- `pnpm build` then `pnpm start`: production build and run.
 - `pnpm lint`, `pnpm typecheck`, `pnpm format`.
-- `pnpm test`: run all unit tests (Vitest). Single test: `pnpm test src/lib/utils.test.ts` or `pnpm test -t "name"`.
+- `pnpm test`: all unit tests (Vitest). Single test: `pnpm test src/server/health.test.ts` (one file) or `pnpm test -t "test name"` (by name).
+- E2E (Python Playwright + pytest): see `e2e/README.md`; single test with `-k "test_name"`.
 
 ## Project
 

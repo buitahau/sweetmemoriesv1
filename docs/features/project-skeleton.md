@@ -1,6 +1,6 @@
 # Feature: project-skeleton
 
-**Status:** todo
+**Status:** done
 **Side:** both
 - backend: project scaffold, scripts and the `GET /api/health` server route.
 - front-end: the root layout and the home page route `/` with the text "SweetMemories home page".
