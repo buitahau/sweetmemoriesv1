@@ -5,6 +5,8 @@ One test per Given/When/Then scenario. All sessions are public (no cookies).
 import json
 import socket
 
+import pytest
+
 from playwright.sync_api import Error as PlaywrightError, expect
 
 HEADING = "SweetMemories home page"
@@ -59,13 +61,8 @@ def test_US_skeleton_1_6_health_server_down(pw):
         port = s.getsockname()[1]
     req = pw.request.new_context(base_url=f"http://127.0.0.1:{port}")
     try:
-        raised = False
-        try:
-            r = req.get("/api/health")
-            assert r.status != 200
-        except PlaywrightError:
-            raised = True
-        assert raised, "expected the request to fail to connect"
+        with pytest.raises(PlaywrightError):
+            req.get("/api/health")
     finally:
         req.dispose()
 
@@ -99,7 +96,8 @@ def test_US_skeleton_2_4_home_sets_no_cookies(page, context, base_url):
     """US-skeleton-2.4 (story US-skeleton-2): no Set-Cookie and no browser cookies."""
     resp = page.goto(base_url + "/")
     page.wait_for_load_state("networkidle")
-    assert "set-cookie" not in resp.headers
+    # Response.headers omits Set-Cookie; all_headers() includes it.
+    assert "set-cookie" not in resp.all_headers()
     assert context.cookies() == []
 
 

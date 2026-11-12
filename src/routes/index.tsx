@@ -1,5 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { HomePage } from '../components/home-page'
 
 export const Route = createFileRoute('/')({
-  component: () => <main className="p-8">SweetMemories</main>,
+  head: () => ({ meta: [{ title: 'SweetMemories' }] }),
+  component: HomePage,
 })
