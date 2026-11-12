@@ -2,6 +2,7 @@ import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { healthGet } from '../server/health'
 
 const root = resolve(__dirname, '../..')
 const read = (p: string) => readFileSync(resolve(root, p), 'utf8')
@@ -19,18 +20,26 @@ describe('dev-test-database: DATABASE_URL hygiene', () => {
   })
 
   it('does not commit a connection string to wrangler config', () => {
-    expect(read('wrangler.jsonc')).not.toMatch(/DATABASE_URL|postgres(ql)?:\/\//)
+    expect(read('wrangler.jsonc')).not.toMatch(
+      /DATABASE_URL|postgres(ql)?:\/\//,
+    )
   })
 
   it('no tracked file contains a Postgres connection string or neon.tech host', () => {
-    const files = execFileSync('git', ['ls-files', '-co', '--exclude-standard'], {
-      cwd: root,
-      encoding: 'utf8',
-    })
+    const files = execFileSync(
+      'git',
+      ['ls-files', '-co', '--exclude-standard'],
+      {
+        cwd: root,
+        encoding: 'utf8',
+      },
+    )
       .split('\n')
       .filter(
         (f) =>
-          f && !f.startsWith('.claude/') &&
+          f &&
+          f !==
+            '.claude/skills/tanstack-start-best-practices/rules/deploy-env-config.md' &&
           !f.endsWith('test-database.test.ts') &&
           !/\.(png|jpg|jpeg|gif|ico|woff2?|lockb)$/.test(f) &&
           f !== 'pnpm-lock.yaml' &&
@@ -44,15 +53,47 @@ describe('dev-test-database: DATABASE_URL hygiene', () => {
       } catch {
         continue
       }
-      if (/postgres(ql)?:\/\/[^\s'"<>:]+:[^\s'"<>@]+@/.test(text) || /[a-z0-9-]+\.neon\.tech/.test(text)) {
+      if (
+        /postgres(ql)?:\/\/[^\s'"<>:]+:[^\s'"<>@]+@/.test(text) ||
+        /postgres(ql)?:\/\/[^\s'"<>@/]+@[a-z0-9.-]+/i.test(text) ||
+        /\b(PGPASSWORD|password)\s*=\s*[^\s'"<>$]{3,}/i.test(text) ||
+        /[a-z0-9-]+\.neon\.tech/.test(text)
+      ) {
         bad.push(f)
       }
     }
     expect(bad).toEqual([])
   })
 
-  it('health and home source never reference DATABASE_URL', () => {
-    expect(read('src/server/health.ts')).not.toMatch(/DATABASE_URL/)
-    expect(read('src/routes/index.tsx')).not.toMatch(/DATABASE_URL/)
+  it('health response leaks no DATABASE_URL host, user or password', async () => {
+    const prev = process.env.DATABASE_URL
+    process.env.DATABASE_URL =
+      'postgresql://fakeuser:fakepass123@ep-fake.neon.tech/db'
+    try {
+      const res = healthGet()
+      const dump =
+        (await res.text()) + JSON.stringify([...res.headers.entries()])
+      for (const secret of [
+        'ep-fake.neon.tech',
+        'fakeuser',
+        'fakepass123',
+        'postgres',
+      ]) {
+        expect(dump).not.toContain(secret)
+      }
+    } finally {
+      if (prev === undefined) delete process.env.DATABASE_URL
+      else process.env.DATABASE_URL = prev
+    }
+  })
+
+  it('route files never reference DATABASE_URL', () => {
+    for (const f of [
+      'src/routes/api/health.ts',
+      'src/routes/index.tsx',
+      'src/routes/__root.tsx',
+    ]) {
+      expect(read(f)).not.toMatch(/DATABASE_URL/)
+    }
   })
 })

@@ -55,7 +55,7 @@ Setup of `.venv-e2e` is in [../../e2e/README.md](../../e2e/README.md). Scenario 
 
 ## Test database (Neon dev branch)
 
-Decision: [ADR 0004](../adr/0004-neon-dev-branch-test-database.md). Feature: [dev-test-database](../features/dev-test-database.md).
+Decision: [ADR 0004](../adr/0004-neon-dev-branch-test-database.md) (status: proposed, so everything below is pending ADR acceptance and the ops steps are not yet done). Feature: [dev-test-database](../features/dev-test-database.md).
 
 - Dev uses the Neon branch `dev` (child of the project's main branch) through the Worker secret `DATABASE_URL`, with a non-owner role scoped to that branch database. Production never shares a branch or credentials with dev.
 - The dev database holds synthetic test data only, never real user data.

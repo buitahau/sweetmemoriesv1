@@ -14,7 +14,7 @@ Extend `docs/infra/dev-environment.md` with which database dev uses, who can acc
 ## Checklist
 
 - [x] Dev database usage, access and synthetic-data rule documented
-- [x] Reset steps documented (proposed, pending agreement)
+- [ ] Reset steps documented (written as a proposal; tick once the reset policy is agreed)
 - [x] Local DB setup in `docs/infra/local-development.md`
 - [ ] `Progress.md` updated
 
