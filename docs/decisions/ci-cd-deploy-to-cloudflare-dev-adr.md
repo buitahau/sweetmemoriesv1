@@ -13,7 +13,7 @@ Options:
 
 Recommended answer: Approve Cloudflare Workers: it is what the requirement asks for, has first-class TanStack Start/Nitro support, and supports wildcard subdomains later.
 
-Answer:
+Answer: Approve Cloudflare Workers: it is what the requirement asks for, has first-class TanStack Start/Nitro support, and supports wildcard subdomains later.
 
 ### What should local `pnpm start` run once the build targets Workers?
 
@@ -24,7 +24,7 @@ Options:
 
 Recommended answer: `wrangler dev` on the Worker build: local e2e then runs on the same runtime as dev, so Workers incompatibilities show up before merge.
 
-Answer:
+Answer: `wrangler dev` on the Worker build: local e2e then runs on the same runtime as dev, so Workers incompatibilities show up before merge.
 
 ## Topic: ADR 0003: CI/CD on GitHub Actions
 
@@ -37,7 +37,7 @@ Options:
 
 Recommended answer: Unit tests + lint + typecheck + build: cheap, and it stops a merge that would fail to build and deploy. Add e2e later when the suite grows.
 
-Answer:
+Answer: Unit tests + lint + typecheck + build: cheap, and it stops a merge that would fail to build and deploy. Add e2e later when the suite grows.
 
 ### Which branches get branch protection with the required check?
 
@@ -48,7 +48,7 @@ Options:
 
 Recommended answer: dev-v2 and main: feature PRs target dev-v2 and main is the future production branch; both must never get untested code.
 
-Answer:
+Answer: dev-v2 and main: feature PRs target dev-v2 and main is the future production branch; both must never get untested code.
 
 ### Should merging into dev-v2 be the deploy trigger for dev (with main reserved for a future production deploy)?
 
@@ -59,7 +59,7 @@ Options:
 
 Recommended answer: Yes, deploy dev on every push to dev-v2: that is where PRs are merged per the git-workflow skill, and main stays free for production.
 
-Answer:
+Answer: Yes, deploy dev on every push to dev-v2: that is where PRs are merged per the git-workflow skill, and main stays free for production.
 
 ## Topic: ADR 0004: Test database for dev is a dedicated Neon branch
 
@@ -71,7 +71,7 @@ Options:
 
 Recommended answer: Provision now: it is small, it meets the stated requirement, and the first DB feature can then start testing on dev straight away.
 
-Answer:
+Answer: Provision now: it is small, it meets the stated requirement, and the first DB feature can then start testing on dev straight away.
 
 ### How should the Worker connect to Neon once DB code exists?
 
@@ -82,4 +82,4 @@ Options:
 
 Recommended answer: @neondatabase/serverless driver: it works on Workers with no extra infrastructure; switch to Hyperdrive with a superseding ADR if latency becomes an issue.
 
-Answer:
+Answer: @neondatabase/serverless driver: it works on Workers with no extra infrastructure; switch to Hyperdrive with a superseding ADR if latency becomes an issue.
