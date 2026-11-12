@@ -16,9 +16,15 @@ If any check or the deploy fails, the previous version stays live. If the smoke 
 
 ## Before the first deploy (ops)
 
-The GitHub Environment `dev` must allow only the branch `dev-v2` (Settings, Environments, dev, Deployment branches). If it lists another branch (for example `dev-v1`), the run fails within seconds with no steps and the annotation `Branch "dev-v2" is not allowed to deploy to dev due to environment protection rules.` Fix it in the Environment settings, then start `deploy-dev` with Run workflow on `dev-v2`. **Blocker:** until ops allows only `dev-v2` (removing `dev-v1`) and a `workflow_dispatch` run on `dev-v2` succeeds, there is no live dev Worker and Task 02 is not done. Check the policy with `gh api repos/<owner>/<repo>/environments/dev/deployment-branch-policies`.
+Blocker: until steps 1 to 5 are done there is no live dev Worker and Task 02 is not done. These need a repo admin; they cannot be fixed from a code branch.
 
-The Worker is only live after the first successful run. Record the printed dev URL here and set the Environment variable `DEV_URL` to it (the smoke check falls back to it).
+1. Set the GitHub Environment `dev` deployment branch policy to `dev-v2` only (Settings, Environments, dev, Deployment branches) and remove any other branch such as `dev-v1`. With a wrong policy the run fails within seconds with no steps and the annotation `Branch "dev-v2" is not allowed to deploy to dev due to environment protection rules.` Check it with `gh api repos/<owner>/<repo>/environments/dev/deployment-branch-policies`.
+2. Confirm the secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` exist in that Environment.
+3. Start `deploy-dev` on `dev-v2` with Run workflow (`workflow_dispatch`) to bring the Worker live.
+4. Get a successful **push** run on `dev-v2`: merge a new commit into `dev-v2`. Do not re-run an old failed run. The e2e check US-deploy-1.1b only counts runs with event `push` and requires `updatedAt - createdAt` within 10 minutes, and a re-run keeps the original `createdAt`, so a late re-run fails the check even when the deploy succeeds. The `Refuse stale run` guard in `deploy-dev.yml` also blocks a re-run once `dev-v2` has moved on.
+5. Set the Environment variable `DEV_URL` to the printed dev URL and record it below.
+
+The Worker is only live after the first successful run. Dev URL: not yet deployed (record it here at step 5; the smoke check falls back to `DEV_URL`).
 
 ## Which commit is live
 
