@@ -65,3 +65,11 @@ Out of scope: production environment, custom domains, database code, automatic e
 - A failed test, deploy or smoke step leaves the previous version live, or follows the agreed rollback policy.
 - Secrets live only in the GitHub Environment `dev` and in Cloudflare. The token is scoped to Workers on one account.
 - `docs/infra/dev-environment.md` covers the dev URL, how deploys happen, rollback, and how testers run e2e with `E2E_BASE_URL`. `e2e/README.md` and `docs/infra/local-development.md` reflect the new `pnpm start`.
+
+## Delivery summary
+
+- **Built:** the app builds as a Cloudflare Worker, a `deploy-dev` workflow deploys `dev-v2` to https://sweetmemories-dev.haubuitatmp.workers.dev with a post-deploy smoke check, and `docs/infra/dev-environment.md` documents the dev environment for testers. PRs: #71, #72, #73, #74, #76.
+- **Test evidence (dev, head 02e97f6):** unit tests 86/86, typecheck and lint clean; `e2e/dev-deploy` 26 passed, 5 skipped as blocked; `e2e/project-skeleton` 12 passed; latest `deploy-dev` run succeeded. `/` returns 200, `/api/health` returns 200 `{"status":"ok"}` with `no-store` and no `Set-Cookie`, `POST` returns 405, unknown path returns 404.
+- **Blocked scenarios (5):** need a deliberately broken deploy, a real merge or the Cloudflare dashboard.
+- **Open:** task 02 (Cloudflare token and GitHub Environment) is still `todo`, so the feature stays `in progress` until it is done and its dashboard checks are verified.
+- **Fix cycles:** 0.
