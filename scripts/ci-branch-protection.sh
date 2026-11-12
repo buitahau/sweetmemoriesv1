@@ -25,9 +25,12 @@ fetch() { # prints JSON; empty output and status 0 when the branch is unprotecte
 set -f # no glob expansion of BRANCHES
 branches="${BRANCHES:-dev-v2 main}"
 for b in $branches; do
-  [[ "$b" =~ ^[A-Za-z0-9._/-]+$ ]] || { echo "error: invalid branch name in BRANCHES: $b" >&2; exit 2; }
+  [[ "$b" =~ ^[A-Za-z0-9._/-]+$ && "$b" != -* && "$b" != /* && "$b" != *..* ]] || { echo "error: invalid branch name in BRANCHES: $b" >&2; exit 2; }
 done
-if [ "$branches" != "dev-v2 main" ]; then echo "NOTE only checking: $branches (default is dev-v2 main); exit 0 is not full compliance"; fi
+branches="$(printf '%s\n' $branches | sort -u | tr '\n' ' ')"
+branches="${branches% }"
+[ -n "$branches" ] || { echo "error: BRANCHES is empty" >&2; exit 2; }
+if [ "$branches" != "dev-v2 main" ]; then echo "NOTE only processing ($mode): $branches (default is dev-v2 main); exit 0 is not full compliance"; fi
 for branch in $branches; do
   if [ "$mode" = apply ]; then
     cur="$(fetch "$branch")"
