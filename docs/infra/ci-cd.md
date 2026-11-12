@@ -37,3 +37,5 @@ Apply the same settings to both `dev-v2` and `main`, in GitHub settings after `c
 - Allow squash merge only.
 
 Status: partly applied. `dev-v2` already has a rule with administrators included and force pushes blocked; it still needs the required status check `ci` with "Require branches to be up to date". `main` is not protected yet: it has no rule at all, so it needs every setting listed above. Both need a repo admin, after the first PR run of `ci`. Verify with `gh api repos/{owner}/{repo}/branches/dev-v2/protection` (see task 02).
+
+To check or apply these settings, run `scripts/ci-branch-protection.sh check` (read-only, exits non-zero while protection is incomplete) or `scripts/ci-branch-protection.sh apply` (repo admin only; sets `ci` required, strict, admins enforced, force pushes off on both branches). Squash-only merge is a separate repo setting.
