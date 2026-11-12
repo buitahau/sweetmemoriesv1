@@ -13,6 +13,8 @@ export default tseslint.config(
       '.nitro',
       '.tanstack',
       'node_modules',
+      '.venv-e2e',
+      'e2e',
       'src/routeTree.gen.ts',
     ],
   },
