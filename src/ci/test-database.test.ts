@@ -2,12 +2,27 @@ import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { createElement } from 'react'
 import { renderToString } from 'react-dom/server'
 import { HomePage } from '../components/home-page'
 import { healthGet } from '../server/health'
 
 const root = resolve(__dirname, '../..')
 const read = (p: string) => readFileSync(resolve(root, p), 'utf8')
+
+const secrets = ['ep-fake.neon.tech', 'fakeuser', 'fakepass123', 'postgres']
+
+async function withFakeDatabaseUrl(fn: () => void | Promise<void>) {
+  const prev = process.env.DATABASE_URL
+  process.env.DATABASE_URL =
+    'postgresql://fakeuser:fakepass123@ep-fake.neon.tech/db'
+  try {
+    await fn()
+  } finally {
+    if (prev === undefined) delete process.env.DATABASE_URL
+    else process.env.DATABASE_URL = prev
+  }
+}
 
 describe('dev-test-database: DATABASE_URL hygiene', () => {
   it('.env.example lists DATABASE_URL with no value', () => {
@@ -70,45 +85,19 @@ describe('dev-test-database: DATABASE_URL hygiene', () => {
   })
 
   it('health response leaks no DATABASE_URL host, user or password', async () => {
-    const prev = process.env.DATABASE_URL
-    process.env.DATABASE_URL =
-      'postgresql://fakeuser:fakepass123@ep-fake.neon.tech/db'
-    try {
+    await withFakeDatabaseUrl(async () => {
       const res = healthGet()
       const dump =
         (await res.text()) + JSON.stringify([...res.headers.entries()])
-      for (const secret of [
-        'ep-fake.neon.tech',
-        'fakeuser',
-        'fakepass123',
-        'postgres',
-      ]) {
-        expect(dump).not.toContain(secret)
-      }
-    } finally {
-      if (prev === undefined) delete process.env.DATABASE_URL
-      else process.env.DATABASE_URL = prev
-    }
+      for (const secret of secrets) expect(dump).not.toContain(secret)
+    })
   })
 
-  it('home page output leaks no DATABASE_URL host, user or password', () => {
-    const prev = process.env.DATABASE_URL
-    process.env.DATABASE_URL =
-      'postgresql://fakeuser:fakepass123@ep-fake.neon.tech/db'
-    try {
-      const html = renderToString(HomePage())
-      for (const secret of [
-        'ep-fake.neon.tech',
-        'fakeuser',
-        'fakepass123',
-        'postgres',
-      ]) {
-        expect(html).not.toContain(secret)
-      }
-    } finally {
-      if (prev === undefined) delete process.env.DATABASE_URL
-      else process.env.DATABASE_URL = prev
-    }
+  it('home page output leaks no DATABASE_URL host, user or password', async () => {
+    await withFakeDatabaseUrl(() => {
+      const html = renderToString(createElement(HomePage))
+      for (const secret of secrets) expect(html).not.toContain(secret)
+    })
   })
 
   it('no source file under src/ references DATABASE_URL except typings and tests', () => {
