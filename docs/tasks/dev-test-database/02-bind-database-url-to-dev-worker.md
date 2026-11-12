@@ -1,6 +1,6 @@
 # 02 Bind `DATABASE_URL` to the dev Worker
 
-**Status:** todo
+**Status:** in progress
 **Side:** backend
 **Size:** S
 **Dependencies:** dev-deploy 03, dev-test-database 01
@@ -14,8 +14,8 @@ Set the Worker secret with `wrangler secret put DATABASE_URL --env dev`, done by
 ## Checklist
 
 - [ ] Secret `DATABASE_URL` set on the dev Worker
-- [ ] `.env.example` lists `DATABASE_URL` with no value
-- [ ] Binding type declared in Worker env typings (if they exist)
+- [x] `.env.example` lists `DATABASE_URL` with no value
+- [x] Binding type declared (`src/env.d.ts`) in Worker env typings (if they exist)
 
 ## Verification
 

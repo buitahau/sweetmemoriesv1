@@ -1,6 +1,6 @@
 # 03 Document test database usage and reset
 
-**Status:** todo
+**Status:** in progress
 **Side:** backend
 **Size:** S
 **Dependencies:** dev-test-database 01, 02
@@ -13,9 +13,9 @@ Extend `docs/infra/dev-environment.md` with which database dev uses, who can acc
 
 ## Checklist
 
-- [ ] Dev database usage, access and synthetic-data rule documented
-- [ ] Reset steps documented (if agreed)
-- [ ] Local DB setup in `docs/infra/local-development.md`
+- [x] Dev database usage, access and synthetic-data rule documented
+- [x] Reset steps documented (proposed, pending agreement)
+- [x] Local DB setup in `docs/infra/local-development.md`
 - [ ] `Progress.md` updated
 
 ## Verification
