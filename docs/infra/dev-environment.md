@@ -16,7 +16,7 @@ If any check or the deploy fails, the previous version stays live. If the smoke 
 
 ## Before the first deploy (ops)
 
-The GitHub Environment `dev` must allow only the branch `dev-v2` (Settings, Environments, dev, Deployment branches). If it lists another branch (for example `dev-v1`), the run fails in 4 seconds with no steps and the annotation `Branch "dev-v2" is not allowed to deploy to dev due to environment protection rules.` Fix it in the Environment settings, then start `deploy-dev` with Run workflow on `dev-v2`. Check the policy with `gh api repos/<owner>/<repo>/environments/dev/deployment-branch-policies`.
+The GitHub Environment `dev` must allow only the branch `dev-v2` (Settings, Environments, dev, Deployment branches). If it lists another branch (for example `dev-v1`), the run fails within seconds with no steps and the annotation `Branch "dev-v2" is not allowed to deploy to dev due to environment protection rules.` Fix it in the Environment settings, then start `deploy-dev` with Run workflow on `dev-v2`. **Blocker:** until ops allows only `dev-v2` (removing `dev-v1`) and a `workflow_dispatch` run on `dev-v2` succeeds, there is no live dev Worker and Task 02 is not done. Check the policy with `gh api repos/<owner>/<repo>/environments/dev/deployment-branch-policies`.
 
 The Worker is only live after the first successful run. Record the printed dev URL here and set the Environment variable `DEV_URL` to it (the smoke check falls back to it).
 

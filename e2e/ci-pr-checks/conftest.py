@@ -9,7 +9,6 @@ Scenarios that need a real PR run on GitHub are marked BLOCKED (skipped with
 the reason) because this suite must not push or open PRs.
 """
 import json
-import pathlib
 import re
 import shutil
 import subprocess
@@ -17,7 +16,8 @@ import subprocess
 import pytest
 import yaml
 
-ROOT = pathlib.Path(__file__).resolve().parents[2]
+from helpers import ROOT
+
 WORKFLOW = ROOT / ".github" / "workflows" / "ci.yml"
 PROTECTED_BRANCHES = ["dev-v2", "main"]
 
@@ -63,7 +63,3 @@ def protection(request):
         code = f" (HTTP {status.group(1)})" if status else ""
         pytest.skip(f"BLOCKED: cannot read branch protection via gh{code}: {r.stderr.strip()[:200]}")
     return branch, json.loads(r.stdout)
-
-
-def run(cmd, cwd=ROOT, timeout=300):
-    return subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, timeout=timeout)

@@ -13,7 +13,7 @@ import uuid
 
 import pytest
 
-from conftest import ROOT, run
+from helpers import ROOT, run
 
 BLOCKED_NO_PR = "BLOCKED: needs this suite to push or open a PR on GitHub, which it must not do"
 
