@@ -7,15 +7,28 @@ scenarios needing a merge, a broken deploy or the Cloudflare dashboard are BLOCK
 """
 import http.server
 import json
+import os
 import re
-import subprocess
 import sys
 import threading
+from datetime import datetime
 
 import pytest
 from playwright.sync_api import expect
 
 from conftest import ROOT, run
+
+def _ts(v):
+    return datetime.fromisoformat(v.replace("Z", "+00:00"))
+
+
+def _jobs(run_id):
+    """Jobs of a run via read-only gh, or skip."""
+    r = run(["gh", "run", "view", str(run_id), "--json", "jobs"])
+    if r.returncode != 0:
+        pytest.skip(f"BLOCKED: gh run view failed: {r.stderr.strip()[:200]}")
+    return json.loads(r.stdout)["jobs"]
+
 
 HEADING = "SweetMemories home page"
 DOCS = ROOT / "docs" / "infra" / "dev-environment.md"
@@ -45,20 +58,27 @@ def _trigger(workflow):
 
 # ---------- US-deploy-1: Merge deploys to dev automatically ----------
 
-def test_US_deploy_1_1_merge_into_dev_v2_triggers_deploy_dev(workflow, deploy_runs):
-    """US-deploy-1.1 (story US-deploy-1): push to dev-v2 starts deploy-dev, success within 10 minutes."""
-    trig = _trigger(workflow)
-    assert trig["push"]["branches"] == ["dev-v2"]
+def test_US_deploy_1_1_merge_into_dev_v2_triggers_deploy_dev(workflow):
+    """US-deploy-1.1 (story US-deploy-1): static part, a push to dev-v2 starts the deploy-dev job."""
+    assert _trigger(workflow)["push"]["branches"] == ["dev-v2"]
     assert workflow["jobs"]["deploy"]["name"] == "deploy-dev"
-    assert workflow["jobs"]["deploy"]["timeout-minutes"] <= 10 + 5  # job cap, queue excluded
+
+
+@pytest.mark.xfail(strict=True, reason="SPEC GAP: spec promises success within 10 minutes but "
+                   "deploy-dev.yml caps the job at timeout-minutes: 15")
+def test_US_deploy_1_1c_job_timeout_matches_spec_ten_minutes(workflow):
+    """US-deploy-1.1 (story US-deploy-1): the job cap must not exceed the spec's 10 minutes."""
+    assert workflow["jobs"]["deploy"]["timeout-minutes"] <= 10
+
+
+def test_US_deploy_1_1b_live_push_run_succeeded_within_ten_minutes(deploy_runs):
+    """US-deploy-1.1 live part: the latest completed push run on dev-v2 succeeded within 10 minutes."""
     pushes = [r for r in deploy_runs if r["event"] == "push" and r["status"] == "completed"]
     if not pushes:
         pytest.skip(BLOCKED_MERGE)
-    from datetime import datetime
     latest = pushes[0]
     assert latest["headBranch"] == "dev-v2"
-    ts = lambda v: datetime.fromisoformat(v.replace("Z", "+00:00"))
-    assert (ts(latest["updatedAt"]) - ts(latest["createdAt"])).total_seconds() <= 600
+    assert (_ts(latest["updatedAt"]) - _ts(latest["createdAt"])).total_seconds() <= 600
     assert latest["conclusion"] == "success"
 
 
@@ -83,7 +103,6 @@ def test_US_deploy_1_3_dev_health(api):
 
 def test_US_deploy_1_4_existing_skeleton_e2e_passes_on_target(base_url):
     """US-deploy-1.4 (story US-deploy-1): project-skeleton e2e passes with E2E_BASE_URL, except 1.6."""
-    import os
     env = dict(os.environ, E2E_BASE_URL=base_url)
     r = run([sys.executable, "-m", "pytest", "e2e/project-skeleton", "-q", "-p", "no:cacheprovider",
              "--deselect", "e2e/project-skeleton/test_project_skeleton.py::test_US_skeleton_1_6_health_server_down"],
@@ -91,7 +110,7 @@ def test_US_deploy_1_4_existing_skeleton_e2e_passes_on_target(base_url):
     assert r.returncode == 0, r.stdout[-2000:] + r.stderr[-500:]
 
 
-def test_US_deploy_1_5_run_summary_shows_sha_url_version(workflow_text, workflow):
+def test_US_deploy_1_5_run_summary_shows_sha_url_version(workflow):
     """US-deploy-1.5 (story US-deploy-1): run summary lists commit SHA, dev URL, Cloudflare version ID."""
     summary = next(s for s in _steps(workflow) if s.get("name") == "Job summary")
     script = summary["run"]
@@ -182,7 +201,8 @@ class _GoodCookie(_Good):
 
 
 def _smoke(url):
-    return run(["node", "src/ci/smoke-health.ts", url], timeout=120)
+    env = dict(os.environ, SMOKE_TIMEOUT_MS="1000")  # fail fast instead of the default 60s poll
+    return run(["node", "src/ci/smoke-health.ts", url], timeout=120, env=env)
 
 
 def test_US_deploy_2_3_smoke_check_fails_with_response_in_log():
@@ -195,7 +215,26 @@ def test_US_deploy_2_3_smoke_check_fails_with_response_in_log():
     assert r.returncode == 1
     out = r.stdout + r.stderr
     # The smoke script prints the body JSON-escaped, so match the inner text.
-    assert "404" in out and "nope" in out
+    assert "status=404" in out and "nope" in out
+
+
+class _WrongBody(_Good):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
+        self.wfile.write(b'{"status":"down"}')
+
+
+def test_US_deploy_2_3d_smoke_check_fails_on_200_with_wrong_body():
+    """US-deploy-2.3 (story US-deploy-2): a 200 whose body is not {"status":"ok"} fails the smoke step."""
+    srv = _serve(_WrongBody)
+    try:
+        r = _smoke(f"http://127.0.0.1:{srv.server_address[1]}")
+    finally:
+        srv.shutdown()
+    assert r.returncode == 1
+    assert "unexpected response body" in r.stdout + r.stderr
 
 
 def test_US_deploy_2_3b_smoke_check_passes_on_healthy_app():
@@ -229,6 +268,7 @@ def test_US_deploy_2_4_manual_rollback_documented(base_url, api):
     assert "wrangler rollback" in text and "--env dev" in text
     assert "/api/health" in text
     assert api.get("/api/health").status == 200
+    pytest.skip(BLOCKED_BROKEN + " (live part: rollback and previous version served)")
 
 
 # ---------- US-deploy-3: Merges in quick succession deploy in order ----------
@@ -241,15 +281,24 @@ def test_US_deploy_3_1_runs_are_serialised(workflow):
 
 
 def test_US_deploy_3_1b_live_runs_did_not_overlap(deploy_runs):
-    """US-deploy-3.1 live part: no two recent deploy-dev runs overlapped in their deploy window."""
-    from datetime import datetime
-    ts = lambda v: datetime.fromisoformat(v.replace("Z", "+00:00"))
+    """US-deploy-3.1 live part: deploy jobs of successful runs never overlap and dev serves the dev-v2 head."""
     done = [r for r in deploy_runs if r["status"] == "completed" and r["conclusion"] == "success"]
     if len(done) < 2:
         pytest.skip("BLOCKED: needs two successful deploy-dev runs (two quick merges)")
-    # Run-level windows may overlap while queued; only check runs show ordered completion for ordered SHAs.
-    ends = [ts(r["updatedAt"]) for r in done]
-    assert ends == sorted(ends, reverse=True)
+    windows = []
+    for r in done:
+        job = next((j for j in _jobs(r["databaseId"]) if j["name"] == "deploy-dev"), None)
+        assert job and job.get("startedAt") and job.get("completedAt")
+        windows.append((_ts(job["startedAt"]), _ts(job["completedAt"])))
+    windows.sort()
+    for prev, cur in zip(windows, windows[1:]):
+        assert cur[0] >= prev[1], f"deploy job started {cur[0]} before the previous ended {prev[1]}"
+    pushes = [r for r in done if r["event"] == "push"]
+    if pushes:
+        head = run(["gh", "api", "repos/{owner}/{repo}/commits/dev-v2", "--jq", ".sha"])
+        if head.returncode != 0:
+            pytest.skip(f"BLOCKED: gh api failed: {head.stderr.strip()[:200]}")
+        assert pushes[0]["headSha"] == head.stdout.strip()
 
 
 def test_US_deploy_3_2_manual_rerun_and_stale_guard(workflow):
@@ -265,7 +314,7 @@ def test_US_deploy_3_2_manual_rerun_and_stale_guard(workflow):
 
 # ---------- US-deploy-4: Deploy credentials and dev stay safe ----------
 
-def test_US_deploy_4_1_secrets_never_echoed(workflow, workflow_text):
+def test_US_deploy_4_1_secrets_never_echoed(workflow):
     """US-deploy-4.1 (story US-deploy-4): secrets only appear as wrangler-action inputs, never in run scripts."""
     for s in _steps(workflow):
         assert "secrets." not in s.get("run", ""), f"secret used in a run script: {s.get('name')}"
@@ -276,7 +325,10 @@ def test_US_deploy_4_1_secrets_never_echoed(workflow, workflow_text):
 
 
 def test_US_deploy_4_1b_live_log_has_no_secret_names(deploy_runs):
-    """US-deploy-4.1 live part: the latest run log contains no raw token or DATABASE_URL value."""
+    """US-deploy-4.1 live part (best effort): the latest run log has no DB URL with credentials and no `CLOUDFLARE_API_TOKEN=<token>`.
+
+    A raw token printed without that label would not be caught; GitHub masking covers that.
+    """
     r = run(["gh", "run", "view", str(deploy_runs[0]["databaseId"]), "--log"])
     if r.returncode != 0:
         pytest.skip(f"BLOCKED: gh run view failed: {r.stderr.strip()[:200]}")
@@ -292,10 +344,16 @@ def test_US_deploy_4_2_only_dev_v2_deploys(workflow):
     assert "pull_request_target" not in _trigger(workflow)
 
 
-def test_US_deploy_4_2b_live_no_deploy_run_from_other_branches(deploy_runs):
-    """US-deploy-4.2 live part: no recent deploy-dev run that ran on a branch other than dev-v2 reached success."""
-    bad = [r for r in deploy_runs if r["headBranch"] != "dev-v2" and r["conclusion"] == "success"]
-    assert bad == []
+def test_US_deploy_4_2b_live_no_deploy_step_ran_off_dev_v2(deploy_runs):
+    """US-deploy-4.2 live part: on runs from a branch other than dev-v2 the 'Deploy to dev' step never ran."""
+    others = [r for r in deploy_runs if r["headBranch"] != "dev-v2"]
+    if not others:
+        pytest.skip("BLOCKED: no deploy-dev run from another branch exists (needs a workflow_dispatch from one)")
+    for r in others:
+        for job in _jobs(r["databaseId"]):
+            for step in job.get("steps", []):
+                if step["name"] == "Deploy to dev":
+                    assert step["conclusion"] in ("skipped", None), f"deploy ran on {r['headBranch']}"
 
 
 def test_US_deploy_4_3_token_scope_blocked():

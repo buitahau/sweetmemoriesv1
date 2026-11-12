@@ -13,7 +13,6 @@ Never point E2E_BASE_URL at production.
 import json
 import os
 import pathlib
-import re
 import shutil
 import subprocess
 
