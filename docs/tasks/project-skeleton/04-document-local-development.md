@@ -1,6 +1,6 @@
 # 04 Document local development and commands
 
-**Status:** in progress
+**Status:** done
 **Side:** backend
 **Size:** S
 **Dependencies:** 01, 02, 03
