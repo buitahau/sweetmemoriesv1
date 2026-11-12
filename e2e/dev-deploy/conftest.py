@@ -4,7 +4,9 @@ dev-deploy is mostly infra (workflow, Wrangler config, smoke check, docs). Scena
 are checked four ways:
   - the committed workflow, wrangler config and docs (static, run anywhere),
   - the real smoke script run against a throwaway local HTTP server,
-  - the deployed app at E2E_BASE_URL (local `pnpm start` by default, or the dev URL),
+  - the deployed app at E2E_BASE_URL (the dev URL; required). Without it, or when it points at
+    localhost, those scenarios skip as BLOCKED so local passes are not mistaken for dev evidence.
+    Set E2E_ALLOW_LOCAL=1 to opt in to running them against a local `pnpm start`,
   - read-only `gh` queries of past runs.
 Scenarios that need a real merge, a broken deploy or the Cloudflare dashboard are
 BLOCKED (skipped with the reason): this suite must not push, merge or touch Cloudflare.
@@ -14,6 +16,7 @@ import json
 import os
 import pathlib
 import shutil
+from urllib.parse import urlparse
 
 import pytest
 import yaml
@@ -21,7 +24,8 @@ import yaml
 from helpers import ROOT, run
 
 WORKFLOW = ROOT / ".github" / "workflows" / "deploy-dev.yml"
-BASE_URL = os.environ.get("E2E_BASE_URL", "http://localhost:3000").rstrip("/")
+BASE_URL = os.environ.get("E2E_BASE_URL", "").rstrip("/")
+ALLOW_LOCAL = os.environ.get("E2E_ALLOW_LOCAL") == "1"
 SHOTS = pathlib.Path(__file__).parent / "screenshots"
 
 
@@ -37,6 +41,13 @@ def workflow_text():
 
 @pytest.fixture(scope="session")
 def base_url():
+    if not BASE_URL:
+        if ALLOW_LOCAL:
+            return "http://localhost:3000"
+        pytest.skip("BLOCKED: no dev URL (E2E_BASE_URL unset); set E2E_ALLOW_LOCAL=1 to run against localhost")
+    host = urlparse(BASE_URL).hostname or ""
+    if host in ("localhost", "127.0.0.1", "::1") and not ALLOW_LOCAL:
+        pytest.skip("BLOCKED: E2E_BASE_URL points at localhost, not dev; set E2E_ALLOW_LOCAL=1 to opt in")
     return BASE_URL
 
 

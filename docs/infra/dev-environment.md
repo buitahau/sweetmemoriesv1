@@ -44,7 +44,12 @@ or use Deployments in the Cloudflare dashboard. Then check `curl -i <dev URL>/ap
 
 ```bash
 E2E_BASE_URL=<dev URL> .venv-e2e/bin/pytest e2e/project-skeleton
+E2E_BASE_URL=<dev URL> .venv-e2e/bin/pytest e2e/dev-deploy -rs
 ```
+
+The `e2e/dev-deploy` scenarios that hit the deployed app skip as `BLOCKED` when `E2E_BASE_URL` is unset or points at localhost, so local passes are never read as dev evidence. Set `E2E_ALLOW_LOCAL=1` to run them against a local `pnpm start` on purpose.
+
+Do not use the repo variables `DEV_API_URL` and `DEV_WEB_URL` as `E2E_BASE_URL`: they point at the v1 workers.
 
 Setup of `.venv-e2e` is in [../../e2e/README.md](../../e2e/README.md). Scenario US-skeleton-1.6 ("server stopped") only applies locally and passes against dev but does not test it (it only probes a local port).
 
