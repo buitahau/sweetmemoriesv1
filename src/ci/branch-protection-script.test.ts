@@ -57,10 +57,15 @@ describe('ci-branch-protection.sh', () => {
     const r = run('check', { get: 'compliant' }, { BRANCHES: 'dev-v2' })
     expect(r.status).toBe(0)
     expect(r.stdout).toContain('OK   dev-v2')
-    expect(r.stdout).not.toContain('main')
+    expect(r.stdout).not.toContain('OK   main')
+    expect(r.stdout).toContain('NOTE only checking: dev-v2')
+  })
+  it('rejects a BRANCHES value with glob characters with exit 2', () => {
+    expect(run('check', { get: 'compliant' }, { BRANCHES: '*' }).status).toBe(2)
   })
   it('checks dev-v2 and main by default', () => {
     const r = run('check', { get: 'compliant' })
+    expect(r.status).toBe(0)
     expect(r.stdout).toContain('OK   dev-v2')
     expect(r.stdout).toContain('OK   main')
   })
