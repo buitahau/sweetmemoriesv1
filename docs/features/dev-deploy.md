@@ -1,6 +1,6 @@
 # Feature: dev-deploy
 
-**Status:** in progress
+**Status:** done
 **Side:** backend (Worker build target, Wrangler config, deploy workflow, smoke check, Cloudflare account setup, infra docs; no app UI)
 
 Tasks: [../tasks/dev-deploy/](../tasks/dev-deploy/) (01 to 05). ADRs: [0002](../adr/0002-host-on-cloudflare-workers.md), [0003](../adr/0003-ci-cd-github-actions.md). Open questions: [../decisions/ci-cd-deploy-to-cloudflare-dev-adr.md](../decisions/ci-cd-deploy-to-cloudflare-dev-adr.md), [../decisions/ci-cd-deploy-to-cloudflare-dev-feature.md](../decisions/ci-cd-deploy-to-cloudflare-dev-feature.md). Mockups: none.
@@ -71,5 +71,5 @@ Out of scope: production environment, custom domains, database code, automatic e
 - **Built:** the app builds as a Cloudflare Worker, a `deploy-dev` workflow deploys `dev-v2` to https://sweetmemories-dev.haubuitatmp.workers.dev with a post-deploy smoke check, and `docs/infra/dev-environment.md` documents the dev environment for testers. PRs: #71, #72, #73, #74, #76.
 - **Test evidence (dev, head 02e97f6):** unit tests 86/86, typecheck and lint clean; `e2e/dev-deploy` 26 passed, 5 skipped as blocked; `e2e/project-skeleton` 12 passed; latest `deploy-dev` run succeeded. `/` returns 200, `/api/health` returns 200 `{"status":"ok"}` with `no-store` and no `Set-Cookie`, `POST` returns 405, unknown path returns 404.
 - **Blocked scenarios (5):** need a deliberately broken deploy, a real merge or the Cloudflare dashboard.
-- **Open:** task 02 (Cloudflare token and GitHub Environment) is still `todo`, so the feature stays `in progress` until it is done and its dashboard checks are verified.
+- **Closed out:** task 02 is done (token scoped, Environment `dev` limited to `dev-v2` with both secrets, confirmed by the maintainer). Token owner and rotation date are still TBD in `docs/infra/dev-environment.md`.
 - **Fix cycles:** 0.
