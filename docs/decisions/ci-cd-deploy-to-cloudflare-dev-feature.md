@@ -13,7 +13,7 @@ Options:
 
 Recommended answer: workers.dev URL for now: no DNS work is needed; move to a custom domain when subdomain routing is designed.
 
-Answer:
+Answer: workers.dev URL for now: no DNS work is needed; move to a custom domain when subdomain routing is designed.
 
 ### Should the dev environment be public or restricted to the team?
 
@@ -23,7 +23,7 @@ Options:
 
 Recommended answer: Public for now: it holds no real data and no auth yet; revisit with Cloudflare Access when sign-in or real-looking test data arrives.
 
-Answer:
+Answer: Public for now: it holds no real data and no auth yet; revisit with Cloudflare Access when sign-in or real-looking test data arrives.
 
 ### What should happen when the post-deploy smoke check on /api/health fails?
 
@@ -33,7 +33,7 @@ Options:
 
 Recommended answer: Fail the workflow and roll back automatically: testers keep a working dev environment without waiting for a maintainer.
 
-Answer:
+Answer: Fail the workflow and roll back automatically: testers keep a working dev environment without waiting for a maintainer.
 
 ### Should the e2e suite run automatically against dev after each deploy?
 
@@ -43,7 +43,7 @@ Options:
 
 Recommended answer: No, only the smoke check for now: the requirement has testers testing on dev, and the e2e suite is still tiny; automate it later.
 
-Answer:
+Answer: No, only the smoke check for now: the requirement has testers testing on dev, and the e2e suite is still tiny; automate it later.
 
 ## Topic: dev-test-database
 
@@ -56,4 +56,4 @@ Options:
 
 Recommended answer: Manual reset on request, documented: it keeps tester data between deploys but gives a known starting point when needed.
 
-Answer:
+Answer: Manual reset on request, documented: it keeps tester data between deploys but gives a known starting point when needed.
