@@ -1,13 +1,13 @@
 # 02 Protect `dev-v2` with the required `ci` check
 
 **Status:** todo
-
-Note: pending a repo admin. As of the last review, `dev-v2` has no required check (`contexts: []`, `strict: false`) and `main` is unprotected. After the first PR run of `ci`, require `ci` with strict mode on both branches and paste the `gh api repos/{owner}/{repo}/branches/<branch>/protection` output here.
 **Side:** backend
 **Size:** S
 **Dependencies:** 01 (the `ci` check must have run once so it can be selected)
 **Feature spec:** [ci-pr-checks](../../features/ci-pr-checks.md)
 **Mockup:** none
+
+> Note: pending a repo admin, who must run `scripts/ci-branch-protection.sh apply` (or set the rule by hand), re-run `check` until it prints OK, paste the protection JSON below, then run the throwaway-PR negative cases. This task stays `todo` until then. As of the last review, `dev-v2` has `contexts: []`, `strict: false` and `main` is unprotected.
 
 ## What to change
 
@@ -17,7 +17,7 @@ Repo setting (branch protection rule or ruleset) on `dev-v2`: require the `ci` s
 
 - [ ] `ci` required, strict (up to date) mode on
 - [ ] Direct and force pushes blocked, applies to admins
-- [ ] Squash merge only
+- [ ] Squash merge only (repo setting; `check` verifies it, `apply` does not set it)
 - [ ] `main` protected the same way (if agreed)
 - [ ] Settings recorded in `docs/infra/ci-cd.md`
 
