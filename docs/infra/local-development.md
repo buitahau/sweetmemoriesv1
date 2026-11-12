@@ -4,8 +4,8 @@ How to run, build and test SweetMemories on your machine. Tool choices are in [A
 
 ## Prerequisites
 
-- Node.js 24 (developed on v24.14.1; use the current LTS or newer).
-- pnpm 10 (`corepack enable` or `npm i -g pnpm`).
+- Node.js 24.x (developed on v24.14.1).
+- pnpm 10.x (`npm i -g pnpm@10`; `package.json` does not pin it yet).
 - For e2e tests only: Python 3 with `venv`.
 
 No database, S3 or Google credentials are needed yet; the skeleton has none of them.
@@ -52,14 +52,6 @@ pnpm test src/server/health.test.ts -t "name"  # both
 
 ## E2E tests
 
-Python Playwright + pytest, in `e2e/<feature>/`. Full steps in [e2e/README.md](../../e2e/README.md). Summary:
-
-```
-python3 -m venv .venv-e2e && .venv-e2e/bin/pip install playwright pytest
-.venv-e2e/bin/playwright install chromium
-pnpm build
-python .claude/skills/webapp-testing/scripts/with_server.py --server "pnpm start" --port 3000 -- \
-  .venv-e2e/bin/pytest e2e/project-skeleton
-```
+Python Playwright + pytest, in `e2e/<feature>/`. Setup and the full command are in [e2e/README.md](../../e2e/README.md).
 
 Run a single e2e test: append `-k "test_name"` to the pytest command. Set `E2E_BASE_URL` to target another local or dev URL. Never run against production.

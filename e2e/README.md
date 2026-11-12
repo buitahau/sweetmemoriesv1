@@ -6,7 +6,7 @@ Python Playwright + pytest, one folder per feature (see the `e2e-from-user-stori
 python3 -m venv .venv-e2e && .venv-e2e/bin/pip install playwright pytest
 .venv-e2e/bin/playwright install chromium
 pnpm build
-python .claude/skills/webapp-testing/scripts/with_server.py --server "pnpm start" --port 3000 -- \
+python3 .claude/skills/webapp-testing/scripts/with_server.py --server "pnpm start" --port 3000 -- \
   .venv-e2e/bin/pytest e2e/project-skeleton
 ```
 
