@@ -1,6 +1,6 @@
 # Feature: dev-deploy
 
-**Status:** todo
+**Status:** in progress
 **Side:** backend (Worker build target, Wrangler config, deploy workflow, smoke check, Cloudflare account setup, infra docs; no app UI)
 
 Tasks: [../tasks/dev-deploy/](../tasks/dev-deploy/) (01 to 05). ADRs: [0002](../adr/0002-host-on-cloudflare-workers.md), [0003](../adr/0003-ci-cd-github-actions.md). Open questions: [../decisions/ci-cd-deploy-to-cloudflare-dev-adr.md](../decisions/ci-cd-deploy-to-cloudflare-dev-adr.md), [../decisions/ci-cd-deploy-to-cloudflare-dev-feature.md](../decisions/ci-cd-deploy-to-cloudflare-dev-feature.md). Mockups: none.
@@ -45,7 +45,7 @@ Out of scope: production environment, custom domains, database code, automatic e
 - **Story:** As a tester, I want dev to always end on the newest `dev-v2` commit, so that I test what was actually merged last.
 - **Scenarios:**
   1. *Two quick merges:* **Given** PR 1 and PR 2 are merged 30 seconds apart, **When** both `deploy-dev` runs finish, **Then** the runs did not deploy at the same time and dev serves PR 2's merge commit.
-  2. *Manual re-run:* **Given** a `deploy-dev` run failed for an infra reason, **When** a maintainer re-runs it (or triggers `workflow_dispatch` on `dev-v2`), **Then** it deploys the current head of `dev-v2`.
+  2. *Manual re-run:* **Given** a `deploy-dev` run failed for an infra reason, **When** a maintainer re-runs it (or triggers `workflow_dispatch` on `dev-v2`), **Then** it deploys that commit if it is still the head of `dev-v2`. A stale run (a newer commit exists) fails without deploying, and the newer commit's own push run brings dev to the head. A refused stale run shows a red status on a commit that is not itself broken.
 
 **US-deploy-4: Deploy credentials and dev stay safe**
 - **Story:** As a maintainer, I want deploy credentials scoped and hidden, and dev to contain no private data, so that the pipeline does not become a security hole.

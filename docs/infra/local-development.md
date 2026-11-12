@@ -23,7 +23,7 @@ pnpm install
 | --- | --- | --- |
 | Dev server | `pnpm dev` | http://localhost:3000, hot reload |
 | Production build | `pnpm build` | writes `.output/` |
-| Run the build | `pnpm start` | http://localhost:3000, run `pnpm build` first |
+| Run the build | `pnpm start` | `wrangler dev` on http://localhost:3000 (same Worker runtime as dev), run `pnpm build` first |
 
 ## Check it works
 

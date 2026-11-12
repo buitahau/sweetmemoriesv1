@@ -1,6 +1,6 @@
 # 05 Document the dev environment for testers
 
-**Status:** todo
+**Status:** in progress
 **Side:** backend
 **Size:** S
 **Dependencies:** dev-deploy 03, 04
@@ -13,9 +13,9 @@ Create `docs/infra/dev-environment.md` (load `docs-placement`): the dev URL, wha
 
 ## Checklist
 
-- [ ] `docs/infra/dev-environment.md` written
-- [ ] `e2e/README.md` and `docs/infra/local-development.md` updated for `pnpm start`
-- [ ] CLAUDE.md Status line and `Progress.md` updated
+- [x] `docs/infra/dev-environment.md` written
+- [x] `e2e/README.md` and `docs/infra/local-development.md` updated for `pnpm start`
+- [x] CLAUDE.md Status line and `Progress.md` updated
 
 ## Verification
 

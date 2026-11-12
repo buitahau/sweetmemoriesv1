@@ -7,3 +7,4 @@ pnpm-lock.yaml
 src/routeTree.gen.ts
 docs
 .claude
+wrangler.jsonc

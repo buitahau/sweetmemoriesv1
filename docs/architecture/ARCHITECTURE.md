@@ -17,6 +17,7 @@ SweetMemories turns memories (a person, an event, a first day) into small public
 | Database | Neon / Postgres |
 | Photo storage | S3 |
 | Auth | Better Auth, Google sign-in |
+| Hosting | Cloudflare Workers ([ADR 0002](../adr/0002-host-on-cloudflare-workers.md)) |
 
 Ask before making architecture changes that contradict this stack.
 
