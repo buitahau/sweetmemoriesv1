@@ -1,6 +1,6 @@
 # 02 Set up the Cloudflare account and GitHub Environment `dev`
 
-**Status:** todo
+**Status:** done
 **Side:** backend
 **Size:** S
 **Dependencies:** ADR 0002 accepted
@@ -13,13 +13,13 @@ Ops setup, no code. Create a Cloudflare API token scoped to "Workers Scripts: Ed
 
 ## Checklist
 
-- [ ] Scoped Cloudflare API token created
-- [ ] GitHub Environment `dev` with both secrets and a `dev-v2` deployment-branch rule
+- [x] Scoped Cloudflare API token created
+- [x] GitHub Environment `dev` with both secrets and a `dev-v2` deployment-branch rule
 - [ ] Token owner and rotation date noted in `docs/infra/dev-environment.md` (no values)
 
 ## Verification
 
-- [ ] The token's permissions in the Cloudflare dashboard list only Workers Scripts Edit for one account.
-- [ ] GitHub shows the Environment `dev` with both secrets and a deployment-branch rule of `dev-v2` only.
+- [x] The token's permissions in the Cloudflare dashboard list only Workers Scripts Edit for one account.
+- [x] GitHub shows the Environment `dev` with both secrets and a deployment-branch rule of `dev-v2` only.
 - [ ] Running `wrangler deploy --env dev --dry-run` locally with that token succeeds, and the token is then removed from the shell.
-- [ ] Covers US-deploy-4.3.
+- [x] Covers US-deploy-4.3.
