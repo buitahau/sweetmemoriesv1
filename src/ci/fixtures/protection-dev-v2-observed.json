@@ -1,0 +1,2 @@
+{"required_status_checks":{"strict":false,"contexts":[],"checks":[]},
+ "enforce_admins":{"enabled":true},"allow_force_pushes":{"enabled":false},"allow_deletions":{"enabled":false}}

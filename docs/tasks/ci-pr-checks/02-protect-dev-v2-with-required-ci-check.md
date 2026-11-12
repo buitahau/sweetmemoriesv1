@@ -2,7 +2,9 @@
 
 **Status:** todo
 
-Note: pending a repo admin. As of the last review, `dev-v2` has no required check (`contexts: []`, `strict: false`) and `main` is unprotected. After the first PR run of `ci`, require `ci` with strict mode on both branches and paste the `gh api repos/{owner}/{repo}/branches/<branch>/protection` output here.
+Note: pending a repo admin, who must run `scripts/ci-branch-protection.sh apply` (or set the rule by hand), re-run `check` until it prints OK, paste the protection JSON below, then run the throwaway-PR negative cases. This task stays `todo` until then.
+
+Earlier note: pending a repo admin. As of the last review, `dev-v2` has no required check (`contexts: []`, `strict: false`) and `main` is unprotected. After the first PR run of `ci`, require `ci` with strict mode on both branches and paste the `gh api repos/{owner}/{repo}/branches/<branch>/protection` output here.
 **Side:** backend
 **Size:** S
 **Dependencies:** 01 (the `ci` check must have run once so it can be selected)
