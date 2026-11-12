@@ -180,6 +180,7 @@ def test_US_ci_2_2_type_error_fails_typecheck_and_ci_runs_it(workflow):
 def test_US_ci_2_3_pending_check_blocks_merge_until_green(protection):
     """US-ci-2.3 (story US-ci-2): `ci` is a required status, so a pending run blocks the merge."""
     branch, protection = protection
+    assert protection is not None, f"{branch} has no branch protection"
     rsc = protection.get("required_status_checks") or {}
     contexts = set(rsc.get("contexts", [])) | {c["context"] for c in rsc.get("checks", [])}
     assert "ci" in contexts, f"{branch} does not require the `ci` check (found {sorted(contexts)})"
@@ -188,6 +189,7 @@ def test_US_ci_2_3_pending_check_blocks_merge_until_green(protection):
 def test_US_ci_2_4_no_bypass_for_admins(protection):
     """US-ci-2.4 (story US-ci-2): branch protection applies to admins (no `--admin` bypass)."""
     branch, protection = protection
+    assert protection is not None, f"{branch} has no branch protection"
     assert protection["enforce_admins"]["enabled"] is True
     rsc = protection.get("required_status_checks") or {}
     contexts = set(rsc.get("contexts", [])) | {c["context"] for c in rsc.get("checks", [])}
@@ -211,6 +213,7 @@ def test_US_ci_2_5_direct_push_blocked(protection):
     already-green commit could still be accepted.
     """
     branch, protection = protection
+    assert protection is not None, f"{branch} has no branch protection"
     assert protection["enforce_admins"]["enabled"] is True
     assert protection["allow_force_pushes"]["enabled"] is False
     assert protection.get("required_pull_request_reviews"), f"{branch} does not require a pull request: direct push is not blocked"
@@ -219,6 +222,7 @@ def test_US_ci_2_5_direct_push_blocked(protection):
 def test_US_ci_2_6_out_of_date_branch_must_be_updated(protection):
     """US-ci-2.6 (story US-ci-2): a branch behind dev-v2 must be updated and re-checked."""
     branch, protection = protection
+    assert protection is not None, f"{branch} has no branch protection"
     rsc = protection.get("required_status_checks") or {}
     assert rsc.get("strict") is True, f"`Require branches to be up to date` is off on {branch}"
 
