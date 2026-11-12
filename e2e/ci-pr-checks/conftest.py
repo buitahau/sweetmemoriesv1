@@ -18,7 +18,7 @@ import yaml
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 WORKFLOW = ROOT / ".github" / "workflows" / "ci.yml"
-PROTECTED_BRANCH = "dev-v2"
+PROTECTED_BRANCHES = ["dev-v2", "main"]
 
 
 @pytest.fixture(scope="session")
@@ -36,22 +36,25 @@ def package_json():
     return json.loads((ROOT / "package.json").read_text())
 
 
-@pytest.fixture(scope="session")
-def protection():
-    """Live branch protection for dev-v2 via gh. Skips only when gh is missing or
+@pytest.fixture(scope="session", params=PROTECTED_BRANCHES)
+def protection(request):
+    """Live branch protection for dev-v2 and main (parametrized) via gh. Skips only when gh is missing or
     unauthenticated/offline; a 404 (not protected) fails."""
+    branch = request.param
     if not shutil.which("gh"):
         pytest.skip("BLOCKED: gh CLI not installed")
     r = subprocess.run(
-        ["gh", "api", f"repos/:owner/:repo/branches/{PROTECTED_BRANCH}/protection"],
+        ["gh", "api", f"repos/:owner/:repo/branches/{branch}/protection"],
         cwd=ROOT, capture_output=True, text=True,
     )
     if r.returncode != 0:
         err = r.stderr + r.stdout
         if "404" in err or "Branch not protected" in err:
-            pytest.fail(f"{PROTECTED_BRANCH} has no branch protection (gh: {err.strip()[:200]})")
+            pytest.fail(f"{branch} has no branch protection (gh: {err.strip()[:200]})")
         pytest.skip(f"BLOCKED: cannot read branch protection via gh: {r.stderr.strip()[:200]}")
-    return json.loads(r.stdout)
+    data = json.loads(r.stdout)
+    data["_branch"] = branch
+    return data
 
 
 def run(cmd, cwd=ROOT, timeout=300):

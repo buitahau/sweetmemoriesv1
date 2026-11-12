@@ -41,13 +41,12 @@ def test_US_ci_1_1_check_named_ci_runs_on_pr_to_dev_v2(workflow):
     assert workflow["jobs"]["ci"]["name"] == "ci"
 
 
-def _pr_base(head_branch):
-    r = run(["gh", "pr", "list", "--state", "all", "--head", head_branch,
-             "--json", "baseRefName", "--limit", "1"])
-    if r.returncode != 0:
-        return None
-    prs = json.loads(r.stdout)
-    return prs[0]["baseRefName"] if prs else None
+def _dev_v2_pr_head_shas():
+    """Head SHAs of every PR (open or merged) whose base is dev-v2, from one gh call."""
+    r = run(["gh", "pr", "list", "--base", "dev-v2", "--state", "all", "--limit", "100",
+             "--json", "number,headRefOid"])
+    assert r.returncode == 0, f"gh pr list failed: {r.stderr.strip()}"
+    return {pr["headRefOid"] for pr in json.loads(r.stdout)}
 
 
 def test_US_ci_1_1b_live_ci_run_succeeds_within_a_minute():
@@ -65,19 +64,20 @@ def test_US_ci_1_1b_live_ci_run_succeeds_within_a_minute():
         pytest.skip("BLOCKED: gh not installed")
     r = run(["gh", "run", "list", "--workflow", "ci", "--event", "pull_request",
              "--status", "completed", "--limit", "20",
-             "--json", "conclusion,createdAt,startedAt,headBranch,event"])
+             "--json", "conclusion,createdAt,startedAt,headSha,event"])
     if r.returncode != 0:
         pytest.skip(f"BLOCKED: gh run list failed: {r.stderr.strip()}")
     runs = json.loads(r.stdout)
-    # Pin to PRs into dev-v2: look up each run's PR base via its head branch.
-    runs = [x for x in runs if _pr_base(x["headBranch"]) == "dev-v2"]
+    # Pin to PRs into dev-v2: match each run's head SHA against the PR list (one gh call).
+    shas = _dev_v2_pr_head_shas()
+    runs = [x for x in runs if x["headSha"] in shas]
     if not runs:
         pytest.skip("BLOCKED: no completed ci pull_request run for a PR into dev-v2 yet")
 
     def ts(v):
         return datetime.fromisoformat(v.replace("Z", "+00:00"))
 
-    latest = runs[0]
+    latest = max(runs, key=lambda x: ts(x["createdAt"]))
     assert latest["conclusion"] == "success", latest
     assert (ts(latest["startedAt"]) - ts(latest["createdAt"])).total_seconds() <= 60, latest
 
@@ -181,7 +181,7 @@ def test_US_ci_2_3_pending_check_blocks_merge_until_green(protection):
     """US-ci-2.3 (story US-ci-2): `ci` is a required status, so a pending run blocks the merge."""
     rsc = protection.get("required_status_checks") or {}
     contexts = set(rsc.get("contexts", [])) | {c["context"] for c in rsc.get("checks", [])}
-    assert "ci" in contexts, f"dev-v2 does not require the `ci` check (found {sorted(contexts)})"
+    assert "ci" in contexts, f"{protection["_branch"]} does not require the `ci` check (found {sorted(contexts)})"
 
 
 def test_US_ci_2_4_no_bypass_for_admins(protection):
@@ -190,6 +190,14 @@ def test_US_ci_2_4_no_bypass_for_admins(protection):
     rsc = protection.get("required_status_checks") or {}
     contexts = set(rsc.get("contexts", [])) | {c["context"] for c in rsc.get("checks", [])}
     assert "ci" in contexts, "enforce_admins is on but `ci` is not required, so there is nothing to enforce"
+
+
+def test_branch_protection_script_check_passes():
+    """Feature criterion: `scripts/ci-branch-protection.sh check` exits 0 (dev-v2, main, squash-only)."""
+    if not shutil.which("gh"):
+        pytest.skip("BLOCKED: gh CLI not installed")
+    r = run(["bash", "scripts/ci-branch-protection.sh", "check"])
+    assert r.returncode == 0, r.stdout + r.stderr
 
 
 def test_US_ci_2_5_direct_push_blocked(protection):
@@ -202,13 +210,13 @@ def test_US_ci_2_5_direct_push_blocked(protection):
     """
     assert protection["enforce_admins"]["enabled"] is True
     assert protection["allow_force_pushes"]["enabled"] is False
-    assert protection.get("required_pull_request_reviews"), "dev-v2 does not require a pull request: direct push is not blocked"
+    assert protection.get("required_pull_request_reviews"), f"{protection['_branch']} does not require a pull request: direct push is not blocked"
 
 
 def test_US_ci_2_6_out_of_date_branch_must_be_updated(protection):
     """US-ci-2.6 (story US-ci-2): a branch behind dev-v2 must be updated and re-checked."""
     rsc = protection.get("required_status_checks") or {}
-    assert rsc.get("strict") is True, "`Require branches to be up to date` is off on dev-v2"
+    assert rsc.get("strict") is True, f"`Require branches to be up to date` is off on {protection['_branch']}"
 
 
 # ---------- US-ci-3: PR checks never expose secrets ----------
