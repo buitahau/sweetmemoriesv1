@@ -11,6 +11,10 @@ How to run, build and test SweetMemories on your machine. Tool choices are in [A
 
 No database, S3 or Google credentials are needed yet; the skeleton has none of them.
 
+## Local database (for the first DB feature)
+
+Nothing reads `DATABASE_URL` yet. When DB code arrives, point your `.env` `DATABASE_URL` (see `.env.example`) at your own Neon branch or a local Postgres. Never use the dev Worker's database locally: dev uses the shared Neon branch `dev` (see [dev-environment.md](dev-environment.md)).
+
 ## Install
 
 ```

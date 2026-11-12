@@ -1,6 +1,6 @@
 # 02 Bind `DATABASE_URL` to the dev Worker
 
-**Status:** todo
+**Status:** in progress
 **Side:** backend
 **Size:** S
 **Dependencies:** dev-deploy 03, dev-test-database 01
@@ -14,14 +14,14 @@ Set the Worker secret with `wrangler secret put DATABASE_URL --env dev`, done by
 ## Checklist
 
 - [ ] Secret `DATABASE_URL` set on the dev Worker
-- [ ] `.env.example` lists `DATABASE_URL` with no value
-- [ ] Binding type declared in Worker env typings (if they exist)
+- [x] `.env.example` lists `DATABASE_URL` with no value
+- [x] Binding type declared (`src/env.d.ts`) in Worker env typings (if they exist)
 
 ## Verification
 
 - [ ] `wrangler secret list --env dev` shows `DATABASE_URL`.
 - [ ] After a later merge deploys, the secret is still listed.
-- [ ] A repo search finds no connection string.
+- [x] A repo search finds no connection string (enforced by `src/ci/test-database.test.ts`).
 - [ ] The dev `/` and `/api/health` responses contain no DB host.
-- [ ] `pnpm test` and `pnpm typecheck` pass.
+- [x] `pnpm test` and `pnpm typecheck` pass.
 - [ ] Covers US-devdb-1.2 to 1.4 and US-devdb-2.1 to 2.3.
