@@ -4,7 +4,7 @@ Decision: [ADR 0003](../adr/0003-ci-cd-github-actions.md). Feature: [ci-pr-check
 
 ## What `ci` runs
 
-Workflow `.github/workflows/ci.yml`, one job named `ci`, on every `pull_request` to `dev-v2` and each new commit. Node 24, pnpm pinned by `packageManager` in `package.json`. Steps, in order:
+Workflow `.github/workflows/ci.yml`, one job named `ci`, on every `pull_request` to `dev-v2` and `main` and each new commit. Node 24, pnpm pinned by `packageManager` in `package.json`. Steps, in order:
 
 1. `pnpm install --frozen-lockfile` (fails if `pnpm-lock.yaml` is out of date)
 2. `pnpm lint`

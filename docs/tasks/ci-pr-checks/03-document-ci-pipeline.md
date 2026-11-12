@@ -1,6 +1,6 @@
 # 03 Document the CI pipeline
 
-**Status:** done
+**Status:** in progress
 **Side:** backend
 **Size:** S
 **Dependencies:** 01, 02
@@ -13,12 +13,12 @@ Create `docs/infra/ci-cd.md` (load the `docs-placement` skill): what `ci` runs, 
 
 ## Checklist
 
-- [ ] `docs/infra/ci-cd.md` written and linked to ADR 0003
-- [ ] CLAUDE.md Status line and `git-workflow` note updated if needed
-- [ ] `Progress.md` updated
+- [x] `docs/infra/ci-cd.md` written and linked to ADR 0003
+- [x] CLAUDE.md Status line and `git-workflow` note updated if needed
+- [x] `Progress.md` updated
 
 ## Verification
 
 - [ ] Following the doc from a clean clone reproduces the `ci` steps locally with the same results.
 - [ ] Progress.md lists ci-pr-checks with its spec and task links.
-- [ ] Links to ADR 0003 and the feature spec resolve.
+- [x] Links to ADR 0003 and the feature spec resolve.
