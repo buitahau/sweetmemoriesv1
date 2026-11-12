@@ -12,6 +12,7 @@ Scenarios that need a real merge, a broken deploy or the Cloudflare dashboard ar
 BLOCKED (skipped with the reason): this suite must not push, merge or touch Cloudflare.
 Never point E2E_BASE_URL at production.
 """
+import ipaddress
 import json
 import os
 import pathlib
@@ -39,6 +40,18 @@ def workflow_text():
     return WORKFLOW.read_text()
 
 
+def _is_local_host(host):
+    """True for localhost names (incl. *.localhost), 0.0.0.0 and loopback/private/unspecified IPs."""
+    host = host.lower().rstrip(".")
+    if host == "localhost" or host.endswith(".localhost"):
+        return True
+    try:
+        ip = ipaddress.ip_address(host)
+    except ValueError:
+        return False
+    return ip.is_loopback or ip.is_private or ip.is_unspecified or ip.is_link_local
+
+
 @pytest.fixture(scope="session")
 def base_url():
     if not BASE_URL:
@@ -46,8 +59,11 @@ def base_url():
             return "http://localhost:3000"
         pytest.skip("BLOCKED: no dev URL (E2E_BASE_URL unset); set E2E_ALLOW_LOCAL=1 to run against localhost")
     host = urlparse(BASE_URL).hostname or ""
-    if host in ("localhost", "127.0.0.1", "::1") and not ALLOW_LOCAL:
-        pytest.skip("BLOCKED: E2E_BASE_URL points at localhost, not dev; set E2E_ALLOW_LOCAL=1 to opt in")
+    if _is_local_host(host):
+        if not ALLOW_LOCAL:
+            pytest.skip("BLOCKED: E2E_BASE_URL points at a local address, not dev; set E2E_ALLOW_LOCAL=1 to opt in")
+    elif "sweetmemories-dev" not in host or not host.endswith(".workers.dev"):
+        pytest.fail(f"E2E_BASE_URL {BASE_URL} is not a dev Worker (*.workers.dev containing sweetmemories-dev); never use production")
     return BASE_URL
 
 
