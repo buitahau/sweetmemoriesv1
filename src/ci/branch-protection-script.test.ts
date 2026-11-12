@@ -53,6 +53,35 @@ ${getBody}
 }
 
 describe('ci-branch-protection.sh', () => {
+  it('BRANCHES limits which branches are checked', () => {
+    const r = run('check', { get: 'compliant' }, { BRANCHES: 'dev-v2' })
+    expect(r.status).toBe(0)
+    expect(r.stdout).toContain('OK   dev-v2')
+    expect(r.stdout).not.toContain('OK   main')
+    expect(r.stdout).toContain('NOTE only processing (check): dev-v2')
+  })
+  it('rejects a BRANCHES value with glob characters with exit 2', () => {
+    expect(run('check', { get: 'compliant' }, { BRANCHES: '*' }).status).toBe(2)
+  })
+  it.each(['../x', '-x', '/x', 'a..b', ' ', '', 'a/', 'a//b', 'x.lock', 'x.'])('rejects bad BRANCHES %j with exit 2', (v) => {
+    const r = run('check', { get: 'compliant' }, { BRANCHES: v })
+    expect(r.status).toBe(2)
+  })
+  it('does not NOTE a reordered default list', () => {
+    const r = run('check', { get: 'compliant' }, { BRANCHES: 'main  dev-v2' })
+    expect(r.status).toBe(0)
+    expect(r.stdout).not.toContain('NOTE')
+  })
+  it('NOTE names the mode in apply', () => {
+    const r = run('apply', { get: '404' }, { BRANCHES: 'dev-v2', CONFIRM: 'yes' })
+    expect(r.stdout).toContain('NOTE only processing (apply)')
+  })
+  it('checks dev-v2 and main by default', () => {
+    const r = run('check', { get: 'compliant' })
+    expect(r.status).toBe(0)
+    expect(r.stdout).toContain('OK   dev-v2')
+    expect(r.stdout).toContain('OK   main')
+  })
   it('rejects an unknown mode with exit 2', () => {
     expect(run('bogus', { get: '404' }).status).toBe(2)
   })
