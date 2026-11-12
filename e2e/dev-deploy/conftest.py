@@ -14,20 +14,15 @@ import json
 import os
 import pathlib
 import shutil
-import subprocess
 
 import pytest
 import yaml
-from playwright.sync_api import sync_playwright
 
-ROOT = pathlib.Path(__file__).resolve().parents[2]
+from helpers import ROOT, run
+
 WORKFLOW = ROOT / ".github" / "workflows" / "deploy-dev.yml"
 BASE_URL = os.environ.get("E2E_BASE_URL", "http://localhost:3000").rstrip("/")
 SHOTS = pathlib.Path(__file__).parent / "screenshots"
-
-
-def run(cmd, cwd=ROOT, timeout=300, env=None):
-    return subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, timeout=timeout, env=env)
 
 
 @pytest.fixture(scope="session")
@@ -43,12 +38,6 @@ def workflow_text():
 @pytest.fixture(scope="session")
 def base_url():
     return BASE_URL
-
-
-@pytest.fixture(scope="session")
-def pw():
-    with sync_playwright() as p:
-        yield p
 
 
 @pytest.fixture(scope="session")
@@ -89,10 +78,14 @@ def shot():
 
 @pytest.fixture(scope="session")
 def deploy_runs():
-    """Completed deploy-dev runs (newest first) via read-only gh, or skip."""
+    """Runs of the v2 deploy-dev workflow on dev-v2 (newest first) via read-only gh, or skip.
+
+    The file name deploy-dev.yml was also used by the v1 workflow, so runs are limited to
+    the dev-v2 branch; runs from other branches come from `off_branch_runs`.
+    """
     if not shutil.which("gh"):
         pytest.skip("BLOCKED: gh CLI not installed")
-    r = run(["gh", "run", "list", "--workflow", "deploy-dev", "--limit", "20", "--json",
+    r = run(["gh", "run", "list", "--workflow", "deploy-dev.yml", "--branch", "dev-v2", "--limit", "20", "--json",
              "databaseId,conclusion,status,headSha,headBranch,event,createdAt,updatedAt"])
     if r.returncode != 0:
         pytest.skip(f"BLOCKED: gh run list failed: {r.stderr.strip()[:200]}")
@@ -100,3 +93,15 @@ def deploy_runs():
     if not runs:
         pytest.skip("BLOCKED: no deploy-dev run exists yet (needs a merge into dev-v2)")
     return runs
+
+
+@pytest.fixture(scope="session")
+def off_branch_runs():
+    """Manual (workflow_dispatch) deploy-dev runs from branches other than dev-v2, or skip."""
+    if not shutil.which("gh"):
+        pytest.skip("BLOCKED: gh CLI not installed")
+    r = run(["gh", "run", "list", "--workflow", "deploy-dev.yml", "--event", "workflow_dispatch",
+             "--limit", "50", "--json", "databaseId,headBranch,event"])
+    if r.returncode != 0:
+        pytest.skip(f"BLOCKED: gh run list failed: {r.stderr.strip()[:200]}")
+    return [x for x in json.loads(r.stdout) if x["headBranch"] != "dev-v2"]

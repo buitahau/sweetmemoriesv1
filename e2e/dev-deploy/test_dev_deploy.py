@@ -9,6 +9,7 @@ import http.server
 import json
 import os
 import re
+import shutil
 import sys
 import threading
 from datetime import datetime
@@ -16,7 +17,7 @@ from datetime import datetime
 import pytest
 from playwright.sync_api import expect
 
-from conftest import ROOT, run
+from helpers import ROOT, run
 
 def _ts(v):
     return datetime.fromisoformat(v.replace("Z", "+00:00"))
@@ -325,15 +326,25 @@ def test_US_deploy_4_1_secrets_never_echoed(workflow):
 
 
 def test_US_deploy_4_1b_live_log_has_no_secret_names(deploy_runs):
-    """US-deploy-4.1 live part (best effort): the latest run log has no DB URL with credentials and no `CLOUDFLARE_API_TOKEN=<token>`.
+    """US-deploy-4.1 live part (best effort): the newest run that ran 'Deploy to dev' has no DB URL with credentials and no `CLOUDFLARE_API_TOKEN=<token>`.
 
     A raw token printed without that label would not be caught; GitHub masking covers that.
     """
-    r = run(["gh", "run", "view", str(deploy_runs[0]["databaseId"]), "--log"])
-    if r.returncode != 0:
-        pytest.skip(f"BLOCKED: gh run view failed: {r.stderr.strip()[:200]}")
-    assert not re.search(r"postgres(ql)?://\S+:\S+@", r.stdout)
-    assert not re.search(r"CLOUDFLARE_API_TOKEN[=:]\s*[A-Za-z0-9_-]{30,}", r.stdout)
+    for dr in deploy_runs:
+        ran = any(
+            j["name"] == "deploy-dev" and any(s["name"] == "Deploy to dev" and s.get("conclusion") not in (None, "skipped")
+                                              for s in j.get("steps", []))
+            for j in _jobs(dr["databaseId"])
+        )
+        if not ran:
+            continue
+        r = run(["gh", "run", "view", str(dr["databaseId"]), "--log"])
+        if r.returncode != 0 or not r.stdout.strip():
+            continue
+        assert not re.search(r"postgres(ql)?://\S+:\S+@", r.stdout)
+        assert not re.search(r"CLOUDFLARE_API_TOKEN[=:]\s*[A-Za-z0-9_-]{30,}", r.stdout)
+        return
+    pytest.skip("BLOCKED: no dev-v2 run has executed the 'Deploy to dev' step with a readable log yet")
 
 
 def test_US_deploy_4_2_only_dev_v2_deploys(workflow):
@@ -344,16 +355,37 @@ def test_US_deploy_4_2_only_dev_v2_deploys(workflow):
     assert "pull_request_target" not in _trigger(workflow)
 
 
-def test_US_deploy_4_2b_live_no_deploy_step_ran_off_dev_v2(deploy_runs):
-    """US-deploy-4.2 live part: on runs from a branch other than dev-v2 the 'Deploy to dev' step never ran."""
-    others = [r for r in deploy_runs if r["headBranch"] != "dev-v2"]
-    if not others:
+def test_US_deploy_4_2c_environment_allows_only_dev_v2():
+    """US-deploy-4.2 / Task 02: the GitHub Environment `dev` allows custom branch policies and lists dev-v2 only."""
+    if not shutil.which("gh"):
+        pytest.skip("BLOCKED: gh CLI not installed")
+    env = run(["gh", "api", "repos/{owner}/{repo}/environments/dev", "--jq", ".deployment_branch_policy"])
+    if env.returncode != 0:
+        pytest.skip(f"BLOCKED: gh api failed (missing or unauthorized): {env.stderr.strip()[:200]}")
+    assert json.loads(env.stdout) == {"custom_branch_policies": True, "protected_branches": False}, \
+        "Environment dev must use custom branch policies (not 'All branches' or 'Protected branches')"
+    r = run(["gh", "api", "repos/{owner}/{repo}/environments/dev/deployment-branch-policies",
+             "--jq", "[.branch_policies[].name]"])
+    if r.returncode != 0:
+        pytest.skip(f"BLOCKED: gh api failed (missing or unauthorized): {r.stderr.strip()[:200]}")
+    assert sorted(json.loads(r.stdout)) == ["dev-v2"]
+
+
+def test_US_deploy_4_2b_live_no_deploy_step_ran_off_dev_v2(off_branch_runs):
+    """US-deploy-4.2 live part: on v2 deploy-dev runs from a branch other than dev-v2 the 'Deploy to dev' step never ran."""
+    if not off_branch_runs:
         pytest.skip("BLOCKED: no deploy-dev run from another branch exists (needs a workflow_dispatch from one)")
-    for r in others:
+    inspected = 0
+    for r in off_branch_runs:
         for job in _jobs(r["databaseId"]):
+            if job["name"] != "deploy-dev":
+                continue  # a v1 workflow run that shares the file name
+            inspected += 1
             for step in job.get("steps", []):
                 if step["name"] == "Deploy to dev":
                     assert step["conclusion"] in ("skipped", None), f"deploy ran on {r['headBranch']}"
+    if inspected == 0:
+        pytest.skip("BLOCKED: no v2 deploy-dev job from another branch exists (only v1 runs found)")
 
 
 def test_US_deploy_4_3_token_scope_blocked():
