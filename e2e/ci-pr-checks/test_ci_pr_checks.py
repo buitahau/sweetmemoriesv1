@@ -1,7 +1,8 @@
 """E2E tests for docs/features/ci-pr-checks.md (US-ci-1, US-ci-2, US-ci-3).
 
-One test per Given/When/Then scenario. Scenarios that need a real PR run on
-GitHub are BLOCKED here (skipped with the reason); see the report.
+One test per Given/When/Then scenario. Live checks are read-only (gh run list,
+gh api); scenarios that would need this suite to push or open a PR are BLOCKED
+(skipped with the reason); see the report.
 """
 import json
 import pathlib
@@ -14,7 +15,7 @@ import pytest
 
 from conftest import ROOT, run
 
-BLOCKED_NO_PR = "BLOCKED: needs a real PR run on GitHub; this suite must not push or open PRs"
+BLOCKED_NO_PR = "BLOCKED: needs this suite to push or open a PR on GitHub, which it must not do"
 
 
 def _steps(workflow):
@@ -40,24 +41,38 @@ def test_US_ci_1_1_check_named_ci_runs_on_pr_to_dev_v2(workflow):
     assert workflow["jobs"]["ci"]["name"] == "ci"
 
 
+def _pr_base(head_branch):
+    r = run(["gh", "pr", "list", "--state", "all", "--head", head_branch,
+             "--json", "baseRefName", "--limit", "1"])
+    if r.returncode != 0:
+        return None
+    prs = json.loads(r.stdout)
+    return prs[0]["baseRefName"] if prs else None
+
+
 def test_US_ci_1_1b_live_ci_run_succeeds_within_a_minute():
     """US-ci-1.1 live part: check starts within 1 minute and ends success.
 
-    Read-only: inspects the most recent completed `ci` pull_request run
-    (PR may be open or merged) via `gh run list`; nothing is pushed.
+    Read-only: inspects the most recent completed `ci` pull_request run whose
+    base is dev-v2 (PR may be open or merged) via `gh run list`; nothing is
+    pushed. Limitation: startedAt - createdAt is the queue delay of the run,
+    not the gap from push/PR-open to run creation, so it is weak evidence of
+    the "within 1 minute" criterion; the conclusion check is the main signal.
     """
     from datetime import datetime
 
     if not shutil.which("gh"):
         pytest.skip("BLOCKED: gh not installed")
     r = run(["gh", "run", "list", "--workflow", "ci", "--event", "pull_request",
-             "--status", "completed", "--limit", "1",
-             "--json", "conclusion,createdAt,startedAt"])
+             "--status", "completed", "--limit", "20",
+             "--json", "conclusion,createdAt,startedAt,headBranch,event"])
     if r.returncode != 0:
         pytest.skip(f"BLOCKED: gh run list failed: {r.stderr.strip()}")
     runs = json.loads(r.stdout)
+    # Pin to PRs into dev-v2: look up each run's PR base via its head branch.
+    runs = [x for x in runs if _pr_base(x["headBranch"]) == "dev-v2"]
     if not runs:
-        pytest.skip("BLOCKED: no completed ci pull_request run exists yet")
+        pytest.skip("BLOCKED: no completed ci pull_request run for a PR into dev-v2 yet")
 
     def ts(v):
         return datetime.fromisoformat(v.replace("Z", "+00:00"))

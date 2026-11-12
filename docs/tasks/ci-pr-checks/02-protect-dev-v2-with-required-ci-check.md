@@ -23,9 +23,8 @@ Repo setting (branch protection rule or ruleset) on `dev-v2`: require the `ci` s
 
 ## Verification
 
-- [ ] `gh api repos/{owner}/{repo}/branches/dev-v2/protection` (or the ruleset API) shows the `ci` check required, strict mode on, and admin enforcement on.
-- [ ] The throwaway PR with the failing test cannot be merged, including with `gh pr merge --admin`.
-- [ ] `git push origin HEAD:dev-v2` from a local branch is rejected.
+- [ ] `gh api repos/{owner}/{repo}/branches/{dev-v2,main}/protection` (or the ruleset API) shows the `ci` check required, strict mode on, and admin enforcement on, for both `dev-v2` and `main`. Paste the JSON here after `apply`.
+- [ ] Throwaway PRs (failing test, lockfile drift) cannot be merged, including with `gh pr merge --admin`.
+- [ ] `git push origin HEAD:dev-v2` (and `HEAD:main`) from a local branch is rejected.
 - [ ] A PR behind `dev-v2` asks for an update before merge.
-- [ ] Paste the protection JSON here after `apply`, then run the throwaway-PR negative cases by hand: failing test, lockfile drift, direct push rejected, `gh pr merge --admin` rejected.
 - [ ] Covers US-ci-2.3 to 2.6.
