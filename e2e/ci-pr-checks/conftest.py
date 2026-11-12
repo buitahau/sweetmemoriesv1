@@ -49,7 +49,7 @@ def protection(request):
     )
     if r.returncode != 0:
         err = r.stderr + r.stdout
-        if "404" in err or "Branch not protected" in err:
+        if "Branch not protected" in err:
             # Sentinel: tests assert on it so a missing rule is a FAIL, not a fixture ERROR.
             return branch, None
         pytest.skip(f"BLOCKED: cannot read branch protection via gh: {r.stderr.strip()[:200]}")
