@@ -53,6 +53,17 @@ ${getBody}
 }
 
 describe('ci-branch-protection.sh', () => {
+  it('BRANCHES limits which branches are checked', () => {
+    const r = run('check', { get: 'compliant' }, { BRANCHES: 'dev-v2' })
+    expect(r.status).toBe(0)
+    expect(r.stdout).toContain('OK   dev-v2')
+    expect(r.stdout).not.toContain('main')
+  })
+  it('checks dev-v2 and main by default', () => {
+    const r = run('check', { get: 'compliant' })
+    expect(r.stdout).toContain('OK   dev-v2')
+    expect(r.stdout).toContain('OK   main')
+  })
   it('rejects an unknown mode with exit 2', () => {
     expect(run('bogus', { get: '404' }).status).toBe(2)
   })

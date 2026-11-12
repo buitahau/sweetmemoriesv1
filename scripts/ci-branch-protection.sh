@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Check (default) or apply required-`ci` branch protection on dev-v2 and main.
-# Usage: scripts/ci-branch-protection.sh [check|apply]
+# Usage: [BRANCHES="dev-v2 main"] scripts/ci-branch-protection.sh [check|apply]
+# BRANCHES (space separated) defaults to "dev-v2 main"; both are protected by decision.
 # Needs: gh (signed in) and jq.
 # `apply` changes repo settings and needs repo admin rights. WARNING: PUT .../protection
 # REPLACES the whole rule. Settings not in the payload (linear history, conversation
@@ -21,7 +22,7 @@ fetch() { # prints JSON; empty output and status 0 when the branch is unprotecte
   elif printf '%s' "$out" | grep -q 'Branch not protected'; then printf ''
   else echo "error: API call failed for $1: $out" >&2; exit 2; fi
 }
-for branch in dev-v2 main; do
+for branch in ${BRANCHES:-dev-v2 main}; do
   if [ "$mode" = apply ]; then
     cur="$(fetch "$branch")"
     echo "Current rule on $branch (will be REPLACED):"
