@@ -63,8 +63,8 @@ describe('ci-branch-protection.sh', () => {
   it('rejects a BRANCHES value with glob characters with exit 2', () => {
     expect(run('check', { get: 'compliant' }, { BRANCHES: '*' }).status).toBe(2)
   })
-  it.each(['../x', '-x', '/x', 'a..b', ' ', ''])('rejects bad BRANCHES %j with exit 2', (v) => {
-    const r = run('check', { get: 'compliant' }, { BRANCHES: v === '' ? ' ' : v })
+  it.each(['../x', '-x', '/x', 'a..b', ' ', '', 'a/', 'a//b', 'x.lock', 'x.'])('rejects bad BRANCHES %j with exit 2', (v) => {
+    const r = run('check', { get: 'compliant' }, { BRANCHES: v })
     expect(r.status).toBe(2)
   })
   it('does not NOTE a reordered default list', () => {

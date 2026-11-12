@@ -23,9 +23,9 @@ fetch() { # prints JSON; empty output and status 0 when the branch is unprotecte
   else echo "error: API call failed for $1: $out" >&2; exit 2; fi
 }
 set -f # no glob expansion of BRANCHES
-branches="${BRANCHES:-dev-v2 main}"
+branches="${BRANCHES-dev-v2 main}"
 for b in $branches; do
-  [[ "$b" =~ ^[A-Za-z0-9._/-]+$ && "$b" != -* && "$b" != /* && "$b" != *..* ]] || { echo "error: invalid branch name in BRANCHES: $b" >&2; exit 2; }
+  [[ "$b" =~ ^[A-Za-z0-9._/-]+$ && "$b" != -* && "$b" != /* && "$b" != *..* && "$b" != */ && "$b" != *//* && "$b" != *.lock && "$b" != *. ]] || { echo "error: invalid branch name in BRANCHES: $b" >&2; exit 2; }
 done
 branches="$(printf '%s\n' $branches | sort -u | tr '\n' ' ')"
 branches="${branches% }"
