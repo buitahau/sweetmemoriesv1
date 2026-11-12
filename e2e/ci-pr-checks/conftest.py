@@ -38,7 +38,8 @@ def package_json():
 
 @pytest.fixture(scope="session")
 def protection():
-    """Live branch protection for dev-v2 via gh, or skip when unavailable."""
+    """Live branch protection for dev-v2 via gh. Skips only when gh is missing or
+    unauthenticated/offline; a 404 (not protected) fails."""
     if not shutil.which("gh"):
         pytest.skip("BLOCKED: gh CLI not installed")
     r = subprocess.run(
@@ -46,6 +47,9 @@ def protection():
         cwd=ROOT, capture_output=True, text=True,
     )
     if r.returncode != 0:
+        err = r.stderr + r.stdout
+        if "404" in err or "Branch not protected" in err:
+            pytest.fail(f"{PROTECTED_BRANCH} has no branch protection (gh: {err.strip()[:200]})")
         pytest.skip(f"BLOCKED: cannot read branch protection via gh: {r.stderr.strip()[:200]}")
     return json.loads(r.stdout)
 

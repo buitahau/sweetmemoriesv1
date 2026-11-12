@@ -36,6 +36,7 @@ def test_US_ci_1_1_check_named_ci_runs_on_pr_to_dev_v2(workflow):
     # PyYAML parses the key `on` as boolean True.
     trigger = workflow.get("on", workflow.get(True))
     assert "dev-v2" in trigger["pull_request"]["branches"]
+    assert "main" in trigger["pull_request"]["branches"]
     assert workflow["jobs"]["ci"]["name"] == "ci"
 
 
@@ -90,18 +91,27 @@ def test_US_ci_1_4_same_toolchain_node_24_and_pinned_pnpm(workflow, package_json
 
 # ---------- US-ci-2: A failing check blocks the merge ----------
 
-def test_US_ci_2_1_failing_unit_test_is_reported_by_name():
+def test_US_ci_2_1_failing_unit_test_is_reported_by_name(workflow):
     """US-ci-2.1 (story US-ci-2): a Vitest test asserting 1 === 2 fails `vitest run` and names the test.
 
-    Runs in a temp dir (never touches the repo working tree). The "merge button
-    disabled" part is covered by the branch protection cases.
+    `ci` must run `pnpm test`. The failing test lives in a temp dir and runs
+    through the project's vite.config.ts (include overridden by a temp config),
+    so nothing is written to the repo. The "merge button disabled" part is
+    covered by the branch protection cases.
     """
+    assert "pnpm test" in _runs(workflow)
     name = f"e2e-failing-{uuid.uuid4().hex[:8]}"
     with tempfile.TemporaryDirectory() as tmp:
         (pathlib.Path(tmp) / f"{name}.test.ts").write_text(
             f"it('{name}', () => {{ expect(1).toBe(2) }})\n"
         )
-        r = run(["pnpm", "exec", "vitest", "run", "--root", tmp, "--globals"])
+        base = (ROOT / "vite.config.ts").as_posix()
+        (pathlib.Path(tmp) / "vitest.e2e.config.mjs").write_text(
+            f"import base from '{base}'\n"
+            f"export default {{ ...base, test: {{ ...base.test, include: ['{pathlib.Path(tmp).as_posix()}/*.test.ts'] }} }}\n"
+        )
+        r = run(["pnpm", "exec", "vitest", "run", "--config", str(pathlib.Path(tmp) / "vitest.e2e.config.mjs"),
+                 "--root", str(ROOT), "--globals", "--allowOnly=false"])
     assert r.returncode != 0
     assert name in r.stdout + r.stderr
 
@@ -112,7 +122,8 @@ def test_US_ci_2_2_type_error_fails_typecheck_and_ci_runs_it(workflow):
     The bad file and a tsconfig extending the root one live in a temp dir.
     """
     runs = _runs(workflow)
-    assert "pnpm typecheck" in runs and "pnpm lint" in runs and "pnpm build" in runs
+    for cmd in ("pnpm test", "pnpm typecheck", "pnpm lint", "pnpm build"):
+        assert cmd in runs, f"ci does not run {cmd}"
     # No step may swallow a failure.
     for s in _steps(workflow):
         assert not s.get("continue-on-error")
@@ -148,15 +159,13 @@ def test_US_ci_2_5_direct_push_blocked(protection):
     """US-ci-2.5 (story US-ci-2): direct pushes to dev-v2 are rejected.
 
     Asserted from the protection settings (the suite never attempts a real
-    push): a direct push is rejected when a PR is required, or when required
-    status checks exist (a push cannot satisfy them), and admins are enforced.
+    push): a PR must be required, and admins and force pushes are locked down.
+    Required status checks alone are not enough, since a direct push of an
+    already-green commit could still be accepted.
     """
     assert protection["enforce_admins"]["enabled"] is True
     assert protection["allow_force_pushes"]["enabled"] is False
-    rsc = protection.get("required_status_checks") or {}
-    pr_required = bool(protection.get("required_pull_request_reviews"))
-    checks_required = bool(rsc.get("contexts") or rsc.get("checks"))
-    assert pr_required or checks_required, "neither a PR nor status checks are required: direct push is not blocked"
+    assert protection.get("required_pull_request_reviews"), "dev-v2 does not require a pull request: direct push is not blocked"
 
 
 def test_US_ci_2_6_out_of_date_branch_must_be_updated(protection):
@@ -184,7 +193,7 @@ def test_US_ci_3_2_fork_pr_read_only_no_secrets(workflow, workflow_text):
     assert list(trigger) == ["pull_request"]
     assert "pull_request_target" not in workflow_text
     assert workflow["permissions"] == {"contents": "read"}
-    checkout = next(s for s in _steps(workflow) if "actions/checkout" in s["uses"])
+    checkout = next(s for s in _steps(workflow) if "actions/checkout" in s.get("uses", ""))
     assert checkout["with"]["persist-credentials"] is False
 
 
