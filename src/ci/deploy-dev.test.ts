@@ -85,6 +85,14 @@ describe('deploy-dev workflow', () => {
     expect(text).not.toMatch(/DATABASE_URL/)
   })
 
+  it('never sets DATABASE_URL via the deploy step or wrangler config (secret must survive deploys)', () => {
+    const deploy = job.steps.find((s) => s.id === 'deploy') as Step
+    expect(deploy.with?.secrets).toBeUndefined()
+    expect(deploy.with?.vars).toBeUndefined()
+    expect(String(deploy.with?.command)).not.toMatch(/--var|DATABASE_URL/)
+    expect(read('wrangler.jsonc')).not.toMatch(/DATABASE_URL|"vars"/)
+  })
+
   it('writes SHA, dev URL and version ID to the job summary', () => {
     const summary = job.steps.find((s) =>
       s.run?.includes('GITHUB_STEP_SUMMARY'),

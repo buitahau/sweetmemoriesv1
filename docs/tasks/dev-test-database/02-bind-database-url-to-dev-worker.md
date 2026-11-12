@@ -21,7 +21,7 @@ Set the Worker secret with `wrangler secret put DATABASE_URL --env dev`, done by
 
 - [ ] `wrangler secret list --env dev` shows `DATABASE_URL`.
 - [ ] After a later merge deploys, the secret is still listed.
-- [ ] A repo search finds no connection string.
+- [x] A repo search finds no connection string (enforced by `src/ci/test-database.test.ts`).
 - [ ] The dev `/` and `/api/health` responses contain no DB host.
-- [ ] `pnpm test` and `pnpm typecheck` pass.
+- [x] `pnpm test` and `pnpm typecheck` pass.
 - [ ] Covers US-devdb-1.2 to 1.4 and US-devdb-2.1 to 2.3.

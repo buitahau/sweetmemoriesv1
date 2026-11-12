@@ -2,6 +2,8 @@ import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { renderToString } from 'react-dom/server'
+import { HomePage } from '../components/home-page'
 import { healthGet } from '../server/health'
 
 const root = resolve(__dirname, '../..')
@@ -82,6 +84,26 @@ describe('dev-test-database: DATABASE_URL hygiene', () => {
         'postgres',
       ]) {
         expect(dump).not.toContain(secret)
+      }
+    } finally {
+      if (prev === undefined) delete process.env.DATABASE_URL
+      else process.env.DATABASE_URL = prev
+    }
+  })
+
+  it('home page output leaks no DATABASE_URL host, user or password', () => {
+    const prev = process.env.DATABASE_URL
+    process.env.DATABASE_URL =
+      'postgresql://fakeuser:fakepass123@ep-fake.neon.tech/db'
+    try {
+      const html = renderToString(HomePage())
+      for (const secret of [
+        'ep-fake.neon.tech',
+        'fakeuser',
+        'fakepass123',
+        'postgres',
+      ]) {
+        expect(html).not.toContain(secret)
       }
     } finally {
       if (prev === undefined) delete process.env.DATABASE_URL
