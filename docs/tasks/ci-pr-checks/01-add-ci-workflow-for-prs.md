@@ -1,6 +1,6 @@
 # 01 Add the CI workflow for PRs
 
-**Status:** todo
+**Status:** in progress
 **Side:** backend
 **Size:** S
 **Dependencies:** none
@@ -13,16 +13,16 @@ Add `.github/workflows/ci.yml`. It triggers on `pull_request` to `dev-v2` and ha
 
 ## Checklist
 
-- [ ] `.github/workflows/ci.yml` with job `ci`
-- [ ] Actions pinned to commit SHAs, `permissions: contents: read`
-- [ ] `packageManager` (pnpm 10.x) and `engines.node` in `package.json`
-- [ ] Per-PR concurrency group that cancels superseded runs
+- [x] `.github/workflows/ci.yml` with job `ci`
+- [x] Actions pinned to commit SHAs, `permissions: contents: read`
+- [x] `packageManager` (pnpm 10.x) and `engines.node` in `package.json`
+- [x] Per-PR concurrency group that cancels superseded runs
 
 ## Verification
 
-- [ ] A PR containing only this change shows a green `ci` check, and the log shows Node 24.x and the pinned pnpm.
+- [ ] (SHA pins verified against tags 2026-11-12; needs a real run) A PR containing only this change shows a green `ci` check, and the log shows Node 24.x and the pinned pnpm.
 - [ ] In a throwaway PR, a Vitest test asserting `1 === 2` turns `ci` red and names the test. A type error also turns it red (if typecheck is required). Close the throwaway PR without merging.
 - [ ] In a throwaway PR, a `package.json` dependency change without a lockfile update fails at install.
-- [ ] The workflow file uses `pull_request` (not `pull_request_target`), `permissions: contents: read`, and SHA-pinned actions.
-- [ ] `pnpm install && pnpm test` still passes locally with the pinned pnpm.
+- [x] The workflow file uses `pull_request` (not `pull_request_target`), `permissions: contents: read`, and SHA-pinned actions.
+- [x] `pnpm install && pnpm test` still passes locally with the pinned pnpm.
 - [ ] Covers US-ci-1.1 to 1.4, US-ci-2.1 to 2.2, and US-ci-3.1 to 3.3.

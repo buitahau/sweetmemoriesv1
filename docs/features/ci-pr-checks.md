@@ -1,6 +1,6 @@
 # Feature: ci-pr-checks
 
-**Status:** todo
+**Status:** in progress
 **Side:** backend (GitHub Actions workflow, repo branch protection, infra docs; no app UI)
 
 Tasks: [../tasks/ci-pr-checks/](../tasks/ci-pr-checks/) (01 to 03). ADR: [0003](../adr/0003-ci-cd-github-actions.md). Open questions: [../decisions/ci-cd-deploy-to-cloudflare-dev-adr.md](../decisions/ci-cd-deploy-to-cloudflare-dev-adr.md), [../decisions/ci-cd-deploy-to-cloudflare-dev-feature.md](../decisions/ci-cd-deploy-to-cloudflare-dev-feature.md). Mockups: none.
@@ -11,7 +11,7 @@ No PR can be merged into `dev-v2` unless all unit tests (and the agreed checks) 
 
 ## Summary and assumptions
 
-- "PR merged" means merged into `dev-v2` (per `RULES.md` and the `git-workflow` skill). Merges into `main` are out of scope.
+- "PR merged" means merged into `dev-v2` (per `RULES.md` and the `git-workflow` skill). Merges into `main` are also covered: the workflow runs on PRs to both `dev-v2` and `main`, and both branches get the same protection.
 - CI runs on GitHub Actions. The repo already uses `gh`.
 - The required check covers `pnpm test`. The recommendation also includes lint, typecheck and build in the same check (open question).
 - Build order: this is the first slice. It needs no Cloudflare account and does not depend on ADR 0002.

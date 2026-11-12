@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Status
 
-TanStack Start skeleton is in place: `GET /api/health` and the home page `/`. No auth, database or S3 yet. Full setup guide: `docs/infra/local-development.md`.
+TanStack Start skeleton is in place: `GET /api/health` and the home page `/`. No auth, database or S3 yet. Full setup guide: `docs/infra/local-development.md`. PRs to `dev-v2` and `main` run the `ci` check (lint, typecheck, test, build): see `docs/infra/ci-cd.md`.
 
 Commands (pnpm, Node 24):
 
