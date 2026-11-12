@@ -192,8 +192,11 @@ describe('package.json and build config', () => {
     expect(pkg.devDependencies.wrangler).toBeDefined()
   })
 
-  it('uses the cloudflare-module Nitro preset', () => {
-    expect(read('vite.config.ts')).toContain("preset: 'cloudflare-module'")
+  it('applies the cloudflare-module Nitro preset only for build', () => {
+    const src = read('vite.config.ts')
+    expect(src).toContain(
+      "command === 'build' ? { preset: 'cloudflare-module' } : {}",
+    )
   })
 
   it('gitignores .wrangler/', () => {
