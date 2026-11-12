@@ -4,16 +4,20 @@ dev-deploy is mostly infra (workflow, Wrangler config, smoke check, docs). Scena
 are checked four ways:
   - the committed workflow, wrangler config and docs (static, run anywhere),
   - the real smoke script run against a throwaway local HTTP server,
-  - the deployed app at E2E_BASE_URL (local `pnpm start` by default, or the dev URL),
+  - the deployed app at E2E_BASE_URL (the dev URL; required). Without it, or when it points at
+    localhost, those scenarios skip as BLOCKED so local passes are not mistaken for dev evidence.
+    Set E2E_ALLOW_LOCAL=1 to opt in to running them against a local `pnpm start`,
   - read-only `gh` queries of past runs.
 Scenarios that need a real merge, a broken deploy or the Cloudflare dashboard are
 BLOCKED (skipped with the reason): this suite must not push, merge or touch Cloudflare.
 Never point E2E_BASE_URL at production.
 """
+import ipaddress
 import json
 import os
 import pathlib
 import shutil
+from urllib.parse import urlparse
 
 import pytest
 import yaml
@@ -21,7 +25,8 @@ import yaml
 from helpers import ROOT, run
 
 WORKFLOW = ROOT / ".github" / "workflows" / "deploy-dev.yml"
-BASE_URL = os.environ.get("E2E_BASE_URL", "http://localhost:3000").rstrip("/")
+BASE_URL = os.environ.get("E2E_BASE_URL", "").rstrip("/")
+ALLOW_LOCAL = os.environ.get("E2E_ALLOW_LOCAL") == "1"
 SHOTS = pathlib.Path(__file__).parent / "screenshots"
 
 
@@ -35,8 +40,30 @@ def workflow_text():
     return WORKFLOW.read_text()
 
 
+def _is_local_host(host):
+    """True for localhost names (incl. *.localhost), 0.0.0.0 and loopback/private/unspecified IPs."""
+    host = host.lower().rstrip(".")
+    if host == "localhost" or host.endswith(".localhost"):
+        return True
+    try:
+        ip = ipaddress.ip_address(host)
+    except ValueError:
+        return False
+    return ip.is_loopback or ip.is_private or ip.is_unspecified or ip.is_link_local
+
+
 @pytest.fixture(scope="session")
 def base_url():
+    if not BASE_URL:
+        if ALLOW_LOCAL:
+            return "http://localhost:3000"
+        pytest.skip("BLOCKED: no dev URL (E2E_BASE_URL unset); set E2E_ALLOW_LOCAL=1 to run against localhost")
+    host = urlparse(BASE_URL).hostname or ""
+    if _is_local_host(host):
+        if not ALLOW_LOCAL:
+            pytest.skip("BLOCKED: E2E_BASE_URL points at a local address, not dev; set E2E_ALLOW_LOCAL=1 to opt in")
+    elif "sweetmemories-dev" not in host or not host.endswith(".workers.dev"):
+        pytest.fail(f"E2E_BASE_URL {BASE_URL} is not a dev Worker (*.workers.dev containing sweetmemories-dev); never use production")
     return BASE_URL
 
 

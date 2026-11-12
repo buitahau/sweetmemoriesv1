@@ -259,15 +259,16 @@ def test_US_deploy_2_3c_smoke_step_wired_with_rollback(workflow):
     assert "smoke.outcome == 'failure'" in _steps(workflow)[rb]["if"]
 
 
-def test_US_deploy_2_4_manual_rollback_documented(base_url, api):
-    """US-deploy-2.4 (story US-deploy-2): rollback steps exist in dev-environment.md and health is 200 afterwards.
-
-    The actual rollback of the shared dev Worker is not run here.
-    """
+def test_US_deploy_2_4_manual_rollback_documented():
+    """US-deploy-2.4 (story US-deploy-2): rollback steps exist in dev-environment.md. Static, runs anywhere."""
     text = DOCS.read_text()
     assert "## Manual rollback" in text
     assert "wrangler rollback" in text and "--env dev" in text
     assert "/api/health" in text
+
+
+def test_US_deploy_2_4b_health_ok_after_rollback(base_url, api):
+    """US-deploy-2.4 live part: dev health is 200. The actual rollback of the shared dev Worker is not run here."""
     assert api.get("/api/health").status == 200
     pytest.skip(BLOCKED_BROKEN + " (live part: rollback and previous version served)")
 
