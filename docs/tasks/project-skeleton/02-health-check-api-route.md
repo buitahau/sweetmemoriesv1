@@ -1,6 +1,6 @@
 # 02 Health check API route
 
-**Status:** todo
+**Status:** done
 **Side:** backend
 **Size:** S
 **Dependencies:** 01
@@ -13,14 +13,14 @@ Add a server route at `/api/health` that handles `GET` only and returns `{"statu
 
 ## Checklist
 
-- [ ] `GET /api/health` handler
-- [ ] 405 for other methods
-- [ ] Vitest unit test for the handler
-- [ ] `docs/api/health.md`
+- [x] `GET /api/health` handler
+- [x] 405 for other methods
+- [x] Vitest unit test for the handler
+- [x] `docs/api/health.md`
 
 ## Verification
 
-- [ ] Unit test: GET returns 200, JSON content type, exact body `{"status":"ok"}`, `Cache-Control` containing `no-store`, no `Set-Cookie`; POST returns 405.
-- [ ] Manual: `curl -i http://localhost:<port>/api/health` shows the above; `curl -i -X POST ...` shows 405.
-- [ ] `docs/api/health.md` exists and matches the behavior.
-- [ ] Covers US-skeleton-1 scenarios 1 to 6.
+- [x] Unit test: GET returns 200, JSON content type, exact body `{"status":"ok"}`, `Cache-Control` containing `no-store`, no `Set-Cookie`; POST returns 405.
+- [x] Manual: `curl -i http://localhost:<port>/api/health` shows the above; `curl -i -X POST ...` shows 405.
+- [x] `docs/api/health.md` exists and matches the behavior.
+- [x] Covers US-skeleton-1 scenarios 1 to 6.
