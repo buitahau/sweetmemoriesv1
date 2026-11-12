@@ -1,6 +1,6 @@
 # 03 Home page route
 
-**Status:** todo
+**Status:** done
 **Side:** front-end
 **Size:** S
 **Dependencies:** 01
@@ -19,6 +19,6 @@ Home route `/`. Render a single `<h1>` "SweetMemories home page", styled with Ta
 
 ## Verification
 
-- [ ] Vitest + Testing Library: home route renders a level-1 heading with "SweetMemories home page".
-- [ ] Manual: `curl -s http://localhost:<port>/` returns HTML containing "SweetMemories home page"; browser shows the heading, tab title contains "SweetMemories", console clean, no cookies and no `Set-Cookie`.
-- [ ] Covers US-skeleton-2 scenarios 1 to 5.
+- [x] Vitest (`renderToStaticMarkup`): the `HomePage` component renders a level-1 heading with "SweetMemories home page".
+- [x] Manual: `curl -s http://localhost:<port>/` returns HTML containing "SweetMemories home page"; browser shows the heading, tab title contains "SweetMemories", console clean, no cookies and no `Set-Cookie`.
+- [x] Covers US-skeleton-2 scenarios 1 to 5.
