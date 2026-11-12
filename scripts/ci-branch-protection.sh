@@ -41,9 +41,10 @@ JSON
   [ -n "$out" ] && ok="$(printf '%s' "$out" | jq -r -f "$here/branch-protection.jq")"
   if [ "$ok" = true ]; then echo "OK   $branch"; else echo "FAIL $branch (needs ci required, strict, PR required, admins enforced, no force push or deletion)"; rc=1; fi
 done
-# Squash-only merging is a repo setting, not part of branch protection; `apply` does not change it.
-if [ "$mode" = check ]; then
+# Squash-only merging is a repo setting, not part of branch protection; `apply` does not change
+# it but verifies it, so exit 0 from either mode means full compliance.
+{
   ms="$(gh api "repos/$repo" -q '[.allow_squash_merge,.allow_merge_commit,.allow_rebase_merge]|@json')" || { echo "error: cannot read repo merge settings" >&2; exit 2; }
   if [ "$ms" = '[true,false,false]' ]; then echo "OK   squash-only merge"; else echo "FAIL squash-only merge (set allow_merge_commit and allow_rebase_merge off in repo settings)"; rc=1; fi
-fi
+}
 exit $rc

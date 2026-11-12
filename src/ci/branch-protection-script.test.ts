@@ -12,17 +12,20 @@ const fixture = resolve(__dirname, 'fixtures/protection-compliant.json')
 // `merge` the repo merge settings. PUT bodies are returned per branch.
 function run(
   mode: string,
-  opts: { get: 'error' | '404' | 'compliant'; putFail?: boolean; merge?: string },
+  opts: { get: 'error' | '404' | 'compliant'; getMain?: 'error' | '404' | 'compliant'; putFail?: boolean; merge?: string },
   env: Record<string, string> = {},
 ) {
   const dir = mkdtempSync(join(tmpdir(), 'ghstub-'))
   try {
-    const getBody =
-      opts.get === 'compliant'
+    const body = (g: string) =>
+      g === 'compliant'
         ? `cat ${fixture}; exit 0`
-        : opts.get === '404'
+        : g === '404'
           ? 'echo "Branch not protected (HTTP 404)"; exit 1'
           : 'echo "API rate limit exceeded"; exit 1'
+    const getBody = opts.getMain
+      ? `if [[ "$2" == */branches/main/* ]]; then ${body(opts.getMain)}; fi\n${body(opts.get)}`
+      : body(opts.get)
     const gh = `#!/usr/bin/env bash
 if [ "$1" = repo ]; then echo o/r; exit 0; fi
 if [ "$1" = api ] && [ "$2" = -X ]; then
@@ -88,6 +91,20 @@ describe('ci-branch-protection.sh', () => {
     const r = run('check', { get: 'compliant', merge: '[true,true,true]' })
     expect(r.status).toBe(1)
     expect(r.stdout).toContain('FAIL squash-only merge')
+  })
+  it('check reports a mixed state per branch (dev-v2 compliant, main unprotected)', () => {
+    const r = run('check', { get: 'compliant', getMain: '404' })
+    expect(r.status).toBe(1)
+    expect(r.stdout).toContain('OK   dev-v2')
+    expect(r.stdout).toContain('FAIL main')
+  })
+  it('apply exits 1 when protection is applied but merge commits are still allowed', () => {
+    const r = run('apply', { get: 'compliant', merge: '[true,true,true]' }, { CONFIRM: 'yes' })
+    expect(r.status).toBe(1)
+    expect(r.stdout).toContain('FAIL squash-only merge')
+  })
+  it('apply exits 0 when protection and merge settings are compliant', () => {
+    expect(run('apply', { get: 'compliant' }, { CONFIRM: 'yes' }).status).toBe(0)
   })
   it('apply sends the required protection payload for dev-v2 and main', () => {
     const r = run('apply', { get: '404' }, { CONFIRM: 'yes' })
