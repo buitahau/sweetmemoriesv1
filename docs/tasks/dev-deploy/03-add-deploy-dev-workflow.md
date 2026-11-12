@@ -1,6 +1,6 @@
 # 03 Add the deploy-dev workflow
 
-**Status:** todo
+**Status:** in progress
 **Side:** backend
 **Size:** M
 **Dependencies:** ci-pr-checks 01, dev-deploy 01, dev-deploy 02

@@ -4,13 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Status
 
-TanStack Start skeleton is in place: `GET /api/health` and the home page `/`. No auth, database or S3 yet. Full setup guide: `docs/infra/local-development.md`. PRs to `dev-v2` and `main` run the `ci` check (lint, typecheck, test, build): see `docs/infra/ci-cd.md`.
+TanStack Start skeleton is in place: `GET /api/health` and the home page `/`. The app builds as a Cloudflare Worker (`pnpm start` = `wrangler dev`) and merges to `dev-v2` deploy to dev via `deploy-dev` (`docs/infra/dev-environment.md`). No auth, database or S3 yet. Full setup guide: `docs/infra/local-development.md`. PRs to `dev-v2` and `main` run the `ci` check (lint, typecheck, test, build): see `docs/infra/ci-cd.md`.
 
 Commands (pnpm, Node 24):
 
 - `pnpm install`: install dependencies.
 - `pnpm dev`: dev server at http://localhost:3000.
-- `pnpm build` then `pnpm start`: production build and run.
+- `pnpm build` then `pnpm start`: Worker build and run it locally with `wrangler dev`.
 - `pnpm lint`, `pnpm typecheck`, `pnpm format`.
 - `pnpm test`: all unit tests (Vitest). Single test: `pnpm test src/server/health.test.ts` (one file) or `pnpm test -t "test name"` (by name).
 - E2E (Python Playwright + pytest): see `e2e/README.md`; single test with `-k "test_name"`.

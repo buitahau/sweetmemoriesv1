@@ -1,6 +1,6 @@
 # 01 Build the app as a Cloudflare Worker
 
-**Status:** todo
+**Status:** done
 **Side:** backend
 **Size:** M
 **Dependencies:** ADR 0002 accepted

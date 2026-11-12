@@ -1,6 +1,6 @@
 # Feature: dev-deploy
 
-**Status:** todo
+**Status:** in progress
 **Side:** backend (Worker build target, Wrangler config, deploy workflow, smoke check, Cloudflare account setup, infra docs; no app UI)
 
 Tasks: [../tasks/dev-deploy/](../tasks/dev-deploy/) (01 to 05). ADRs: [0002](../adr/0002-host-on-cloudflare-workers.md), [0003](../adr/0003-ci-cd-github-actions.md). Open questions: [../decisions/ci-cd-deploy-to-cloudflare-dev-adr.md](../decisions/ci-cd-deploy-to-cloudflare-dev-adr.md), [../decisions/ci-cd-deploy-to-cloudflare-dev-feature.md](../decisions/ci-cd-deploy-to-cloudflare-dev-feature.md). Mockups: none.
