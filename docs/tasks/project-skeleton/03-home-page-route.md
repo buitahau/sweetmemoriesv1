@@ -13,9 +13,9 @@ Home route `/`. Render a single `<h1>` "SweetMemories home page", styled with Ta
 
 ## Checklist
 
-- [ ] Home route with the h1
-- [ ] Document title "SweetMemories"
-- [ ] Component test
+- [x] Home route with the h1
+- [x] Document title "SweetMemories"
+- [x] Component test
 
 ## Verification
 
