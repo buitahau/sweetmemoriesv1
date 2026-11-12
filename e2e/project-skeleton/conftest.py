@@ -7,7 +7,6 @@ import os
 import pathlib
 
 import pytest
-from playwright.sync_api import sync_playwright
 
 BASE_URL = os.environ.get("E2E_BASE_URL", "http://localhost:3000").rstrip("/")
 SHOTS = pathlib.Path(__file__).parent / "screenshots"
@@ -16,12 +15,6 @@ SHOTS = pathlib.Path(__file__).parent / "screenshots"
 @pytest.fixture(scope="session")
 def base_url():
     return BASE_URL
-
-
-@pytest.fixture(scope="session")
-def pw():
-    with sync_playwright() as p:
-        yield p
 
 
 @pytest.fixture(scope="session")

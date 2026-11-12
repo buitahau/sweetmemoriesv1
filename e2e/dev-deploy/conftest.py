@@ -18,7 +18,6 @@ import subprocess
 
 import pytest
 import yaml
-from playwright.sync_api import sync_playwright
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 WORKFLOW = ROOT / ".github" / "workflows" / "deploy-dev.yml"
@@ -43,12 +42,6 @@ def workflow_text():
 @pytest.fixture(scope="session")
 def base_url():
     return BASE_URL
-
-
-@pytest.fixture(scope="session")
-def pw():
-    with sync_playwright() as p:
-        yield p
 
 
 @pytest.fixture(scope="session")
@@ -92,7 +85,7 @@ def deploy_runs():
     """Completed deploy-dev runs (newest first) via read-only gh, or skip."""
     if not shutil.which("gh"):
         pytest.skip("BLOCKED: gh CLI not installed")
-    r = run(["gh", "run", "list", "--workflow", "deploy-dev", "--limit", "20", "--json",
+    r = run(["gh", "run", "list", "--workflow", "deploy-dev.yml", "--limit", "20", "--json",
              "databaseId,conclusion,status,headSha,headBranch,event,createdAt,updatedAt"])
     if r.returncode != 0:
         pytest.skip(f"BLOCKED: gh run list failed: {r.stderr.strip()[:200]}")
