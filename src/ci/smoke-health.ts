@@ -43,7 +43,16 @@ export async function checkHealth(
   } catch (err) {
     return { ok: false, reason: `request failed: ${String(err)}` }
   }
-  const body = await res.text()
+  let body: string
+  try {
+    body = await res.text()
+  } catch (err) {
+    return {
+      ok: false,
+      status: res.status,
+      reason: `reading response body failed: ${String(err)}`,
+    }
+  }
   const base = { status: res.status, body }
   if (res.status !== 200) {
     return {
@@ -94,10 +103,13 @@ async function main(): Promise<void> {
     console.error('usage: node src/ci/smoke-health.ts <base-url>')
     process.exit(2)
   }
+  const override = Number(process.env.SMOKE_TIMEOUT_MS)
   const result = await pollHealth(baseUrl, {
     log: console.log,
-    ...(process.env.SMOKE_TIMEOUT_MS
-      ? { timeoutMs: Number(process.env.SMOKE_TIMEOUT_MS), intervalMs: 100 }
+    ...(process.env.SMOKE_TIMEOUT_MS &&
+    Number.isFinite(override) &&
+    override > 0
+      ? { timeoutMs: override, intervalMs: 100 }
       : {}),
   })
   if (!result.ok) {

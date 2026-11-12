@@ -13,10 +13,10 @@ Add `.github/workflows/deploy-dev.yml`, triggered on `push` to `dev-v2` and on `
 
 ## Checklist
 
-- [ ] `deploy-dev.yml` with push and `workflow_dispatch` triggers, `environment: dev`, queued concurrency
-- [ ] Checks shared with `ci` (no drift)
-- [ ] Deploy with SHA-pinned `cloudflare/wrangler-action`
-- [ ] Job summary with SHA, URL and version ID
+- [x] `deploy-dev.yml` with push and `workflow_dispatch` triggers, `environment: dev`, queued concurrency
+- [x] Checks shared with `ci` (no drift)
+- [x] Deploy with SHA-pinned `cloudflare/wrangler-action`
+- [x] Job summary with SHA, URL and version ID
 
 ## Verification
 

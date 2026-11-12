@@ -13,9 +13,9 @@ After the deploy step in `deploy-dev`, poll `GET <dev URL>/api/health` for up to
 
 ## Checklist
 
-- [ ] Smoke step polls `/api/health` for up to 60 seconds
-- [ ] Fails on non-200, wrong body or `Set-Cookie`, and prints status and body
-- [ ] Auto-rollback on failure (if agreed)
+- [x] Smoke step polls `/api/health` for up to 60 seconds
+- [x] Fails on non-200, wrong body or `Set-Cookie`, and prints status and body
+- [x] Auto-rollback on failure (if agreed)
 
 ## Verification
 

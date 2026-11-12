@@ -71,6 +71,17 @@ describe('checkHealth', () => {
     )
     expect(r).toMatchObject({ ok: false, reason: 'response sets a cookie' })
   })
+  it('fails (does not throw) when reading the body fails', async () => {
+    const res = {
+      status: 200,
+      headers: new Headers(),
+      text: () => Promise.reject(new Error('reset')),
+    } as unknown as Response
+    const r = await checkHealth('https://x/api/health', () =>
+      Promise.resolve(res),
+    )
+    expect(r.ok).toBe(false)
+  })
   it('fails on a network error', async () => {
     const r = await checkHealth(
       'https://x/api/health',
