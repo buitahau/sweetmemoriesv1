@@ -113,7 +113,7 @@ def deploy_runs():
     if not shutil.which("gh"):
         pytest.skip("BLOCKED: gh CLI not installed")
     r = run(["gh", "run", "list", "--workflow", "deploy-dev.yml", "--branch", "dev-v2", "--limit", "20", "--json",
-             "databaseId,conclusion,status,headSha,headBranch,event,createdAt,updatedAt"])
+             "databaseId,conclusion,status,headSha,headBranch,event,createdAt,startedAt,updatedAt"])
     if r.returncode != 0:
         pytest.skip(f"BLOCKED: gh run list failed: {r.stderr.strip()[:200]}")
     runs = json.loads(r.stdout)

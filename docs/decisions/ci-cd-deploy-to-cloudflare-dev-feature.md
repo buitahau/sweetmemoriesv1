@@ -45,6 +45,18 @@ Recommended answer: No, only the smoke check for now: the requirement has tester
 
 Answer: No, only the smoke check for now: the requirement has testers testing on dev, and the e2e suite is still tiny; automate it later.
 
+### Should the deploy-dev job be capped at 10 minutes instead of 15?
+
+The spec only requires a run to finish `success` within 10 minutes (US-deploy-1.1, checked live by the e2e suite). `deploy-dev.yml` caps the job at `timeout-minutes: 15`, which does not break that.
+
+Options:
+- Keep 15 minutes: headroom for slow installs and builds
+- Lower the cap to 10 minutes to match the spec
+
+Recommended answer: Keep 15 minutes; the live e2e check measures the real duration.
+
+Answer:
+
 ## Topic: dev-test-database
 
 ### Should testers be able to reset the test database, and how often?

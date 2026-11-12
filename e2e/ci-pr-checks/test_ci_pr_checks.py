@@ -144,7 +144,8 @@ def test_US_ci_2_1_failing_unit_test_is_reported_by_name(workflow):
         )
         base = (ROOT / "vite.config.ts").as_posix()
         (pathlib.Path(tmp) / "vitest.e2e.config.mjs").write_text(
-            f"import base from '{base}'\n"
+            f"import cfg from '{base}'\n"
+            f"const base = typeof cfg === 'function' ? await cfg({{ command: 'serve', mode: 'test' }}) : cfg\n"
             f"export default {{ ...base, test: {{ ...base.test, include: ['{pathlib.Path(tmp).as_posix()}/*.test.ts'] }} }}\n"
         )
         r = run(["pnpm", "exec", "vitest", "run", "--config", str(pathlib.Path(tmp) / "vitest.e2e.config.mjs"),

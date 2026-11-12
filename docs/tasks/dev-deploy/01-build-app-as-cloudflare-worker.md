@@ -24,4 +24,4 @@ Set the Nitro preset to `cloudflare-module`. Add `wrangler` as a dev dependency 
 - [x] `pnpm start` serves http://localhost:3000. `curl -i /api/health` returns `200` `{"status":"ok"}` with `Cache-Control: no-store` and no `Set-Cookie`. `POST` returns `405`.
 - [x] `pnpm test`, `pnpm lint` and `pnpm typecheck` pass.
 - [x] The e2e command in `e2e/README.md` (`with_server.py --server "pnpm start"`) passes all of `e2e/project-skeleton`.
-- [ ] `pnpm dev` still works with hot reload (not yet checked: only `/` and `/api/health` were requested under `pnpm dev`).
+- [x] `pnpm dev` still works with hot reload. Checked: with the `cloudflare-module` preset applied in dev, SSR output stayed stale after edits, so the preset is now applied only for `vite build` (`vite.config.ts`). After the change, an edit to a component shows in SSR HTML without a restart and reverting it also shows.
