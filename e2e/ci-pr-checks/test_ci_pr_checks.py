@@ -41,8 +41,30 @@ def test_US_ci_1_1_check_named_ci_runs_on_pr_to_dev_v2(workflow):
 
 
 def test_US_ci_1_1b_live_ci_run_succeeds_within_a_minute():
-    """US-ci-1.1 live part: check starts within 1 minute and ends success."""
-    pytest.skip(BLOCKED_NO_PR)
+    """US-ci-1.1 live part: check starts within 1 minute and ends success.
+
+    Read-only: inspects the most recent completed `ci` pull_request run
+    (PR may be open or merged) via `gh run list`; nothing is pushed.
+    """
+    from datetime import datetime
+
+    if not shutil.which("gh"):
+        pytest.skip("BLOCKED: gh not installed")
+    r = run(["gh", "run", "list", "--workflow", "ci", "--event", "pull_request",
+             "--status", "completed", "--limit", "1",
+             "--json", "conclusion,createdAt,startedAt"])
+    if r.returncode != 0:
+        pytest.skip(f"BLOCKED: gh run list failed: {r.stderr.strip()}")
+    runs = json.loads(r.stdout)
+    if not runs:
+        pytest.skip("BLOCKED: no completed ci pull_request run exists yet")
+
+    def ts(v):
+        return datetime.fromisoformat(v.replace("Z", "+00:00"))
+
+    latest = runs[0]
+    assert latest["conclusion"] == "success", latest
+    assert (ts(latest["startedAt"]) - ts(latest["createdAt"])).total_seconds() <= 60, latest
 
 
 def test_US_ci_1_2_new_commit_reruns_ci(workflow):

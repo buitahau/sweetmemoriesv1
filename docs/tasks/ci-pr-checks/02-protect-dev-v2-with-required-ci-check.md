@@ -27,4 +27,5 @@ Repo setting (branch protection rule or ruleset) on `dev-v2`: require the `ci` s
 - [ ] The throwaway PR with the failing test cannot be merged, including with `gh pr merge --admin`.
 - [ ] `git push origin HEAD:dev-v2` from a local branch is rejected.
 - [ ] A PR behind `dev-v2` asks for an update before merge.
+- [ ] Paste the protection JSON here after `apply`, then run the throwaway-PR negative cases by hand: failing test, lockfile drift, direct push rejected, `gh pr merge --admin` rejected.
 - [ ] Covers US-ci-2.3 to 2.6.
