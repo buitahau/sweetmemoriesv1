@@ -4,7 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Status
 
-The repository (branch `dev-v2`) currently contains only a `LICENSE` and this file. No source code, build system, or tests exist yet. Once the app is scaffolded, add build/lint/test commands (including how to run a single test) here.
+The TanStack Start app is scaffolded at the repo root (pnpm, TypeScript strict, Tailwind v4, shadcn/ui config only, Vitest, ESLint, Prettier). Health route and home page come in later project-skeleton tasks.
+
+## Commands
+
+- `pnpm install`: install dependencies.
+- `pnpm dev`: dev server on http://localhost:3000.
+- `pnpm build` / `pnpm start`: production build and run (`.output/server/index.mjs`).
+- `pnpm lint`, `pnpm typecheck`, `pnpm format`.
+- `pnpm test`: run all unit tests (Vitest). Single test: `pnpm test src/lib/utils.test.ts` or `pnpm test -t "name"`.
 
 ## Project
 

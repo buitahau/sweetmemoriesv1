@@ -1,6 +1,6 @@
 # 01 Scaffold the TanStack Start app
 
-**Status:** todo
+**Status:** done
 **Side:** backend
 **Size:** M
 **Dependencies:** none (needs [ADR 0001](../../adr/0001-single-tanstack-start-app.md) accepted and the package-manager answer in [decisions](../../decisions/0001-single-tanstack-start-app.md))
