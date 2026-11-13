@@ -121,6 +121,7 @@ Scenarios marked **[blocked on Q-x]** depend on an answer; task [H0](../tasks/ho
   1. *Happy path* **[target blocked on Q-cta]:** **Given** the visitor scrolls to the bottom of `/`, **When** the final section is visible, **Then** they see "Start with the memory everyone keeps telling." and a "Start with Google" link that navigates to `/sign-in`.
   2. *Footer:* **Given** the visitor is at the bottom, **When** the footer is visible, **Then** it shows "SweetMemories" and "Small pages for the moments worth keeping." inside a `contentinfo` landmark.
   3. *No private data (rule 5):* **Given** the page is rendered, **When** the HTML is inspected, **Then** it contains no email addresses, no person names other than the fictional examples, and no environment or version strings.
+  4. *No unbuilt features promised:* **Given** the page is rendered, **When** the HTML of `/` is inspected, **Then** it contains none of "add to", "Invite people", "just added a photo" or "12 cousins", because visitors cannot yet add to another person's Memory.
 
 **US-homepage-9: Sign-in placeholder** (only if Q-cta is answered "placeholder")
 - **Story:** As a visitor who clicks Sign in before Google sign-in exists, I want a clear message, so that I am not left on an error page.
