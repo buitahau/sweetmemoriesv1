@@ -40,7 +40,7 @@ Tasks: [../tasks/homepage-seo/](../tasks/homepage-seo/) (01 to 04). ADR: [0006](
 **US-homepage-seo-1: Title and description**
 - **Story:** As a search engine user, I want an accurate title and summary, so that I know what the site is before clicking.
 - **Scenarios:**
-  1. *Happy path* **[description text blocked on Q-copy and Q-pricing]:** **Given** the app is running, **When** a client fetches `/` without JavaScript, **Then** `<title>` is "SweetMemories: little pages for family moments" and `<meta name="description">` is exactly the agreed description. The mockup text is "Turn first steps, birthdays and street parties into tiny pages your family and friends can open, share and add to. Free to start with Google." With the recommended answers, "open, share and add to" becomes owner-only wording. H0 pins the exact string.
+  1. *Happy path*: **Given** the app is running, **When** a client fetches `/` without JavaScript, **Then** `<title>` is "SweetMemories: little pages for family moments" and `<meta name="description">` is exactly "Turn first steps, birthdays and street parties into tiny pages your family and friends can open and share. Free to start with Google." (the mockup's "open, share and add to" is replaced by owner-only wording; see the Copy subsection of [homepage](homepage.md)). The raw HTML must not contain "add to".
   2. *One of each:* **Given** the HTML of `/`, **When** it is parsed, **Then** it contains exactly one `<title>` and exactly one `meta[name=description]`. The root default title is not duplicated.
   3. *Other pages:* **Given** the app is running, **When** a client fetches `/does-not-exist`, **Then** the response is `404` and its HTML has no canonical link and no `og:url` pointing at the home page.
 
