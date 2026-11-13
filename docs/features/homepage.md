@@ -32,7 +32,46 @@ This is the product home page on the main domain: `sweetmemories.com`, `localhos
 6. **Mobile layout (Q-mobile).** The mockup is a 1440 px desktop artboard only.
 7. **Missing assets (Q-assets).** See [homepage-seo](homepage-seo.md).
 
-Scenarios marked **[blocked on Q-x]** depend on an answer; task [H0](../tasks/homepage/00-pin-copy-from-decisions.md) pins the final strings.
+All conflicts above are answered (see [homepage-feature](../decisions/homepage-feature.md)). The final strings are pinned in the scenarios and in the [Copy](#copy) subsection.
+
+## Copy
+
+Final strings, pinned from the answered questions in [homepage-feature](../decisions/homepage-feature.md). Tasks 03 to 08 implement from this list; everything not listed here is unchanged from the mockup. The page must not promise shared editing: no visitor can add to another User's Memory (Q-copy).
+
+**Hero**
+- Pill: "For families, little ones and whole neighborhoods"
+- Sub-copy (owner-only): "Turn first steps, birthdays and street parties into tiny pages that everyone you love can open and share."
+- Reassurance: "No password to make. It is free to look around."
+- Faces caption (replaces the fake social proof "Grandma, Mum and 12 cousins added photos"): "Made for the people you love to share with"
+- Floating note (replaces "Grandma just added a photo"): small line "Your page is live", handwritten line "Share this link"
+- Example collage: title "Bob's first day", address "sam.sweetmemories.com/bobs-first-day" (plain text)
+- Both "Start with Google" links and "Sign in" go to `/sign-in`.
+
+**Who it is for**
+- Intro (owner-only): "One page can be about one child, one summer or one street. Make it once and share it with everyone you love."
+- Families: "Grandparents, parents and cousins in one place. Everyone can see the photos and the stories behind them." Example "Grandpa's garden".
+- Little ones: "First steps, first days and every birthday from one to ten. A scrapbook that grows up with them." Example "Mia, one to ten".
+- Neighborhoods and friends: "A street party, a class trip or a team season. Keep the day and share it with everyone who was there." Example "Maple Street party".
+
+**Templates** (static illustrations, Q-templates)
+- "One small moment" (3 blocks): "A title, a few words and one photo. The simplest way to keep something."
+- "Growing up: ages 1 to 10" (4 blocks): "A year-by-year album. One page for each birthday, from one to ten."
+- "An adventure" (8 blocks): "A trip or an outing told in moments, with a route and the best photos." (no video)
+- Block chips under "Made from building blocks", in order: "Text", "Timeline", "Gallery", "Carousel", "3×3 Photo Grid".
+
+**Addresses** (plain text, Q-example)
+1. "sam.sweetmemories.com": "Your family's home page. It lists everything you publish."
+2. "sam.sweetmemories.com/bob": "A memory page about Bob."
+3. "sam.sweetmemories.com/first-day-of-bob": "A memory page about Bob's first day."
+4. "sam.sweetmemories.com/maple-street-party": "A page the whole street can open." (replaces "A page the whole street can add to.")
+
+**Final CTA**: "Start with the memory everyone keeps telling." and "It takes a template, a few photos and a few cozy minutes."
+
+**Meta description** (also `og:description`, `twitter:description` and the JSON-LD description, see [homepage-seo](homepage-seo.md)): "Turn first steps, birthdays and street parties into tiny pages your family and friends can open and share. Free to start with Google."
+
+**Mobile header** (Q-mobile): below 768 px only the logo and "Sign in" show.
+
+The strings "add to", "Invite people", "just added a photo" and "12 cousins" must not appear anywhere in the rendered HTML, head included (US-homepage-8.4).
 
 ## Scope
 
@@ -62,9 +101,9 @@ Scenarios marked **[blocked on Q-x]** depend on an answer; task [H0](../tasks/ho
 - **Scenarios:**
   1. *Happy path:* **Given** the app is running, **When** a visitor opens `/` at 1440×900 with no cookies, **Then** the status is `200`, the only `h1` reads "Every little moment deserves a home.", the text "Turn first steps, birthdays and street parties into tiny pages" is visible, and a link "Start with Google" and a link "See how it works" are visible without scrolling.
   2. *Reassurance line:* **Given** the visitor is on `/`, **When** the hero is shown, **Then** the text "No password to make." is visible below the buttons.
-  3. *Example address* **[strings blocked on Q-example]:** **Given** the visitor is on `/`, **When** the hero collage is shown, **Then** it shows the title "Bob's first day" and the address text "sam.sweetmemories.com/bobs-first-day", and that address is not a link.
+  3. *Example address*: **Given** the visitor is on `/`, **When** the hero collage is shown, **Then** it shows the title "Bob's first day" and the address text "sam.sweetmemories.com/bobs-first-day", and that address is not a link.
   4. *See how it works:* **Given** the visitor is on `/`, **When** they click "See how it works", **Then** the URL ends with `#how` and the heading "From a pile of photos to a page, in four easy steps." is in the viewport.
-  5. *Start CTA* **[blocked on Q-cta]:** **Given** the visitor is on `/`, **When** they click "Start with Google" in the hero, **Then** the browser navigates to `/sign-in`.
+  5. *Start CTA*: **Given** the visitor is on `/`, **When** they click "Start with Google" in the hero, **Then** the browser navigates to `/sign-in`.
   6. *Server-rendered:* **Given** the app is running, **When** a client fetches `/` over plain HTTP (no JavaScript), **Then** the HTML contains "Every little moment deserves a home" and "Start with Google".
   7. *Security, no cookies:* **Given** a fresh browser with no cookies, **When** the visitor opens `/` and scrolls to the bottom, **Then** no response has a `Set-Cookie` header and the browser holds no cookies for the site.
   8. *Security, no third parties:* **Given** a fresh browser, **When** the visitor opens `/` and the page finishes loading, **Then** every network request goes to the page's own origin. None goes to `fonts.googleapis.com`, `fonts.gstatic.com` or any other host.
@@ -75,7 +114,7 @@ Scenarios marked **[blocked on Q-x]** depend on an answer; task [H0](../tasks/ho
 - **Scenarios:**
   1. *Links present:* **Given** the visitor is on `/` at 1440 px wide, **When** the page loads, **Then** a navigation landmark named "Main" contains, in order, "Who it is for", "How it works", "Templates" and "Sign in".
   2. *Anchor links:* **Given** the visitor is on `/`, **When** they click "Who it is for", "How it works" or "Templates", **Then** the URL ends with `#who`, `#how` or `#templates` and the matching section heading is in the viewport.
-  3. *Sign in* **[blocked on Q-cta]:** **Given** the visitor is on `/`, **When** they click "Sign in", **Then** the browser navigates to `/sign-in`.
+  3. *Sign in*: **Given** the visitor is on `/`, **When** they click "Sign in", **Then** the browser navigates to `/sign-in`.
   4. *Logo:* **Given** the visitor is on `/#templates`, **When** they click the "SweetMemories" logo, **Then** the URL is `/` and the page is scrolled to the top.
   5. *Keyboard:* **Given** the visitor is on `/` using only the keyboard, **When** they press Tab from the top of the page, **Then** focus moves to the logo and then to each visible nav link in order, and every focused link shows a visible focus indicator.
   6. *Deep link:* **Given** a visitor opens `/#templates` directly, **When** the page loads, **Then** the heading "Start simple, or tell the whole story." is in the viewport.
@@ -83,7 +122,7 @@ Scenarios marked **[blocked on Q-x]** depend on an answer; task [H0](../tasks/ho
 **US-homepage-3: Who it is for**
 - **Story:** As a visitor, I want to see who SweetMemories is for, so that I can tell whether it fits my family, child or neighborhood.
 - **Scenarios:**
-  1. *Happy path* **[card text blocked on Q-copy]:** **Given** the visitor is on `/`, **When** they scroll to the section with `id="who"`, **Then** they see the heading "A little corner of the internet for everyone who loves each other." and exactly three cards, in order: "Families", "Little ones" and "Neighborhoods and friends".
+  1. *Happy path*: **Given** the visitor is on `/`, **When** they scroll to the section with `id="who"`, **Then** they see the heading "A little corner of the internet for everyone who loves each other." and exactly three cards, in order: "Families", "Little ones" and "Neighborhoods and friends".
   2. *Examples:* **Given** the section is visible, **When** the visitor reads the cards, **Then** each card shows its example label: "Grandpa's garden", "Mia, one to ten" and "Maple Street party".
   3. *Decorative faces hidden:* **Given** the section is visible, **When** a screen reader reads the cards, **Then** the face illustrations are not announced (they are `aria-hidden`).
 
@@ -97,8 +136,8 @@ Scenarios marked **[blocked on Q-x]** depend on an answer; task [H0](../tasks/ho
 **US-homepage-5: Templates and Blocks**
 - **Story:** As a visitor, I want to see example Templates and the Blocks they are built from, so that I understand how flexible a Memory page can be.
 - **Scenarios:**
-  1. *Happy path* **[description text blocked on Q-templates]:** **Given** the visitor is on `/`, **When** they view the section with `id="templates"`, **Then** they see the heading "Start simple, or tell the whole story." and three Template cards: "One small moment" (3 blocks), "Growing up: ages 1 to 10" (4 blocks) and "An adventure" (8 blocks).
-  2. *Block chips* **[blocked on Q-blocks]:** **Given** the section is visible, **When** the visitor reads "Made from building blocks", **Then** the chips list exactly the agreed Block names, in order. If the recommended answer is accepted, that is "Text", "Timeline", "Gallery", "Carousel", "3×3 Photo Grid". H0 replaces this with the final list.
+  1. *Happy path*: **Given** the visitor is on `/`, **When** they view the section with `id="templates"`, **Then** they see the heading "Start simple, or tell the whole story." and three Template cards: "One small moment" (3 blocks), "Growing up: ages 1 to 10" (4 blocks) and "An adventure" (8 blocks).
+  2. *Block chips*: **Given** the section is visible, **When** the visitor reads "Made from building blocks", **Then** the chips list exactly "Text", "Timeline", "Gallery", "Carousel" and "3×3 Photo Grid", in that order. "Curved timeline" and "Before and after" do not appear.
   3. *Illustrative only:* **Given** the section is visible, **When** the visitor clicks a Template card, **Then** nothing navigates and no network request is made.
   4. *No unreviewed Templates (security):* **Given** the database contains a Template that is not approved, **When** the visitor opens `/`, **Then** that Template's name does not appear on the page.
 
@@ -111,14 +150,14 @@ Scenarios marked **[blocked on Q-x]** depend on an answer; task [H0](../tasks/ho
 **US-homepage-7: Addresses**
 - **Story:** As a visitor, I want to see what my addresses will look like, so that I understand the subdomain and Memory page URLs.
 - **Scenarios:**
-  1. *Happy path* **[strings blocked on Q-example]:** **Given** the visitor is on `/`, **When** they view the section "Your family name first, then a page for each memory.", **Then** a list shows four rows, in order: "sam.sweetmemories.com", "sam.sweetmemories.com/bob", "sam.sweetmemories.com/first-day-of-bob" and "sam.sweetmemories.com/maple-street-party", each with its description.
+  1. *Happy path*: **Given** the visitor is on `/`, **When** they view the section "Your family name first, then a page for each memory.", **Then** a list shows four rows, in order: "sam.sweetmemories.com", "sam.sweetmemories.com/bob", "sam.sweetmemories.com/first-day-of-bob" and "sam.sweetmemories.com/maple-street-party", each with its description.
   2. *Example only:* **Given** the list is visible, **When** the visitor clicks the second address, **Then** the browser does not navigate. The addresses are plain text, not links.
   3. *Home page vs Memory page:* **Given** the list is visible, **When** the visitor reads the first row, **Then** its description says it is the family's home page listing everything published, and the other three rows describe Memory pages.
 
 **US-homepage-8: Final CTA and footer**
 - **Story:** As a visitor who scrolled to the end, I want a last invitation to start, so that I do not have to scroll back up.
 - **Scenarios:**
-  1. *Happy path* **[target blocked on Q-cta]:** **Given** the visitor scrolls to the bottom of `/`, **When** the final section is visible, **Then** they see "Start with the memory everyone keeps telling." and a "Start with Google" link that navigates to `/sign-in`.
+  1. *Happy path*: **Given** the visitor scrolls to the bottom of `/`, **When** the final section is visible, **Then** they see "Start with the memory everyone keeps telling." and a "Start with Google" link that navigates to `/sign-in`.
   2. *Footer:* **Given** the visitor is at the bottom, **When** the footer is visible, **Then** it shows "SweetMemories" and "Small pages for the moments worth keeping." inside a `contentinfo` landmark.
   3. *No private data (rule 5):* **Given** the page is rendered, **When** the HTML is inspected, **Then** it contains no email addresses, no person names other than the fictional examples, and no environment or version strings.
   4. *No unbuilt features promised:* **Given** the page is rendered, **When** the HTML of `/` is inspected, **Then** it contains none of "add to", "Invite people", "just added a photo" or "12 cousins", because visitors cannot yet add to another person's Memory.
@@ -133,7 +172,7 @@ Scenarios marked **[blocked on Q-x]** depend on an answer; task [H0](../tasks/ho
 **US-homepage-10: Responsive, accessible and calm motion**
 - **Story:** As a visitor on any device, or with motion sensitivity, I want the page to be readable and comfortable, so that I can use it without strain.
 - **Scenarios:**
-  1. *Mobile* **[header behavior blocked on Q-mobile]:** **Given** a 375×812 viewport, **When** the visitor opens `/`, **Then** there is no horizontal scrollbar, the `h1` and "Start with Google" are visible without scrolling, and the "Sign in" link is visible in the header. If the recommended answer is accepted, the three anchor links are hidden at this width. H0 pins the final behavior.
+  1. *Mobile*: **Given** a 375×812 viewport, **When** the visitor opens `/`, **Then** there is no horizontal scrollbar, the `h1` and "Start with Google" are visible without scrolling, and the "Sign in" link is visible in the header. Below 768 px the three anchor links are hidden and the header shows only the logo and "Sign in"; at 768 px and wider all four nav items show.
   2. *Tablet:* **Given** a 768×1024 viewport, **When** the visitor scrolls the whole page, **Then** no text overlaps or is cut off, and all sections (hero to footer) are reachable.
   3. *Reduced motion:* **Given** the browser has `prefers-reduced-motion: reduce`, **When** the visitor opens `/`, **Then** no element has a running CSS animation or transition. For example, the hero sun does not spin and the cards do not float.
   4. *Headings:* **Given** the page is rendered, **When** headings are listed, **Then** there is exactly one `h1`, each section has one `h2`, and card titles are `h3`.
@@ -147,7 +186,7 @@ Scenarios marked **[blocked on Q-x]** depend on an answer; task [H0](../tasks/ho
 - Example addresses, Template cards, Block chips and moment chips are not links and load no data. No unapproved Template ever appears.
 - `/` and `/sign-in` set no cookies and make no third-party requests. The console shows no errors and no hydration warnings.
 - There is no horizontal scroll at 375 px. Reduced motion disables every animation. axe-core reports no serious or critical issues.
-- Every scenario marked [blocked] has its exact strings pinned by H0 from the recorded answers before e2e is written.
+- Every scenario names its exact strings, taken from the Copy subsection, so e2e can be written without further questions.
 - No spec, test or setup doc still requires the heading "SweetMemories home page" (project-skeleton, dev-deploy, local-development). The skeleton and dev-deploy cookie, 404, health and console checks still pass.
 
 ## Risks and security notes
@@ -157,6 +196,6 @@ Scenarios marked **[blocked on Q-x]** depend on an answer; task [H0](../tasks/ho
 - **Rule 4 (review queue):** the Templates section is static on purpose. If it is ever wired to live data, it must list only approved Templates (US-homepage-5.4).
 - **Rule 5 (no private data):** only fictional examples (Sam, Bob, Mia). No User data, environment or version strings, or analytics IDs.
 - **Rule 6 (slugs):** example subdomain and slugs (`bob`, `first-day-of-bob`, `maple-street-party`, `bobs-first-day`) are plain text, not links. Recommendation: reserve `sam` (or the Q-example pick) and app paths (`sign-in`, `api`, `admin`) in the reserved lists when the subdomain feature is built.
-- **Misleading copy:** the collaboration wording and "12 cousins" describe features and usage that do not exist. Resolve through Q-copy before shipping.
+- **Misleading copy:** the collaboration wording and "12 cousins" describe features and usage that do not exist. Resolved by Q-copy: the page uses owner-only wording (see Copy).
 - **Regression:** H11 must land in the same PR as H3, or CI and the dev smoke tests go red.
 - Rules 2 and 3 are not touched: this page runs no admin-authored CSS or JS.
