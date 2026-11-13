@@ -13,7 +13,7 @@ Options:
 
 Recommended answer: Self-host via @fontsource: no third-party requests or IP leaks, CSP-friendly, and reusable on the future cookie-free Memory pages.
 
-Answer:
+Answer: Agreed with the recommended answer (2026-11-14). Status: answered.
 
 ## Topic: ADR 0006: Per-environment site URL and search indexing
 
@@ -26,4 +26,4 @@ Options:
 
 Recommended answer: SITE_URL + SITE_INDEXABLE via process.env: correct URLs on dev and prod, dev never indexed, immune to Host header injection, and consistent with env.d.ts.
 
-Answer:
+Answer: Agreed with the recommended answer (2026-11-14). Status: answered.
