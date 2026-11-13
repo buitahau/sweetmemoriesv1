@@ -26,9 +26,9 @@ Out of scope: DB code, schema, migrations, seed scripts.
 - **Story:** As a tester, I want the dev environment to use a shared test database, so that what I test on dev does not depend on any developer's local data and never touches production data.
 - **Scenarios:**
   1. *Branch exists:* **Given** the Neon project for SweetMemories, **When** a maintainer lists its branches, **Then** a branch named `dev` exists, separate from the project's main (future production) branch.
-  2. *Bound to dev Worker:* **Given** the dev Worker `sweetmemories-dev`, **When** a maintainer runs `wrangler secret list --env dev`, **Then** `DATABASE_URL` is listed, and its value points to the Neon `dev` branch host (checked in the Neon dashboard, not printed in CI).
+  2. *Bound to dev Worker:* **Given** the dev Worker `sweetmemories-dev`, **When** a maintainer runs `wrangler secret list --env dev` after a deploy, **Then** `DATABASE_URL` is listed, and its value points to the Neon `dev` branch host (checked in the Neon dashboard, not printed in CI).
   3. *Not local:* **Given** a developer's local `.env`, **When** it is compared with the dev Worker secret, **Then** they point to different databases, and `.env.example` documents `DATABASE_URL` with no real value.
-  4. *Survives deploys:* **Given** `DATABASE_URL` is set on the dev Worker, **When** a new merge deploys to dev, **Then** the secret is still present afterwards (deploys do not wipe or overwrite it).
+  4. *Survives deploys:* **Given** `DATABASE_URL` is set on the dev Worker, **When** a new merge deploys to dev, **Then** the secret is still present afterwards (the deploy re-applies it from the GitHub Environment `dev` secret).
 
 **US-devdb-2: Database credentials are never exposed**
 - **Story:** As a maintainer, I want the test database credentials kept out of the repo, logs and responses, so that nobody can reach the database from public output.

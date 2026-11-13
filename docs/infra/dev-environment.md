@@ -55,9 +55,9 @@ Setup of `.venv-e2e` is in [../../e2e/README.md](../../e2e/README.md). Scenario 
 
 ## Test database (Neon dev branch)
 
-Decision: [ADR 0004](../adr/0004-neon-dev-branch-test-database.md) (status: proposed, so everything below is pending ADR acceptance and the ops steps are not yet done). Feature: [dev-test-database](../features/dev-test-database.md).
+Decision: [ADR 0004](../adr/0004-neon-dev-branch-test-database.md) (status: accepted). Feature: [dev-test-database](../features/dev-test-database.md).
 
-- Dev uses the Neon branch `dev` (child of the project's main branch) through the Worker secret `DATABASE_URL`, with a non-owner role scoped to that branch database. Production never shares a branch or credentials with dev.
+- Dev uses the Neon branch `dev` (child of the project's main branch) through the Worker secret `DATABASE_URL` (stored as the GitHub Environment `dev` secret and pushed to the Worker by `deploy-dev` on every deploy), with a non-owner role scoped to that branch database. Production never shares a branch or credentials with dev.
 - The dev database holds synthetic test data only, never real user data.
 - Access: maintainers with access to the Neon project. Testers use the app on dev, not the database directly.
 - No DB code exists yet; the secret is only typed in `src/env.d.ts`. The first DB feature reads it and uses `@neondatabase/serverless`.
@@ -66,13 +66,14 @@ Decision: [ADR 0004](../adr/0004-neon-dev-branch-test-database.md) (status: prop
 Ops (maintainer, not done from a code branch). Neon names to record here once created: project `TBD`, branch `dev`, role `TBD` (names only, never secrets).
 
 1. In Neon, create the branch `dev` off main and a non-owner role scoped to the dev branch database.
-2. Set the secret: `pnpm exec wrangler secret put DATABASE_URL -c wrangler.jsonc --env dev` (paste the dev branch connection string at the prompt).
-3. Check: `pnpm exec wrangler secret list -c wrangler.jsonc --env dev` lists `DATABASE_URL`. Deploys do not remove it, because `deploy-dev` does not touch secrets.
+2. In GitHub, add `DATABASE_URL` (the dev branch connection string) under Settings, Environments, `dev`, Environment secrets. The `deploy-dev` workflow fails early if it is missing, then pushes it to the Worker with the wrangler-action `secrets` input. No manual `wrangler secret put` is needed.
+3. Check: after a deploy, `pnpm exec wrangler secret list -c wrangler.jsonc --env dev` lists `DATABASE_URL`.
+4. Rotate: update the GitHub Environment secret, then re-run `deploy-dev` (workflow_dispatch on `dev-v2`).
 
 ### Reset the dev branch (proposed policy, pending agreement)
 
 1. In Neon, reset the branch `dev` to its parent (Neon console: Branches, `dev`, Reset from parent; or `neonctl branches reset dev --parent`).
-2. The connection string host stays the same, so the dev Worker needs no redeploy. If the role is recreated, set `DATABASE_URL` again (step 2 above).
+2. The connection string host stays the same, so the dev Worker needs no redeploy. If the role is recreated, update the GitHub Environment secret and re-run `deploy-dev` (steps 2 and 4 above).
 3. Check `curl -i <dev URL>/api/health` returns `200`, and that the parent branch was not changed.
 
 ## Cloudflare token (task 02, ops)

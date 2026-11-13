@@ -51,12 +51,23 @@ jobs:
             echo "stale run, use workflow_dispatch (run $SHA, dev-v2 is at $HEAD_SHA)" >&2
             exit 1
           fi
+      # DATABASE_URL (Neon dev branch, see ADR 0004) lives in the GitHub Environment `dev`
+      # and is pushed to the dev Worker as a secret on every deploy.
+      - name: Require DATABASE_URL
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: test -n "$DATABASE_URL" || { echo "Environment secret DATABASE_URL is missing or empty" >&2; exit 1; }
       - name: Deploy to dev
         id: deploy
         uses: cloudflare/wrangler-action@953926a2e2182532811c01a25e53647d93bf07c0 # v4.1.3
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          environment: dev
+          secrets: |
+            DATABASE_URL
           command: deploy -c wrangler.jsonc --env dev --tag ${{ github.sha }} --message "deploy-dev ${{ github.sha }}"
       - name: Smoke check /api/health
         id: smoke

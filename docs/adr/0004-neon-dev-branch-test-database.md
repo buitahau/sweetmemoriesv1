@@ -2,7 +2,7 @@
 
 ## Status
 
-proposed
+accepted
 
 Open questions: [../decisions/ci-cd-deploy-to-cloudflare-dev-adr.md](../decisions/ci-cd-deploy-to-cloudflare-dev-adr.md)
 

@@ -9,11 +9,13 @@
 
 ## What to change
 
-Set the Worker secret with `wrangler secret put DATABASE_URL --env dev`, done by a maintainer and not from CI logs. Add `DATABASE_URL=` with a comment to `.env.example`. Declare the binding type in the Worker env typings, if typings exist, so the first DB feature can read it. Add no code that reads it.
+Store `DATABASE_URL` as a secret of the GitHub Environment `dev`; `deploy-dev` pushes it to the dev Worker as a secret on each deploy (wrangler-action `secrets` input, value never printed). Add `DATABASE_URL=` with a comment to `.env.example`. Declare the binding type in the Worker env typings, if typings exist, so the first DB feature can read it. Add no code that reads it.
 
 ## Checklist
 
-- [ ] Secret `DATABASE_URL` set on the dev Worker
+- [x] Secret `DATABASE_URL` added to the GitHub Environment `dev`
+- [x] `deploy-dev` pushes it to the dev Worker and fails early if it is missing
+- [ ] Secret `DATABASE_URL` set on the dev Worker (confirm after the deploy)
 - [x] `.env.example` lists `DATABASE_URL` with no value
 - [x] Binding type declared (`src/env.d.ts`) in Worker env typings (if they exist)
 

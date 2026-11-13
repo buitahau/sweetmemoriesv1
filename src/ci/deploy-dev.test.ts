@@ -82,15 +82,33 @@ describe('deploy-dev workflow', () => {
     const deploy = job.steps.find((s) => s.id === 'deploy')
     expect(deploy?.with?.apiToken).toBe('${{ secrets.CLOUDFLARE_API_TOKEN }}')
     expect(deploy?.with?.accountId).toBe('${{ secrets.CLOUDFLARE_ACCOUNT_ID }}')
-    expect(text).not.toMatch(/DATABASE_URL/)
   })
 
-  it('never sets DATABASE_URL via the deploy step or wrangler config (secret must survive deploys)', () => {
+  it('pushes DATABASE_URL to the dev Worker from the Environment secret only', () => {
     const deploy = job.steps.find((s) => s.id === 'deploy') as Step
-    expect(deploy.with?.secrets).toBeUndefined()
+    expect(deploy.with?.environment).toBe('dev')
+    expect(String(deploy.with?.secrets).trim()).toBe('DATABASE_URL')
+    expect((deploy.env as Record<string, string>).DATABASE_URL).toBe(
+      '${{ secrets.DATABASE_URL }}',
+    )
     expect(deploy.with?.vars).toBeUndefined()
     expect(String(deploy.with?.command)).not.toMatch(/--var|DATABASE_URL/)
+    // Every mention in the workflow must be the secrets reference or the bare name.
+    const mentions = text.match(/.*DATABASE_URL.*/g) ?? []
+    for (const m of mentions) {
+      expect(m).toMatch(
+        /\$\{\{ secrets\.DATABASE_URL \}\}|^\s*DATABASE_URL\s*$|^\s*#|name: Require DATABASE_URL|test -n "\$DATABASE_URL"/,
+      )
+    }
     expect(read('wrangler.jsonc')).not.toMatch(/DATABASE_URL|"vars"/)
+  })
+
+  it('fails before deploying when the DATABASE_URL secret is missing', () => {
+    const ids = job.steps.map((s) => s.id)
+    const idx = job.steps.findIndex((s) => s.name === 'Require DATABASE_URL')
+    expect(idx).toBeGreaterThan(-1)
+    expect(idx).toBeLessThan(ids.indexOf('deploy'))
+    expect(job.steps[idx].run).toContain('test -n "$DATABASE_URL"')
   })
 
   it('writes SHA, dev URL and version ID to the job summary', () => {
