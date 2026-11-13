@@ -1,6 +1,6 @@
 # Feature: dev-test-database
 
-**Status:** in progress
+**Status:** done
 **Side:** backend (Neon branch provisioning, Worker secret binding, env documentation; no app UI and no DB code)
 
 Tasks: [../tasks/dev-test-database/](../tasks/dev-test-database/) (01 to 03). ADR: [0004](../adr/0004-neon-dev-branch-test-database.md). Open questions: [../decisions/ci-cd-deploy-to-cloudflare-dev-adr.md](../decisions/ci-cd-deploy-to-cloudflare-dev-adr.md), [../decisions/ci-cd-deploy-to-cloudflare-dev-feature.md](../decisions/ci-cd-deploy-to-cloudflare-dev-feature.md). Mockups: none.

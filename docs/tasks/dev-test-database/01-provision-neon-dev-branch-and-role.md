@@ -1,6 +1,6 @@
 # 01 Provision the Neon dev branch and a least-privilege role
 
-**Status:** todo
+**Status:** done
 **Side:** backend
 **Size:** S
 **Dependencies:** ADR 0004 accepted
@@ -13,10 +13,10 @@ Ops setup, no code. Create (or reuse) the SweetMemories Neon project. Create a `
 
 ## Checklist
 
-- [ ] Neon project exists
-- [ ] Branch `dev` created off main
-- [ ] Non-owner role scoped to the dev branch database
-- [ ] Names (no secrets) recorded in `docs/infra/dev-environment.md`
+- [x] Neon project exists
+- [x] Branch `dev` created off main
+- [x] Non-owner role scoped to the dev branch database
+- [x] Names (no secrets) recorded in `docs/infra/dev-environment.md`
 
 ## Verification
 

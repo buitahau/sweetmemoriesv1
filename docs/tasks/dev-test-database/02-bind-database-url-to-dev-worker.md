@@ -1,6 +1,6 @@
 # 02 Bind `DATABASE_URL` to the dev Worker
 
-**Status:** in progress
+**Status:** done
 **Side:** backend
 **Size:** S
 **Dependencies:** dev-deploy 03, dev-test-database 01
@@ -15,7 +15,7 @@ Store `DATABASE_URL` as a secret of the GitHub Environment `dev`; `deploy-dev` p
 
 - [x] Secret `DATABASE_URL` added to the GitHub Environment `dev`
 - [x] `deploy-dev` pushes it to the dev Worker and fails early if it is missing
-- [ ] Secret `DATABASE_URL` set on the dev Worker (confirm after the deploy)
+- [x] Secret `DATABASE_URL` set on the dev Worker (pushed by `deploy-dev`, run 43519902919 succeeded)
 - [x] `.env.example` lists `DATABASE_URL` with no value
 - [x] Binding type declared (`src/env.d.ts`) in Worker env typings (if they exist)
 

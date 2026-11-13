@@ -63,14 +63,19 @@ Decision: [ADR 0004](../adr/0004-neon-dev-branch-test-database.md) (status: acce
 - No DB code exists yet; the secret is only typed in `src/env.d.ts`. The first DB feature reads it and uses `@neondatabase/serverless`.
 - Never print the value in CI logs, commit it, or return it from an endpoint.
 
-Ops (maintainer, not done from a code branch). Neon names to record here once created: project `TBD`, branch `dev`, role `TBD` (names only, never secrets).
+Neon names (names only, never secrets): project `sweetmemories`, branch `dev`, role `sweetmemories_dev_app` (non-owner: `CONNECT` plus `SELECT/INSERT/UPDATE/DELETE` on the app schema; a separate migrate role comes with the first schema work).
+
+Ops (maintainer, not done from a code branch):
 
 1. In Neon, create the branch `dev` off main and a non-owner role scoped to the dev branch database.
 2. In GitHub, add `DATABASE_URL` (the dev branch connection string) under Settings, Environments, `dev`, Environment secrets. The `deploy-dev` workflow fails early if it is missing, then pushes it to the Worker with the wrangler-action `secrets` input. No manual `wrangler secret put` is needed.
 3. Check: after a deploy, `pnpm exec wrangler secret list -c wrangler.jsonc --env dev` lists `DATABASE_URL`.
 4. Rotate: update the GitHub Environment secret, then re-run `deploy-dev` (workflow_dispatch on `dev-v2`).
 
-### Reset the dev branch (proposed policy, pending agreement)
+### Reset the dev branch (agreed policy: on demand by a maintainer)
+
+No schedule. A maintainer resets `dev` when its data is messy or a schema change went wrong, and warns testers first. `dev` holds synthetic data only, so anything on it may be lost. Neon resets to the parent's current state: keep the main branch schema-only, or add a seed step after a reset once seed data exists.
+
 
 1. In Neon, reset the branch `dev` to its parent (Neon console: Branches, `dev`, Reset from parent; or `neonctl branches reset dev --parent`).
 2. The connection string host stays the same, so the dev Worker needs no redeploy. If the role is recreated, update the GitHub Environment secret and re-run `deploy-dev` (steps 2 and 4 above).
