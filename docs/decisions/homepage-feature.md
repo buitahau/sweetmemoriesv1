@@ -15,7 +15,7 @@ Options:
 
 Recommended answer: A /sign-in placeholder: the page matches the design today, and the auth feature only has to replace one route.
 
-Answer:
+Answer: Agreed with the recommended answer (2026-11-14). Status: answered.
 
 ### Q-copy: The copy promises shared editing ("everyone you love can ... add to", "Invite people in and let everyone add a piece", "Grandma just added a photo", "Grandma, Mum and 12 cousins added photos", "A page the whole street can add to"), but a Memory has a single owner and no contributor feature exists. What should we do?
 
@@ -26,7 +26,7 @@ Options:
 
 Recommended answer: Rewrite to owner-only wording: the page must not promise a feature that does not exist. Restore the copy when contributors are built.
 
-Answer:
+Answer: Agreed with the recommended answer (2026-11-14). Status: answered.
 
 ### Q-blocks: The "Made from building blocks" chips list Curved timeline and Before and after, and leave out 3x3 Photo Grid. Which Block names should be shown?
 
@@ -37,7 +37,7 @@ Options:
 
 Recommended answer: Built-in types only: they match the domain model and what users can actually pick.
 
-Answer:
+Answer: Agreed with the recommended answer (2026-11-14). Status: answered.
 
 ### Q-templates: The Template card "An adventure" mentions a video, but there is no video Block. Should the Template cards be static illustrations, and how should the wording change?
 
@@ -48,7 +48,7 @@ Options:
 
 Recommended answer: Static illustrative cards without "a video": no Templates exist yet, static cards cannot leak unreviewed Templates, and the copy stays truthful.
 
-Answer:
+Answer: Agreed with the recommended answer (2026-11-14). Status: answered.
 
 ### Q-mobile: The mockup is desktop only (1440 px). How should the header and sections behave on mobile?
 
@@ -59,7 +59,7 @@ Options:
 
 Recommended answer: Stack sections and show only logo and Sign in on mobile: the simplest layout that keeps the main action reachable, with no extra menu component.
 
-Answer:
+Answer: Agreed with the recommended answer (2026-11-14). Status: answered.
 
 ### Q-pricing: Should we keep the pricing hints "It is free to look around" and "Free to start with Google" (in the meta description)?
 
@@ -70,7 +70,7 @@ Options:
 
 Recommended answer: Keep both: no paid plan exists, so the claims are accurate today. Revisit when pricing is defined.
 
-Answer:
+Answer: Agreed with the recommended answer (2026-11-14). Status: answered.
 
 ### Q-example: The hero and Addresses section use the example subdomain "sam". Which example should the page use, and should it be reserved?
 
@@ -81,7 +81,7 @@ Options:
 
 Recommended answer: Keep sam and reserve it with the app paths: the copy stays friendly as designed, and one list entry prevents a real User from appearing to own the marketing example.
 
-Answer:
+Answer: Agreed with the recommended answer (2026-11-14). Status: answered.
 
 ## Topic: homepage-seo
 
@@ -94,4 +94,4 @@ Options:
 
 Recommended answer: Export placeholders from the mockup now and swap in design assets later: the share preview works immediately and nothing blocks S2.
 
-Answer:
+Answer: Agreed with the recommended answer (2026-11-14). Status: answered.

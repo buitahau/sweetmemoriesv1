@@ -2,7 +2,7 @@
 
 ## Status
 
-proposed
+accepted
 
 Open questions: [../decisions/homepage-adr.md](../decisions/homepage-adr.md)
 
