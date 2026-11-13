@@ -9,7 +9,7 @@
 
 ## What to change
 
-`e2e/homepage/` with one test per scenario of US-homepage-1 to US-homepage-10, each named by its story ID (see the `e2e-from-user-stories` skill).
+`e2e/homepage/test_homepage.py` (single feature file; US-homepage-8.4 already lives there, do not duplicate) with one test per scenario of US-homepage-1 to US-homepage-10, each named by its story ID (see the `e2e-from-user-stories` skill).
 
 ## Checklist
 
