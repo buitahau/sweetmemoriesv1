@@ -1,6 +1,16 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
+/* Self-hosted fonts (ADR 0005): latin subset, only the weights the design uses. */
+@import '@fontsource/fredoka/latin-500.css';
+@import '@fontsource/fredoka/latin-600.css';
+@import '@fontsource/fredoka/latin-700.css';
+@import '@fontsource/caveat/latin-500.css';
+@import '@fontsource/caveat/latin-700.css';
+@import '@fontsource/figtree/latin-400.css';
+@import '@fontsource/figtree/latin-500.css';
+@import '@fontsource/figtree/latin-600.css';
+
 @custom-variant dark (&:is(.dark *));
 
 :root {
@@ -13,8 +23,224 @@
   --color-foreground: var(--foreground);
 }
 
+/* Homepage design tokens, rebuilt from the mockup's inline styles. */
+@theme {
+  --font-display: 'Fredoka', ui-rounded, system-ui, sans-serif;
+  --font-hand: 'Caveat', cursive;
+  --font-body: 'Figtree', system-ui, sans-serif;
+
+  --color-ink: #3b2433;
+  --color-ink-soft: #5a3c4b;
+  --color-ink-muted: #6b4a5a;
+  --color-link: #b0285a;
+  --color-link-hover: #8c1f48;
+
+  --color-pink-50: #fff4f7;
+  --color-pink-100: #ffe0e8;
+  --color-pink-200: #ffb6c8;
+  --color-pink-300: #ff8fab;
+  --color-pink-400: #e57e98;
+  --color-pink-500: #e8486a;
+
+  --color-card-peach: #ffe1cc;
+  --color-card-peach-shadow: #f2be98;
+  --color-card-mint: #d6f1e4;
+  --color-card-mint-shadow: #9fd8bd;
+  --color-card-butter: #fff0b8;
+  --color-card-butter-shadow: #f0d56e;
+  --color-card-lilac: #e6dafa;
+  --color-card-lilac-shadow: #c9b8f0;
+  --color-card-sky: #d4e9fb;
+  --color-card-sky-shadow: #a9d4f2;
+  --color-cream: #fff7ea;
+  --color-cream-shadow: #f2d9c0;
+
+  --radius-chip: 14px;
+  --radius-card: 28px;
+  --radius-panel: 32px;
+  --radius-hero: 64px;
+
+  --shadow-sticker: 0 6px 0 #e57e98;
+  --shadow-sticker-lg: 0 8px 0 #f2d9c0;
+  --shadow-sticker-hover: 0 9px 0 #e57e98;
+  --shadow-sticker-press: 0 2px 0 #e57e98;
+  --shadow-soft: 0 8px 16px rgb(59 36 51 / 0.16);
+
+  --animate-sm-float: sm-float 6s ease-in-out infinite;
+  --animate-sm-float-tilt: sm-float-tilt 7s ease-in-out infinite;
+  --animate-sm-spin: sm-spin 0.6s ease-in-out;
+  --animate-sm-drift: sm-drift 9s ease-in-out infinite;
+  --animate-sm-beat: sm-beat 1.6s ease-in-out infinite;
+  --animate-sm-twinkle: sm-twinkle 3s ease-in-out infinite;
+  --animate-sm-sway-a: sm-sway-a 5s ease-in-out infinite;
+  --animate-sm-sway-b: sm-sway-b 6s ease-in-out infinite;
+  --animate-sm-sway-c: sm-sway-c 7s ease-in-out infinite;
+  --animate-sm-wiggle: sm-wiggle 4s ease-in-out infinite;
+  --animate-sm-rise: sm-rise 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  --animate-sm-pop: sm-pop 0.6s cubic-bezier(0.3, 1.4, 0.5, 1) both;
+  --animate-sm-hl: sm-hl 0.9s 0.6s ease-out both;
+  --animate-sm-bob: sm-bob 0.6s ease-in-out infinite;
+  --animate-sm-blob: sm-blob 10s ease-in-out infinite;
+
+  @keyframes sm-float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-12px);
+    }
+  }
+  @keyframes sm-float-tilt {
+    0%,
+    100% {
+      transform: rotate(-2deg) translateY(0);
+    }
+    50% {
+      transform: rotate(-1deg) translateY(-10px);
+    }
+  }
+  @keyframes sm-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes sm-drift {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    50% {
+      transform: translateX(26px);
+    }
+  }
+  @keyframes sm-beat {
+    0%,
+    100% {
+      transform: rotate(-12deg) scale(1);
+    }
+    15% {
+      transform: rotate(-12deg) scale(1.18);
+    }
+    30% {
+      transform: rotate(-12deg) scale(1);
+    }
+    45% {
+      transform: rotate(-12deg) scale(1.12);
+    }
+  }
+  @keyframes sm-twinkle {
+    0%,
+    100% {
+      transform: rotate(14deg) scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: rotate(40deg) scale(0.8);
+      opacity: 0.7;
+    }
+  }
+  @keyframes sm-sway-a {
+    0%,
+    100% {
+      transform: rotate(-6deg);
+    }
+    50% {
+      transform: rotate(-2deg);
+    }
+  }
+  @keyframes sm-sway-b {
+    0%,
+    100% {
+      transform: rotate(4deg);
+    }
+    50% {
+      transform: rotate(8deg);
+    }
+  }
+  @keyframes sm-sway-c {
+    0%,
+    100% {
+      transform: rotate(7deg);
+    }
+    50% {
+      transform: rotate(3deg);
+    }
+  }
+  @keyframes sm-wiggle {
+    0%,
+    100% {
+      transform: rotate(3deg);
+    }
+    50% {
+      transform: rotate(-2deg);
+    }
+  }
+  @keyframes sm-rise {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes sm-pop {
+    0% {
+      opacity: 0;
+      transform: scale(0.4);
+    }
+    70% {
+      transform: scale(1.12);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  @keyframes sm-hl {
+    from {
+      background-size: 0% 100%;
+    }
+    to {
+      background-size: 100% 100%;
+    }
+  }
+  @keyframes sm-bob {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-6px);
+    }
+  }
+  @keyframes sm-blob {
+    0%,
+    100% {
+      border-radius: 50%;
+      transform: scale(1);
+    }
+    50% {
+      border-radius: 46% 54% 58% 42% / 52% 44% 56% 48%;
+      transform: scale(1.06);
+    }
+  }
+}
+
 @layer base {
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Motion base: honour reduced motion everywhere. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
   }
 }
