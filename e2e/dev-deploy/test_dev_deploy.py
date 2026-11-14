@@ -350,10 +350,23 @@ def test_US_deploy_3_2b_stale_guard_behavior(workflow, tmp_path, head_sha, expec
 # ---------- US-deploy-4: Deploy credentials and dev stay safe ----------
 
 def test_US_deploy_4_1_secrets_never_echoed(workflow):
-    """US-deploy-4.1 (story US-deploy-4): secrets only appear as wrangler-action inputs, never in run scripts."""
+    """US-deploy-4.1 (story US-deploy-4): secrets only reach steps as wrangler-action inputs, never printed.
+
+    Exceptions: the wrangler-action step (no run script) may map secrets into its env, because its
+    `secrets:` input reads them from there; and the "Require DATABASE_URL" step may map the secret into
+    its env to test that it is non-empty, as long as its script never prints the value.
+    """
     for s in _steps(workflow):
-        assert "secrets." not in s.get("run", ""), f"secret used in a run script: {s.get('name')}"
-        assert "DATABASE_URL" not in s.get("run", "")
+        run_script = s.get("run", "")
+        if s.get("name") == "Require DATABASE_URL":
+            assert not re.search(r"(echo|printf|cat)[^|;&\n]*\$\{?DATABASE_URL", run_script), "secret value printed"
+            assert "set -x" not in run_script and "set -o xtrace" not in run_script
+            assert "secrets." not in run_script
+            continue
+        assert "secrets." not in run_script, f"secret used in a run script: {s.get('name')}"
+        assert "DATABASE_URL" not in run_script
+        if "wrangler-action" in s.get("uses", "") and not run_script:
+            continue
         for k, v in (s.get("env") or {}).items():
             assert "secrets." not in str(v), f"secret exposed as env {k}"
     assert workflow["jobs"]["deploy"]["environment"] == "dev"
