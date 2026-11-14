@@ -127,7 +127,7 @@ def test_US_homepage_10_3_motion_allowed_keeps_animation(page, base_url):
 # ---------------------------------------------------------------------------
 NAV_LABELS = ["Who it is for", "How it works", "Templates", "Sign in"]
 SECTION_HEADINGS = {
-    "who": "Your family name first, then a page for each memory.",
+    "who": "A little corner of the internet for everyone who loves each other.",
     "how": "From a pile of photos to a page, in four easy steps.",
     "templates": "Start simple, or tell the whole story.",
 }
@@ -148,10 +148,17 @@ def _wait_in_viewport(page, locator):
     )
 
 
+# Sections whose task has not shipped yet. Each section task (04, 05, 06) removes
+# its entry; once removed, a missing heading FAILS instead of skipping.
+PENDING_SECTION_TASKS = {"who": "04", "how": "05", "templates": "06"}
+
+
 def _heading_or_block(page, anchor):
     h = page.get_by_role("heading", name=SECTION_HEADINGS[anchor])
     if h.count() == 0:
-        pytest.skip(f"BLOCKED: heading for #{anchor} not rendered yet (section task pending)")
+        if anchor in PENDING_SECTION_TASKS:
+            pytest.skip(f"BLOCKED: task {PENDING_SECTION_TASKS[anchor]} (heading for #{anchor} not shipped yet)")
+        pytest.fail(f"heading for #{anchor} missing: {SECTION_HEADINGS[anchor]!r}")
     return h.first
 
 
@@ -194,6 +201,7 @@ def test_US_homepage_2_4_logo_returns_to_top(page, base_url):
     """US-homepage-2.4 (story US-homepage-2): from /#templates the logo goes to / and scrolls to the top."""
     page.goto(base_url + "/#templates", wait_until="networkidle")
     scrollable = page.evaluate("document.documentElement.scrollHeight > innerHeight")
+    # TODO(task 12): drop the `scrollable` conditions so the scroll-to-top check always runs.
     if scrollable:
         # Deep-link scrolling must work once the page can scroll; fail, do not skip.
         page.wait_for_function("window.scrollY > 0")
@@ -217,15 +225,20 @@ def test_US_homepage_2_5_keyboard_tab_order_and_focus_ring(page, base_url, shot)
             """() => {
               const el = document.activeElement;
               const cs = getComputedStyle(el);
-              const hdr = getComputedStyle(document.querySelector('header'));
+              let bgEl = document.querySelector('header'), bg = 'rgba(0, 0, 0, 0)';
+              while (bgEl) {
+                bg = getComputedStyle(bgEl).backgroundColor;
+                if (!bg.endsWith(', 0)') && bg !== 'transparent') break;
+                bgEl = bgEl.parentElement;
+              }
               return {text: el.innerText.trim(), outlineStyle: cs.outlineStyle,
                       outlineWidth: parseFloat(cs.outlineWidth), tag: el.tagName,
-                      outlineColor: cs.outlineColor, headerBg: hdr.backgroundColor};
+                      outlineColor: cs.outlineColor, pageBg: bg};
             }"""
         )
         assert info["tag"] == "A"
         assert info["outlineStyle"] != "none" and info["outlineWidth"] > 0, f"no focus ring on {info['text']!r}"
-        assert info["outlineColor"] != info["headerBg"], f"focus ring blends into header on {info['text']!r}"
+        assert info["outlineColor"] != info["pageBg"], f"focus ring blends into page background on {info['text']!r}"
         assert not info["outlineColor"].endswith(", 0)"), f"transparent focus ring on {info['text']!r}"
         seen.append(info["text"])
     assert seen == expected
