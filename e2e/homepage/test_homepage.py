@@ -404,11 +404,10 @@ def test_US_homepage_10_2_collage_no_overlap_small_screens(pw, base_url, width):
                 const rg = document.createRange(); rg.selectNodeContents(el);
                 return rect(rg.getBoundingClientRect());
               };
-              const live = [...document.querySelectorAll('div')].find(
-                (d) => d.children.length === 2 && d.textContent.trim().startsWith('Your page is live'));
-              const polaroids = [...document.querySelectorAll('div.absolute')].filter(
-                (d) => d.className.includes('shadow-[0_10px_20px'));
-              const addr = byText('sam.sweetmemories.com/bobs-first-day');
+              const live = document.querySelector('[data-testid="live-card"]');
+              const polaroids = [...document.querySelectorAll('[data-testid="polaroid"]')];
+              const addr = document.querySelector('[data-testid="hero-address"]');
+              if (!live || !addr) return { missing: true };
               return {
                 live: rect(live.getBoundingClientRect()),
                 polaroids: polaroids.map((p) => rect(p.getBoundingClientRect())),
@@ -418,6 +417,7 @@ def test_US_homepage_10_2_collage_no_overlap_small_screens(pw, base_url, width):
               };
             }"""
         )
+        assert not data.get("missing"), "live-card or hero-address test id not found"
         apart = lambda a, b: a[2] <= b[0] or a[0] >= b[2] or a[3] <= b[1] or a[1] >= b[3]
         assert len(data["polaroids"]) == 3
         for c in data["caps"]:
@@ -426,5 +426,35 @@ def test_US_homepage_10_2_collage_no_overlap_small_screens(pw, base_url, width):
             for p in data["polaroids"]:
                 assert apart(t, p), f"title/subtitle {t} hits polaroid {p} at {width}px"
         assert data["addrOverflow"][0] <= data["addrOverflow"][1], "address is cut off"
+    finally:
+        browser.close()
+
+
+@pytest.mark.parametrize("width", [375, 768])
+def test_US_homepage_10_2_header_links_single_line(pw, base_url, width):
+    """US-homepage-10.2: every visible header link is one line tall and the page does not scroll sideways."""
+    browser = pw.chromium.launch()
+    try:
+        ctx = browser.new_context(viewport={"width": width, "height": 800}, reduced_motion="reduce")
+        pg = ctx.new_page()
+        pg.goto(base_url + "/", wait_until="networkidle")
+        data = pg.evaluate(
+            """() => {
+              const links = [...document.querySelectorAll('header nav a')].filter(
+                (a) => a.getClientRects().length > 0);
+              return {
+                scroll: [document.documentElement.scrollWidth, document.documentElement.clientWidth],
+                links: links.map((a) => {
+                  const rg = document.createRange(); rg.selectNodeContents(a);
+                  const lh = parseFloat(getComputedStyle(a).lineHeight) || parseFloat(getComputedStyle(a).fontSize) * 1.5;
+                  return { text: a.textContent.trim(), h: rg.getBoundingClientRect().height, lh };
+                }),
+              };
+            }"""
+        )
+        assert any(l["text"] == "Sign in" for l in data["links"]), "Sign in not visible"
+        for l in data["links"]:
+            assert l["h"] < l["lh"] * 1.5, f"{l['text']!r} wraps at {width}px: {l}"
+        assert data["scroll"][0] <= data["scroll"][1], f"horizontal scroll at {width}px"
     finally:
         browser.close()
