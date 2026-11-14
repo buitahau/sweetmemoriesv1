@@ -1,6 +1,6 @@
 # Feature: homepage
 
-**Status:** todo
+**Status:** in progress
 **Side:** front-end. The static page, its sections and the `/sign-in` placeholder route. No backend work: no data, no API, no session.
 **Mockup:** [Landing2.dc.html](../ui/Homepage/light%20pink/Landing2.dc.html) (folder kept as-is; moving it to `docs/ui/homepage/` is optional and not part of this work)
 
@@ -202,3 +202,10 @@ The strings "add to", "Invite people", "just added a photo" and "12 cousins" mus
 - **Misleading copy:** the collaboration wording and "12 cousins" describe features and usage that do not exist. Resolved by Q-copy: the page uses owner-only wording (see Copy).
 - **Regression:** H11 must land in the same PR as the first task that removes the old "SweetMemories home page" `h1` (H2 or H3, whichever lands first), or CI and the dev smoke tests go red. If H2 keeps the old heading, H11 stays with H3.
 - Rules 2 and 3 are not touched: this page runs no admin-authored CSS or JS.
+
+### Task 01 summary (design tokens, fonts, motion)
+
+- **Built:** palette, radii and sticker shadow tokens in `src/styles.css`, self-hosted Fredoka 500/600/700, Caveat 500/700 and Figtree 400/500/600 (latin, ADR 0005), a Fredoka 700 font preload in the root head, `sm-*` keyframes and a global `prefers-reduced-motion: reduce` rule. PR: #97.
+- **Test evidence (dev):** unit tests 118/118, lint, typecheck and build clean; `e2e/homepage` 9/9 and `e2e/project-skeleton` 12/12 on https://sweetmemories-dev.haubuitatmp.workers.dev. `/` returns 200 with no `Set-Cookie` and one preload link to the Fredoka 700 woff2 (200, `font/woff2`); no Google Fonts requests. Evidence: `e2e/homepage/test_homepage.py`.
+- **Review note applied:** exact weights listed; the computed reduced-motion check on a real element moved to tasks 03 and 10.
+- **Fix cycles:** 0.
