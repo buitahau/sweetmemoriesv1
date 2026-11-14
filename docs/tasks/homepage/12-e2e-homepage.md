@@ -16,6 +16,8 @@
 - [ ] No-cookie, same-origin-requests-only and console-clean (no errors, no hydration warnings) checks
 - [ ] Viewport checks (375 and 768) and reduced-motion check (`page.emulate_media(reduced_motion="reduce")`)
 - [ ] axe check
+- [ ] US-homepage-8.3 assertions: email regex, env values and names, git SHA, package version, `SITE_URL` only in head URL tags, name allow-list
+- [ ] US-homepage-10.3: under reduced motion, `h1`, "Start with Google" and every `h2` have computed opacity 1
 - [ ] US-homepage-5.4 marked skip, with a reason, until Templates exist
 
 ## Verification

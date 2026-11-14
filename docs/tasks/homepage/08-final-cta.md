@@ -20,4 +20,4 @@ A CTA band with decorative shapes.
 ## Verification
 
 - [ ] Vitest: the `h2` text is present and the button href is `/sign-in`.
-- [ ] Covers US-homepage-8 scenario 1.
+- [ ] Covers US-homepage-8 scenario 1. Scenario 3 (no private data: email pattern, env values, git SHA, package version, name allow-list) is automated in task 12.
