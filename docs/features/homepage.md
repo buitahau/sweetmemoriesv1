@@ -200,7 +200,7 @@ The strings "add to", "Invite people", "just added a photo" and "12 cousins" mus
 - **Rule 5 (no private data):** only fictional examples (Sam, Bob, Mia). No User data, environment or version strings, or analytics IDs.
 - **Rule 6 (slugs):** example subdomain and slugs (`bob`, `first-day-of-bob`, `maple-street-party`, `bobs-first-day`) are plain text, not links. Recommendation: reserve `sam` (or the Q-example pick) and app paths (`sign-in`, `api`, `admin`) in the reserved lists when the subdomain feature is built.
 - **Misleading copy:** the collaboration wording and "12 cousins" describe features and usage that do not exist. Resolved by Q-copy: the page uses owner-only wording (see Copy).
-- **Regression:** H11 must land in the same PR as the first task that removes the old "SweetMemories home page" `h1` (H2 or H3, whichever lands first), or CI and the dev smoke tests go red. If H2 keeps the old heading, H11 stays with H3.
+- **Regression:** Task 02 (page shell) keeps the old "SweetMemories home page" `h1`. Task 03 (hero) removes it, so H11 (task 11) must land in the same PR as task 03, or CI and the dev smoke tests go red.
 - Rules 2 and 3 are not touched: this page runs no admin-authored CSS or JS.
 
 ### Task 01 summary (design tokens, fonts, motion)
