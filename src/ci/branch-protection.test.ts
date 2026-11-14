@@ -6,12 +6,7 @@ const root = resolve(__dirname, '../..')
 const evaluate = (fixture: string) =>
   execFileSync(
     'jq',
-    [
-      '-r',
-      '-f',
-      resolve(root, 'scripts/branch-protection.jq'),
-      resolve(__dirname, 'fixtures', fixture),
-    ],
+    ['-r', '-f', resolve(root, 'scripts/branch-protection.jq'), resolve(__dirname, 'fixtures', fixture)],
     { encoding: 'utf8' },
   ).trim()
 
@@ -20,10 +15,7 @@ describe('branch-protection.jq', () => {
     expect(evaluate('protection-compliant.json')).toBe('true')
   })
   it.each([
-    [
-      'observed dev-v2 rule (no required check, not strict)',
-      'protection-dev-v2-observed.json',
-    ],
+    ['observed dev-v2 rule (no required check, not strict)', 'protection-dev-v2-observed.json'],
     ['unprotected branch 404 body', 'protection-404.json'],
     ['extra required context ci-extra', 'protection-ci-extra.json'],
     ['no required pull request', 'protection-no-pr.json'],

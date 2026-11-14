@@ -1,12 +1,5 @@
 import { spawnSync } from 'node:child_process'
-import {
-  chmodSync,
-  existsSync,
-  mkdtempSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs'
+import { chmodSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
@@ -19,12 +12,7 @@ const fixture = resolve(__dirname, 'fixtures/protection-compliant.json')
 // `merge` the repo merge settings. PUT bodies are returned per branch.
 function run(
   mode: string,
-  opts: {
-    get: 'error' | '404' | 'compliant'
-    getMain?: 'error' | '404' | 'compliant'
-    putFail?: boolean
-    merge?: string
-  },
+  opts: { get: 'error' | '404' | 'compliant'; getMain?: 'error' | '404' | 'compliant'; putFail?: boolean; merge?: string },
   env: Record<string, string> = {},
 ) {
   const dir = mkdtempSync(join(tmpdir(), 'ghstub-'))
@@ -75,24 +63,17 @@ describe('ci-branch-protection.sh', () => {
   it('rejects a BRANCHES value with glob characters with exit 2', () => {
     expect(run('check', { get: 'compliant' }, { BRANCHES: '*' }).status).toBe(2)
   })
-  it.each(['../x', '-x', '/x', 'a..b', ' ', '', 'a/', 'a//b', 'x.lock', 'x.'])(
-    'rejects bad BRANCHES %j with exit 2',
-    (v) => {
-      const r = run('check', { get: 'compliant' }, { BRANCHES: v })
-      expect(r.status).toBe(2)
-    },
-  )
+  it.each(['../x', '-x', '/x', 'a..b', ' ', '', 'a/', 'a//b', 'x.lock', 'x.'])('rejects bad BRANCHES %j with exit 2', (v) => {
+    const r = run('check', { get: 'compliant' }, { BRANCHES: v })
+    expect(r.status).toBe(2)
+  })
   it('does not NOTE a reordered default list', () => {
     const r = run('check', { get: 'compliant' }, { BRANCHES: 'main  dev-v2' })
     expect(r.status).toBe(0)
     expect(r.stdout).not.toContain('NOTE')
   })
   it('NOTE names the mode in apply', () => {
-    const r = run(
-      'apply',
-      { get: '404' },
-      { BRANCHES: 'dev-v2', CONFIRM: 'yes' },
-    )
+    const r = run('apply', { get: '404' }, { BRANCHES: 'dev-v2', CONFIRM: 'yes' })
     expect(r.stdout).toContain('NOTE only processing (apply)')
   })
   it('checks dev-v2 and main by default', () => {
@@ -122,9 +103,7 @@ describe('ci-branch-protection.sh', () => {
     expect(r.stdout).toContain('(none)')
   })
   it('apply exits 2 when the PUT fails', () => {
-    expect(
-      run('apply', { get: '404', putFail: true }, { CONFIRM: 'yes' }).status,
-    ).toBe(2)
+    expect(run('apply', { get: '404', putFail: true }, { CONFIRM: 'yes' }).status).toBe(2)
   })
   it('apply without confirmation on empty stdin skips and does not exit 1 from read', () => {
     const r = run('apply', { get: '404' })
@@ -149,27 +128,18 @@ describe('ci-branch-protection.sh', () => {
     expect(r.stdout).toContain('FAIL main')
   })
   it('apply exits 1 when protection is applied but merge commits are still allowed', () => {
-    const r = run(
-      'apply',
-      { get: 'compliant', merge: '[true,true,true]' },
-      { CONFIRM: 'yes' },
-    )
+    const r = run('apply', { get: 'compliant', merge: '[true,true,true]' }, { CONFIRM: 'yes' })
     expect(r.status).toBe(1)
     expect(r.stdout).toContain('FAIL squash-only merge')
   })
   it('apply exits 0 when protection and merge settings are compliant', () => {
-    expect(run('apply', { get: 'compliant' }, { CONFIRM: 'yes' }).status).toBe(
-      0,
-    )
+    expect(run('apply', { get: 'compliant' }, { CONFIRM: 'yes' }).status).toBe(0)
   })
   it('apply sends the required protection payload for dev-v2 and main', () => {
     const r = run('apply', { get: '404' }, { CONFIRM: 'yes' })
     for (const b of ['dev-v2', 'main']) {
       const body = r.put(b)
-      expect(body.required_status_checks).toEqual({
-        strict: true,
-        checks: [{ context: 'ci', app_id: 15368 }],
-      })
+      expect(body.required_status_checks).toEqual({ strict: true, checks: [{ context: 'ci', app_id: 15368 }] })
       expect(body.enforce_admins).toBe(true)
       expect(body.required_pull_request_reviews).toBeDefined()
       expect(body.allow_force_pushes).toBe(false)
