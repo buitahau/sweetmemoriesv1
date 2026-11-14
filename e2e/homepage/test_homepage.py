@@ -385,9 +385,9 @@ def test_US_homepage_1_9_favicon_served(pw, base_url):
         req.dispose()
 
 
-@pytest.mark.parametrize("width", [320, 360, 375, 414, 480, 768, 1440])
+@pytest.mark.parametrize("width", [320, 360, 375, 400, 412, 414, 430, 480, 768, 1440])
 def test_US_homepage_10_2_collage_no_overlap_small_screens(pw, base_url, width):
-    """US-homepage-10.2: polaroid captions and the sticker never intersect the live card on small screens."""
+    """US-homepage-10.2: no collage text overlaps another element and the address is not cut off."""
     browser = pw.chromium.launch()
     try:
         ctx = browser.new_context(
@@ -395,21 +395,36 @@ def test_US_homepage_10_2_collage_no_overlap_small_screens(pw, base_url, width):
         )
         pg = ctx.new_page()
         pg.goto(base_url + "/", wait_until="networkidle")
-        boxes = pg.evaluate(
+        data = pg.evaluate(
             """() => {
-              const rect = (el) => { const r = el.getBoundingClientRect(); return [r.left, r.top, r.right, r.bottom]; };
+              const rect = (r) => [r.left, r.top, r.right, r.bottom];
+              const byText = (t) => [...document.querySelectorAll('div,span')].find(
+                (d) => d.children.length === 0 && d.textContent.trim() === t);
+              const textRect = (el) => {
+                const rg = document.createRange(); rg.selectNodeContents(el);
+                return rect(rg.getBoundingClientRect());
+              };
               const live = [...document.querySelectorAll('div')].find(
                 (d) => d.children.length === 2 && d.textContent.trim().startsWith('Your page is live'));
-              const caps = [...document.querySelectorAll('div')].filter(
-                (d) => d.children.length === 0 && ['at the gate', 'new friends'].includes(d.textContent.trim()));
-              return { live: rect(live), caps: caps.map(rect) };
+              const polaroids = [...document.querySelectorAll('div.absolute')].filter(
+                (d) => d.className.includes('shadow-[0_10px_20px'));
+              const addr = byText('sam.sweetmemories.com/bobs-first-day');
+              return {
+                live: rect(live.getBoundingClientRect()),
+                polaroids: polaroids.map((p) => rect(p.getBoundingClientRect())),
+                caps: ['at the gate', 'new friends'].map((t) => textRect(byText(t))),
+                texts: ["Bob's first day", 'Big backpack, bigger smile.'].map((t) => textRect(byText(t))),
+                addrOverflow: [addr.scrollWidth, addr.clientWidth],
+              };
             }"""
         )
-        live = boxes["live"]
-        assert len(boxes["caps"]) == 2
-        for c in boxes["caps"]:
-            apart = c[2] <= live[0] or c[0] >= live[2] or c[3] <= live[1] or c[1] >= live[3]
-            assert apart, f"caption {c} intersects live card {live} at {width}px"
-        ctx.close()
+        apart = lambda a, b: a[2] <= b[0] or a[0] >= b[2] or a[3] <= b[1] or a[1] >= b[3]
+        assert len(data["polaroids"]) == 3
+        for c in data["caps"]:
+            assert apart(c, data["live"]), f"caption {c} hits live card at {width}px"
+        for t in data["texts"]:
+            for p in data["polaroids"]:
+                assert apart(t, p), f"title/subtitle {t} hits polaroid {p} at {width}px"
+        assert data["addrOverflow"][0] <= data["addrOverflow"][1], "address is cut off"
     finally:
         browser.close()

@@ -126,24 +126,24 @@ function Collage() {
           </div>
         </div>
         <div className="relative h-[380px] bg-card-mint px-7 py-[26px]">
-          <div className="font-hand text-[44px] leading-[0.95] min-[400px]:text-[60px] font-bold text-forest">
+          <div className="font-hand text-[44px] leading-[0.95] font-bold min-[520px]:text-[60px] text-forest">
             Bob's first day
           </div>
           <div className="mt-1 text-[15px] text-forest-soft">
             Big backpack, bigger smile.
           </div>
           <Polaroid
-            className="bottom-[26px] left-[20px] w-[120px] min-[400px]:left-[26px] min-[400px]:w-[140px] animate-sm-sway-a p-2 pb-7"
+            className="bottom-[26px] left-[20px] w-[120px] min-[520px]:left-[26px] min-[520px]:w-[140px] animate-sm-sway-a p-2 pb-7"
             photo="h-[106px] bg-[#FFC1D0]"
             caption="at the gate"
           />
           <Polaroid
-            className="bottom-[54px] left-[130px] w-[120px] min-[400px]:left-[160px] min-[400px]:w-[140px] animate-sm-sway-b p-2 pb-7 [animation-delay:0.4s]"
+            className="bottom-[54px] left-[130px] w-[120px] min-[520px]:left-[160px] min-[520px]:w-[140px] animate-sm-sway-b p-2 pb-7 [animation-delay:0.4s]"
             photo="h-[106px] bg-[#BFE1FA]"
             caption="new friends"
           />
           <Polaroid
-            className="top-[120px] right-[14px] w-[104px] min-[400px]:top-[100px] min-[400px]:right-[22px] min-[400px]:w-[120px] animate-sm-sway-c p-[7px] pb-6 [animation-delay:0.8s]"
+            className="top-[120px] right-[14px] w-[104px] min-[520px]:top-[100px] min-[520px]:right-[22px] min-[520px]:w-[120px] animate-sm-sway-c p-[7px] pb-6 [animation-delay:0.8s]"
             photo="h-[88px] bg-[#FFE08A]"
           >
             <div className="absolute -top-3 left-[34px] h-5 w-[54px] -rotate-3 rounded-[3px] bg-[#FFB27A] opacity-85" />
