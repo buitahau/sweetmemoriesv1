@@ -367,3 +367,94 @@ def test_US_homepage_1_9_console_clean(page, base_url):
     page.on("pageerror", lambda e: bad.append(str(e)))
     page.goto(base_url + "/", wait_until="networkidle")
     assert bad == [], f"console problems: {bad}"
+
+
+def test_US_homepage_1_9_favicon_served(pw, base_url):
+    """US-homepage-1.9: / links an icon and that href is served as an image (asset pipeline)."""
+    req = pw.request.new_context(base_url=base_url)
+    try:
+        html = req.get("/").text()
+        m = re.search(r'<link[^>]*rel="icon"[^>]*href="([^"]+)"', html) or re.search(
+            r'<link[^>]*href="([^"]+)"[^>]*rel="icon"', html
+        )
+        assert m, "no rel=icon link in the head of /"
+        r = req.get(m.group(1))
+        assert r.status == 200
+        assert "image/svg+xml" in r.headers.get("content-type", "")
+    finally:
+        req.dispose()
+
+
+@pytest.mark.parametrize("width", [320, 360, 375, 400, 412, 414, 430, 480, 768, 1440])
+def test_US_homepage_10_2_collage_no_overlap_small_screens(pw, base_url, width):
+    """US-homepage-10.2: no collage text overlaps another element and the address is not cut off."""
+    browser = pw.chromium.launch()
+    try:
+        ctx = browser.new_context(
+            viewport={"width": width, "height": 800}, reduced_motion="reduce"
+        )
+        pg = ctx.new_page()
+        pg.goto(base_url + "/", wait_until="networkidle")
+        data = pg.evaluate(
+            """() => {
+              const rect = (r) => [r.left, r.top, r.right, r.bottom];
+              const byText = (t) => [...document.querySelectorAll('div,span')].find(
+                (d) => d.children.length === 0 && d.textContent.trim() === t);
+              const textRect = (el) => {
+                const rg = document.createRange(); rg.selectNodeContents(el);
+                return rect(rg.getBoundingClientRect());
+              };
+              const live = document.querySelector('[data-testid="live-card"]');
+              const polaroids = [...document.querySelectorAll('[data-testid="polaroid"]')];
+              const addr = document.querySelector('[data-testid="hero-address"]');
+              if (!live || !addr) return { missing: true };
+              return {
+                live: rect(live.getBoundingClientRect()),
+                polaroids: polaroids.map((p) => rect(p.getBoundingClientRect())),
+                caps: ['at the gate', 'new friends'].map((t) => textRect(byText(t))),
+                texts: ["Bob's first day", 'Big backpack, bigger smile.'].map((t) => textRect(byText(t))),
+                addrOverflow: [addr.scrollWidth, addr.clientWidth],
+              };
+            }"""
+        )
+        assert not data.get("missing"), "live-card or hero-address test id not found"
+        apart = lambda a, b: a[2] <= b[0] or a[0] >= b[2] or a[3] <= b[1] or a[1] >= b[3]
+        assert len(data["polaroids"]) == 3
+        for c in data["caps"]:
+            assert apart(c, data["live"]), f"caption {c} hits live card at {width}px"
+        for t in data["texts"]:
+            for p in data["polaroids"]:
+                assert apart(t, p), f"title/subtitle {t} hits polaroid {p} at {width}px"
+        assert data["addrOverflow"][0] <= data["addrOverflow"][1], "address is cut off"
+    finally:
+        browser.close()
+
+
+@pytest.mark.parametrize("width", [375, 768])
+def test_US_homepage_10_2_header_links_single_line(pw, base_url, width):
+    """US-homepage-10.2: every visible header link is one line tall and the page does not scroll sideways."""
+    browser = pw.chromium.launch()
+    try:
+        ctx = browser.new_context(viewport={"width": width, "height": 800}, reduced_motion="reduce")
+        pg = ctx.new_page()
+        pg.goto(base_url + "/", wait_until="networkidle")
+        data = pg.evaluate(
+            """() => {
+              const links = [...document.querySelectorAll('header nav a')].filter(
+                (a) => a.getClientRects().length > 0);
+              return {
+                scroll: [document.documentElement.scrollWidth, document.documentElement.clientWidth],
+                links: links.map((a) => {
+                  const rg = document.createRange(); rg.selectNodeContents(a);
+                  const lh = parseFloat(getComputedStyle(a).lineHeight) || parseFloat(getComputedStyle(a).fontSize) * 1.5;
+                  return { text: a.textContent.trim(), h: rg.getBoundingClientRect().height, lh };
+                }),
+              };
+            }"""
+        )
+        assert any(l["text"] == "Sign in" for l in data["links"]), "Sign in not visible"
+        for l in data["links"]:
+            assert l["h"] < l["lh"] * 1.5, f"{l['text']!r} wraps at {width}px: {l}"
+        assert data["scroll"][0] <= data["scroll"][1], f"horizontal scroll at {width}px"
+    finally:
+        browser.close()

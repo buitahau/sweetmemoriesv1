@@ -2,7 +2,7 @@ import { Logo } from './logo'
 
 const focus =
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink'
-const anchorLink = `hidden min-h-11 items-center px-3.5 font-semibold text-ink no-underline md:inline-flex ${focus}`
+const anchorLink = `hidden min-h-11 items-center whitespace-nowrap px-3.5 font-semibold text-ink no-underline md:inline-flex ${focus}`
 
 export function Header() {
   return (
@@ -31,7 +31,7 @@ export function Header() {
         </a>
         <a
           href="/sign-in"
-          className={`inline-flex min-h-11 items-center rounded-full bg-white px-5 font-bold text-ink no-underline shadow-[0_4px_0_var(--color-butter-shadow)] ${focus}`}
+          className={`inline-flex min-h-11 items-center whitespace-nowrap rounded-full bg-white px-5 font-bold text-ink no-underline shadow-[0_4px_0_var(--color-butter-shadow)] ${focus}`}
         >
           Sign in
         </a>
