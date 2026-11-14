@@ -19,4 +19,5 @@
 
 - [ ] Vitest: three `h3` titles in order with their example labels, and the face SVGs carry `aria-hidden="true"`.
 - [ ] Manual: the card hover lift works and is off under reduced motion.
+- [ ] Vitest: "Grandpa's garden" uses the straight `'` exactly as pinned in the spec Copy subsection.
 - [ ] Covers US-homepage-3.

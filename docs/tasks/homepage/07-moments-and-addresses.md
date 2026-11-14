@@ -20,4 +20,5 @@ Two sections, both plain text with no links.
 ## Verification
 
 - [ ] Vitest: 8 moment chips in order, 4 address rows with the exact pinned URLs, and no `<a>` in either section.
+- [ ] Vitest: "Bob's first day", "Nana's recipes", "Your family's home page." and "A memory page about Bob's first day." use the straight `'` exactly as pinned in the spec Copy subsection.
 - [ ] Covers US-homepage-6 and US-homepage-7.
