@@ -209,3 +209,10 @@ The strings "add to", "Invite people", "just added a photo" and "12 cousins" mus
 - **Test evidence (dev):** unit tests 118/118, lint, typecheck and build clean; `e2e/homepage` 9/9 and `e2e/project-skeleton` 12/12 on https://sweetmemories-dev.haubuitatmp.workers.dev. `/` returns 200 with no `Set-Cookie` and one preload link to the Fredoka 700 woff2 (200, `font/woff2`); no Google Fonts requests. Evidence: `e2e/homepage/test_homepage.py`.
 - **Review note applied:** exact weights listed; the computed reduced-motion check on a real element moved to tasks 03 and 10.
 - **Fix cycles:** 0.
+
+### Task 02 summary (page shell)
+
+- **Built:** `HomePage` composed of section components under `src/components/home/`: header with logo link and `nav aria-label="Main"` (`#who`, `#how`, `#templates`, Sign in to `/sign-in`), empty section placeholders with the right ids, footer with logo and tagline, mobile header hiding the anchor links and keeping Sign in. The old "SweetMemories home page" `h1` is kept until tasks 03 and 11. PR: #103.
+- **Test evidence (dev):** unit tests 123/123, lint and typecheck clean; `e2e/homepage` 14 passed, 4 skipped (BLOCKED: US-2.2 x3 and 2.6 until tasks 04 to 06); `e2e/project-skeleton` 12/12; `e2e/dev-deploy` 22 passed, 9 skipped (gh 2.4.0 flag limits, live-only). `/` returns 200 with no `Set-Cookie`, all requests same origin. Mobile 375 has no horizontal scroll. Screenshots: `e2e/homepage/screenshots/US-homepage-2.1.png`, `US-homepage-2.5.png`, `US-homepage-8.2.png`; tester scratchpad `task02/mobile-375.png`, `task02/tablet-768.png`.
+- **Open notes:** manual Tab-order check not done by hand (automated test covers it); at 768px "Who it is for", "How it works" and "Sign in" wrap to two lines, to review in task 10; `/sign-in` is 404 until task 09.
+- **Fix cycles:** 0.
