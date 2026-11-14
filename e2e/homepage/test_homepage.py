@@ -122,6 +122,8 @@ def test_US_homepage_10_3_motion_allowed_keeps_animation(page, base_url):
 # US-homepage-2 scenarios 1 to 6 and US-homepage-8 scenario 2. Scenarios 2.2,
 # 2.6 and 2.4 need section headings that later tasks add; they
 # skip (BLOCKED) while a section is still an empty placeholder.
+# Deferred: the mobile header (anchors hidden below 768 px, only logo and Sign
+# in shown) belongs to US-homepage-10.1 and is tested in task 12, like 8.5.
 # ---------------------------------------------------------------------------
 NAV_LABELS = ["Who it is for", "How it works", "Templates", "Sign in"]
 SECTION_HEADINGS = {
@@ -178,7 +180,10 @@ def test_US_homepage_2_2_anchor_links(page, base_url, anchor, label):
 
 
 def test_US_homepage_2_3_sign_in_navigates(page, base_url):
-    """US-homepage-2.3 (story US-homepage-2): clicking Sign in goes to /sign-in."""
+    """US-homepage-2.3 (story US-homepage-2): clicking Sign in goes to /sign-in.
+
+    TODO(task 09): /sign-in is a 404 today; add the "Sign in" heading check once that page exists.
+    """
     page.goto(base_url + "/", wait_until="networkidle")
     page.get_by_role("navigation", name="Main").get_by_role("link", name="Sign in").click()
     page.wait_for_url(re.compile(r"/sign-in$"))
@@ -188,14 +193,17 @@ def test_US_homepage_2_3_sign_in_navigates(page, base_url):
 def test_US_homepage_2_4_logo_returns_to_top(page, base_url):
     """US-homepage-2.4 (story US-homepage-2): from /#templates the logo goes to / and scrolls to the top."""
     page.goto(base_url + "/#templates", wait_until="networkidle")
-    if page.evaluate("document.documentElement.scrollHeight <= innerHeight") or not page.evaluate("window.scrollY"):
-        pytest.skip("BLOCKED: /#templates does not scroll yet (sections are empty placeholders, task 03 to 10)")
+    scrollable = page.evaluate("document.documentElement.scrollHeight > innerHeight")
+    if scrollable:
+        # Deep-link scrolling must work once the page can scroll; fail, do not skip.
+        page.wait_for_function("window.scrollY > 0")
     page.get_by_role("banner").get_by_role("link", name="SweetMemories").click()
     page.wait_for_function("location.hash === ''")
-    page.wait_for_function("window.scrollY === 0")
     assert urlparse(page.url).path == "/"
     assert urlparse(page.url).fragment == ""
-    assert page.evaluate("window.scrollY") == 0
+    if scrollable:
+        page.wait_for_function("window.scrollY === 0")
+        assert page.evaluate("window.scrollY") == 0
 
 
 def test_US_homepage_2_5_keyboard_tab_order_and_focus_ring(page, base_url, shot):
@@ -209,12 +217,16 @@ def test_US_homepage_2_5_keyboard_tab_order_and_focus_ring(page, base_url, shot)
             """() => {
               const el = document.activeElement;
               const cs = getComputedStyle(el);
+              const hdr = getComputedStyle(document.querySelector('header'));
               return {text: el.innerText.trim(), outlineStyle: cs.outlineStyle,
-                      outlineWidth: parseFloat(cs.outlineWidth), tag: el.tagName};
+                      outlineWidth: parseFloat(cs.outlineWidth), tag: el.tagName,
+                      outlineColor: cs.outlineColor, headerBg: hdr.backgroundColor};
             }"""
         )
         assert info["tag"] == "A"
         assert info["outlineStyle"] != "none" and info["outlineWidth"] > 0, f"no focus ring on {info['text']!r}"
+        assert info["outlineColor"] != info["headerBg"], f"focus ring blends into header on {info['text']!r}"
+        assert not info["outlineColor"].endswith(", 0)"), f"transparent focus ring on {info['text']!r}"
         seen.append(info["text"])
     assert seen == expected
     shot(page, "US-homepage-2.5")

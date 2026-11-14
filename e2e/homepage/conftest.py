@@ -18,13 +18,6 @@ def base_url():
 
 
 @pytest.fixture
-def api(pw, base_url):
-    req = pw.request.new_context(base_url=base_url)
-    yield req
-    req.dispose()
-
-
-@pytest.fixture
 def shot():
     SHOTS.mkdir(exist_ok=True)
 

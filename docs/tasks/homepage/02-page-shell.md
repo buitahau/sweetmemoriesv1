@@ -1,6 +1,6 @@
 # 02 Page shell: header, nav, section anchors and footer
 
-**Status:** done
+**Status:** done, verification partial (manual Tab-order check pending; e2e 2.2 and 2.6 BLOCKED until section tasks, 2.4 scroll check only when the page scrolls)
 **Side:** front-end
 **Size:** S
 **Dependencies:** 00, 01
