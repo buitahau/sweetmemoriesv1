@@ -59,7 +59,7 @@ function Polaroid({
 
 function Collage() {
   return (
-    <div className="relative h-[560px] min-w-[340px] flex-[1_1_480px]">
+    <div className="relative h-[620px] min-w-[340px] min-[520px]:h-[560px] flex-[1_1_480px]">
       <div
         aria-hidden="true"
         className="absolute top-10 left-[30px] size-[440px] rounded-full bg-white opacity-55"
@@ -120,12 +120,12 @@ function Collage() {
                 strokeWidth="1.4"
               />
             </svg>
-            <span className="text-[13px] min-[400px]:text-[15px]">
+            <span className="min-w-0 truncate text-[10px] whitespace-nowrap min-[400px]:text-[11px] min-[520px]:text-[15px]">
               sam.sweetmemories.com/bobs-first-day
             </span>
           </div>
         </div>
-        <div className="relative h-[420px] bg-card-mint min-[400px]:h-[380px] px-7 py-[26px]">
+        <div className="relative h-[380px] bg-card-mint px-7 py-[26px]">
           <div className="font-hand text-[44px] leading-[0.95] min-[400px]:text-[60px] font-bold text-forest">
             Bob's first day
           </div>

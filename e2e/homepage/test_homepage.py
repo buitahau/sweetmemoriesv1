@@ -367,3 +367,49 @@ def test_US_homepage_1_9_console_clean(page, base_url):
     page.on("pageerror", lambda e: bad.append(str(e)))
     page.goto(base_url + "/", wait_until="networkidle")
     assert bad == [], f"console problems: {bad}"
+
+
+def test_US_homepage_1_9_favicon_served(pw, base_url):
+    """US-homepage-1.9: / links an icon and that href is served as an image (asset pipeline)."""
+    req = pw.request.new_context(base_url=base_url)
+    try:
+        html = req.get("/").text()
+        m = re.search(r'<link[^>]*rel="icon"[^>]*href="([^"]+)"', html) or re.search(
+            r'<link[^>]*href="([^"]+)"[^>]*rel="icon"', html
+        )
+        assert m, "no rel=icon link in the head of /"
+        r = req.get(m.group(1))
+        assert r.status == 200
+        assert "image/svg+xml" in r.headers.get("content-type", "")
+    finally:
+        req.dispose()
+
+
+@pytest.mark.parametrize("width", [320, 360, 375, 414, 480, 768, 1440])
+def test_US_homepage_10_2_collage_no_overlap_small_screens(pw, base_url, width):
+    """US-homepage-10.2: polaroid captions and the sticker never intersect the live card on small screens."""
+    browser = pw.chromium.launch()
+    try:
+        ctx = browser.new_context(
+            viewport={"width": width, "height": 800}, reduced_motion="reduce"
+        )
+        pg = ctx.new_page()
+        pg.goto(base_url + "/", wait_until="networkidle")
+        boxes = pg.evaluate(
+            """() => {
+              const rect = (el) => { const r = el.getBoundingClientRect(); return [r.left, r.top, r.right, r.bottom]; };
+              const live = [...document.querySelectorAll('div')].find(
+                (d) => d.children.length === 2 && d.textContent.trim().startsWith('Your page is live'));
+              const caps = [...document.querySelectorAll('div')].filter(
+                (d) => d.children.length === 0 && ['at the gate', 'new friends'].includes(d.textContent.trim()));
+              return { live: rect(live), caps: caps.map(rect) };
+            }"""
+        )
+        live = boxes["live"]
+        assert len(boxes["caps"]) == 2
+        for c in boxes["caps"]:
+            apart = c[2] <= live[0] or c[0] >= live[2] or c[3] <= live[1] or c[1] >= live[3]
+            assert apart, f"caption {c} intersects live card {live} at {width}px"
+        ctx.close()
+    finally:
+        browser.close()
