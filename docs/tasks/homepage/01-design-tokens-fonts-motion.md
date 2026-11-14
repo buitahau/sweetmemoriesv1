@@ -1,6 +1,6 @@
 # 01 Design tokens, self-hosted fonts, font preload and motion base
 
-**Status:** todo
+**Status:** done
 **Side:** front-end
 **Size:** S
 **Dependencies:** ADR 0005 accepted
@@ -13,16 +13,16 @@ Rebuild the mockup's inline styles as Tailwind v4 tokens in `src/styles.css` and
 
 ## Checklist
 
-- [ ] Add the mockup palette as `@theme` tokens in `src/styles.css`: pinks, ink `#3B2433`, link `#B0285A`/`#8C1F48` and the card pastels
-- [ ] Add radii and the offset "sticker" shadows as tokens
-- [ ] Add `@fontsource` Fredoka, Caveat and Figtree (latin subset, used weights only) as `font-display`, `font-hand` and `font-body` tokens
-- [ ] Add `<link rel="preload" as="font" type="font/woff2" crossorigin>` for the Fredoka 700 latin file in the root head, importing the URL through Vite (`?url`)
-- [ ] Add the `sm-*` keyframes as named animations
-- [ ] Add a global `prefers-reduced-motion: reduce` rule that turns off animations and transitions
+- [x] Add the mockup palette as `@theme` tokens in `src/styles.css`: pinks, ink `#3B2433`, link `#B0285A`/`#8C1F48` and the card pastels
+- [x] Add radii and the offset "sticker" shadows as tokens
+- [x] Add `@fontsource` Fredoka, Caveat and Figtree (latin subset, exact weights from ADR 0005: Fredoka 500/600/700, Caveat 500/700, Figtree 400/500/600) as `font-display`, `font-hand` and `font-body` tokens
+- [x] Add `<link rel="preload" as="font" type="font/woff2" crossorigin>` for the Fredoka 700 latin file in the root head, importing the URL through Vite (`?url`)
+- [x] Add the `sm-*` keyframes as named animations
+- [x] Add a global `prefers-reduced-motion: reduce` rule that turns off animations and transitions
 
 ## Verification
 
-- [ ] `pnpm lint`, `pnpm typecheck` and `pnpm build` pass.
-- [ ] Manual on `pnpm dev`: the network tab shows font files from the same origin only, no Google Fonts requests.
-- [ ] `curl -s localhost:3000/` contains one font preload link, and its href returns `200` with `font/woff2`.
-- [ ] With reduced motion emulated, the computed `animation-name` is `none` on an animated element.
+- [x] `pnpm lint`, `pnpm typecheck` and `pnpm build` pass.
+- [x] Manual on `pnpm dev`: the network tab shows font files from the same origin only, no Google Fonts requests.
+- [x] `curl -s localhost:3000/` contains one font preload link, and its href returns `200` with `font/woff2`.
+- [x] Reduced motion is checked by CSS review only here: the global `prefers-reduced-motion: reduce` rule is covered by a unit test on `src/styles.css`. No animated element exists yet (sections come later), so the computed `animation-name` check on a real element moves to task [03](03-hero.md) and [10](10-responsive-a11y-motion.md).

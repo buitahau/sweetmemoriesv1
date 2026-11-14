@@ -6,6 +6,7 @@ import {
 } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 import appCss from '../styles.css?url'
+import fredoka700 from '@fontsource/fredoka/files/fredoka-latin-700-normal.woff2?url'
 
 export const Route = createRootRoute({
   head: () => ({
@@ -14,7 +15,16 @@ export const Route = createRootRoute({
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       { title: 'SweetMemories' },
     ],
-    links: [{ rel: 'stylesheet', href: appCss }],
+    links: [
+      {
+        rel: 'preload',
+        as: 'font',
+        type: 'font/woff2',
+        href: fredoka700,
+        crossOrigin: 'anonymous',
+      },
+      { rel: 'stylesheet', href: appCss },
+    ],
   }),
   component: RootComponent,
 })
