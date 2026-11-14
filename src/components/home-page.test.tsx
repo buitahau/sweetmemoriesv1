@@ -12,6 +12,13 @@ describe('HomePage', () => {
     expect(html).not.toContain('SweetMemories home page')
   })
 
+  it('keeps the hero h1 and CTA inside the main landmark', () => {
+    const main = html.match(/<main[^>]*>([\s\S]*)<\/main>/)![1]
+    expect(main).toMatch(/<h1[\s>]/)
+    expect(main).toContain('Start with Google')
+    expect(html.match(/<main[\s>]/g)).toHaveLength(1)
+  })
+
   it('renders exactly one h1', () => {
     expect(html.match(/<h1[\s>]/g)).toHaveLength(1)
   })

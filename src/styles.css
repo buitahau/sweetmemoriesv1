@@ -55,6 +55,10 @@
   --color-card-sky: #d4e9fb;
   --color-card-sky-shadow: #a9d4f2;
   --color-cream: #fff7ea;
+  --color-band: #ffe9a8;
+  --color-peach-blob: #ffd2b8;
+  --color-forest: #1f4a38;
+  --color-forest-soft: #2c5e49;
   --color-cream-shadow: #f2d9c0;
 
   --radius-chip: 14px;
@@ -254,10 +258,6 @@
   );
   background-repeat: no-repeat;
   background-size: 100% 100%;
-  animation: sm-hl 0.9s 0.6s ease-out both;
-}
-.sm-face {
-  animation: sm-pop 0.6s cubic-bezier(0.3, 1.4, 0.5, 1) both;
 }
 .sm-face:nth-child(1) {
   animation-delay: 0.7s;
@@ -282,11 +282,9 @@
 .sm-btn:hover,
 .sm-btn:focus-visible {
   transform: translateY(-3px);
-  box-shadow: var(--shadow-sticker-hover) !important;
 }
 .sm-btn:active {
   transform: translateY(3px);
-  box-shadow: var(--shadow-sticker-press) !important;
 }
 
 /* Motion base: honour reduced motion everywhere. */

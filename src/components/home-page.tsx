@@ -8,11 +8,13 @@ import { WhoSection } from './home/who-section'
 export function HomePage() {
   return (
     <div className="min-h-screen bg-cream text-ink">
-      <div className="relative overflow-hidden rounded-b-[64px] bg-[#FFE9A8]">
+      <div className="bg-band">
         <Header />
-        <Hero />
       </div>
       <main>
+        <div className="relative overflow-hidden rounded-b-[64px] bg-band">
+          <Hero />
+        </div>
         <WhoSection />
         <HowSection />
         <TemplatesSection />

@@ -57,6 +57,12 @@ describe('Hero', () => {
     const svgs = [...html.matchAll(/<svg[^>]*>/g)].map((m) => m[0])
     expect(svgs.length).toBeGreaterThanOrEqual(10)
     for (const s of svgs) expect(s).toContain('aria-hidden="true"')
+    // Decorative blobs are empty absolutely positioned divs: each must be aria-hidden.
+    const blobs = [...html.matchAll(/<div[^>]*><\/div>/g)].map((m) => m[0])
+    for (const b of blobs) {
+      if (b.includes('rounded-full') && b.includes('absolute'))
+        expect(b).toContain('aria-hidden="true"')
+    }
     expect(
       html.match(/<div aria-hidden="true"/g)!.length,
     ).toBeGreaterThanOrEqual(3)

@@ -42,12 +42,12 @@ Scenarios:
 
 ### US-skeleton-2: Home page
 
-**Story:** As a visitor, I want to open the SweetMemories home page, so that I can see the site is live.
+**Story:** As a visitor, I want to open the home page, so that I can see the site is live.
 
 Scenarios:
 1. *Happy path*: **Given** the app server is running, **When** a visitor opens `/` in a browser with no cookies, **Then** the page loads with status `200` and shows a top-level heading with the text "Every little moment deserves a home.".
 2. *Page title*: **Given** the app server is running, **When** a visitor opens `/`, **Then** the browser tab title contains "SweetMemories".
-3. *Server-rendered*: **Given** the app server is running, **When** a client fetches `/` without running JavaScript (plain HTTP GET), **Then** the returned HTML contains the text "Every little moment deserves a home.".
+3. *Server-rendered*: **Given** the app server is running, **When** a client fetches `/` without running JavaScript (plain HTTP GET), **Then** the returned HTML, with tags stripped, contains the text "Every little moment deserves a home." (the hero highlights "home" in a span, so the raw markup does not hold the sentence unbroken).
 4. *Security, no cookies*: **Given** the app server is running, **When** a visitor opens `/` with no cookies, **Then** the response sets no cookies and the browser holds no cookies for the site afterwards.
 5. *No errors*: **Given** the app server is running, **When** a visitor opens `/`, **Then** the browser console shows no errors.
 6. *Unknown path (edge)*: **Given** the app server is running, **When** a visitor opens `/does-not-exist`, **Then** the response status is `404`, a "Page not found" message is shown, and the text "Every little moment deserves a home." is not shown as the main heading.

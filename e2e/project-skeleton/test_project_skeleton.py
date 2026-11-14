@@ -2,6 +2,7 @@
 
 One test per Given/When/Then scenario. All sessions are public (no cookies).
 """
+import re
 import json
 import socket
 
@@ -89,7 +90,9 @@ def test_US_skeleton_2_3_home_server_rendered(api):
     """US-skeleton-2.3 (story US-skeleton-2): plain GET HTML contains the heading text."""
     r = api.get("/")
     assert r.status == 200
-    assert HEADING in r.text()
+    # The hero wraps "home" in a highlight span, so compare the text with tags stripped.
+    text = re.sub(r"<[^>]+>", "", r.text())
+    assert HEADING in text
 
 
 def test_US_skeleton_2_4_home_sets_no_cookies(page, context, base_url):

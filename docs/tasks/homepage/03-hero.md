@@ -22,6 +22,6 @@ Build the hero. Must land in the same PR as [11](11-retire-skeleton-heading.md).
 ## Verification
 
 - [x] Vitest: exactly one `h1` with "Every little moment deserves a home.", the CTA href is `/sign-in`, the "See how it works" href is `#how`, and the address text is not inside an `<a>`.
-- [x] Manual: side by side with the mockup at 1440 px, layout and colours match.
+- [ ] Manual: side by side with the mockup at 1440 px, layout and colours match. Not performed yet (needs a human visual check).
 - [x] Vitest: apostrophe strings ("Bob's first day") use the straight `'` exactly as pinned in the spec Copy subsection.
 - [x] Covers US-homepage-1 scenarios 1 to 6.

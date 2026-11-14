@@ -9,7 +9,7 @@ const heartPath =
 function Face({ bg }: { bg: string }) {
   return (
     <svg
-      className="sm-face -ml-2.5 rounded-full border-[3px] border-[#FFE9A8] bg-[#FFE9A8]"
+      className="sm-face animate-sm-pop -ml-2.5 rounded-full border-[3px] border-band bg-band"
       width="46"
       height="46"
       viewBox="0 0 60 60"
@@ -126,10 +126,10 @@ function Collage() {
           </div>
         </div>
         <div className="relative h-[380px] bg-card-mint px-7 py-[26px]">
-          <div className="font-hand text-[60px] leading-[0.95] font-bold text-[#1F4A38]">
+          <div className="font-hand text-[60px] leading-[0.95] font-bold text-forest">
             Bob's first day
           </div>
-          <div className="mt-1 text-[15px] text-[#2C5E49]">
+          <div className="mt-1 text-[15px] text-forest-soft">
             Big backpack, bigger smile.
           </div>
           <Polaroid
@@ -191,11 +191,11 @@ export function Hero() {
     <>
       <div
         aria-hidden="true"
-        className="absolute top-[260px] -left-[120px] size-[380px] animate-sm-blob rounded-full bg-[#FFD2B8] opacity-70"
+        className="absolute top-[180px] -left-[120px] size-[380px] animate-sm-blob rounded-full bg-peach-blob opacity-70"
       />
       <div
         aria-hidden="true"
-        className="absolute -top-[120px] -right-[140px] size-[420px] rounded-full bg-cream opacity-55"
+        className="absolute -top-[200px] -right-[140px] size-[420px] rounded-full bg-cream opacity-55"
       />
       <section className="relative mx-auto flex max-w-[1200px] flex-wrap items-center gap-12 px-5 pt-7 pb-[110px] md:px-10">
         <div className="min-w-0 flex-[1_1_480px]">
@@ -207,7 +207,10 @@ export function Hero() {
           </div>
           <h1 className="animate-sm-rise sm-d1 mt-[22px] font-display text-5xl leading-none font-bold tracking-[-0.02em] md:text-[76px]">
             Every little moment deserves a{' '}
-            <span className="sm-hl rounded-[18px] px-3">home</span>.
+            <span className="sm-hl animate-sm-hl rounded-[18px] px-3">
+              home
+            </span>
+            .
           </h1>
           <p className="animate-sm-rise sm-d2 mt-6 max-w-[34ch] text-[22px] leading-normal text-ink-soft">
             Turn first steps, birthdays and street parties into tiny pages that
@@ -216,7 +219,7 @@ export function Hero() {
           <div className="animate-sm-rise sm-d3 mt-[34px] flex flex-wrap items-center gap-5">
             <a
               href="/sign-in"
-              className={`sm-btn inline-flex min-h-[60px] items-center gap-2.5 rounded-full bg-pink-200 px-8 text-[19px] font-bold text-ink no-underline shadow-sticker ${focus}`}
+              className={`sm-btn inline-flex min-h-[60px] items-center gap-2.5 rounded-full bg-pink-200 px-8 text-[19px] font-bold text-ink no-underline shadow-sticker hover:shadow-sticker-hover focus-visible:shadow-sticker-hover active:shadow-sticker-press ${focus}`}
             >
               Start with Google
             </a>
