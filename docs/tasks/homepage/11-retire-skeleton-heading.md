@@ -3,11 +3,13 @@
 **Status:** todo
 **Side:** front-end
 **Size:** S
-**Dependencies:** 03 (same PR)
+**Dependencies:** 02 and 03 (same PR as the first of them that removes the old `h1`)
 **Feature spec:** [homepage](../../features/homepage.md)
 **Mockup:** none
 
 ## What to change
+
+Land in the same PR as the first task (02 or 03) that removes the old "SweetMemories home page" `h1`, otherwise CI and the dev smoke tests go red.
 
 Update every spec, test and doc that asserts the old heading. Leave the historical task files unchanged (`docs/tasks/project-skeleton/03-*`, `04-*`, `docs/tasks/dev-deploy/03-*`).
 
