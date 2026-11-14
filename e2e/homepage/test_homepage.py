@@ -7,6 +7,9 @@ no cookies.
 Already covered: US-homepage-8.4. US-homepage-8.5 (pinned copy present) is
 added by task 12, once the sections that render the copy exist.
 """
+import re
+from urllib.parse import urlparse
+
 import pytest
 
 # Collaboration-sensitive strings from spec Conflict 1. A Memory has one owner
@@ -36,9 +39,6 @@ def test_US_homepage_8_4_no_unbuilt_features_promised(home_html, phrase):
 # Task 01 (design tokens, self-hosted fonts, motion base). The remaining
 # US-homepage scenarios depend on tasks 02 to 11 and are written in task 12.
 # ---------------------------------------------------------------------------
-from urllib.parse import urlparse  # noqa: E402
-
-
 @pytest.fixture
 def page(pw):
     browser = pw.chromium.launch()
@@ -120,11 +120,9 @@ def test_US_homepage_10_3_motion_allowed_keeps_animation(page, base_url):
 # ---------------------------------------------------------------------------
 # Task 02 (page shell: header, nav, anchors, footer).
 # US-homepage-2 scenarios 1 to 6 and US-homepage-8 scenario 2. Scenarios 2.2,
-# 2.6 and 2.4's scroll check need section headings that later tasks add; they
+# 2.6 and 2.4 need section headings that later tasks add; they
 # skip (BLOCKED) while a section is still an empty placeholder.
 # ---------------------------------------------------------------------------
-import re  # noqa: E402
-
 NAV_LABELS = ["Who it is for", "How it works", "Templates", "Sign in"]
 SECTION_HEADINGS = {
     "who": "Your family name first, then a page for each memory.",
@@ -139,6 +137,15 @@ def _in_viewport(page, locator):
     return box is not None and box["y"] < vh and box["y"] + box["height"] > 0
 
 
+def _wait_in_viewport(page, locator):
+    """Poll until the heading is in the viewport (smooth scrolling safe)."""
+    handle = locator.element_handle()
+    page.wait_for_function(
+        "el => { const r = el.getBoundingClientRect(); return r.top < innerHeight && r.bottom > 0; }",
+        arg=handle,
+    )
+
+
 def _heading_or_block(page, anchor):
     h = page.get_by_role("heading", name=SECTION_HEADINGS[anchor])
     if h.count() == 0:
@@ -146,7 +153,7 @@ def _heading_or_block(page, anchor):
     return h.first
 
 
-def test_US_homepage_2_1_nav_links_in_order(page, base_url):
+def test_US_homepage_2_1_nav_links_in_order(page, base_url, shot):
     """US-homepage-2.1 (story US-homepage-2): navigation "Main" lists the four links in order at 1440 px."""
     page.goto(base_url + "/", wait_until="networkidle")
     nav = page.get_by_role("navigation", name="Main")
@@ -155,7 +162,7 @@ def test_US_homepage_2_1_nav_links_in_order(page, base_url):
     assert links.all_inner_texts() == NAV_LABELS
     for i in range(len(NAV_LABELS)):
         assert links.nth(i).is_visible()
-    page.screenshot(path="e2e/homepage/screenshots/US-homepage-2.1.png")
+    shot(page, "US-homepage-2.1")
 
 
 @pytest.mark.parametrize("anchor,label", [("who", "Who it is for"), ("how", "How it works"), ("templates", "Templates")])
@@ -166,7 +173,7 @@ def test_US_homepage_2_2_anchor_links(page, base_url, anchor, label):
     page.wait_for_function(f"location.hash === '#{anchor}'")
     assert page.url.endswith(f"#{anchor}")
     heading = _heading_or_block(page, anchor)
-    page.wait_for_timeout(800)
+    _wait_in_viewport(page, heading)
     assert _in_viewport(page, heading)
 
 
@@ -181,15 +188,17 @@ def test_US_homepage_2_3_sign_in_navigates(page, base_url):
 def test_US_homepage_2_4_logo_returns_to_top(page, base_url):
     """US-homepage-2.4 (story US-homepage-2): from /#templates the logo goes to / and scrolls to the top."""
     page.goto(base_url + "/#templates", wait_until="networkidle")
+    if page.evaluate("document.documentElement.scrollHeight <= innerHeight") or not page.evaluate("window.scrollY"):
+        pytest.skip("BLOCKED: /#templates does not scroll yet (sections are empty placeholders, task 03 to 10)")
     page.get_by_role("banner").get_by_role("link", name="SweetMemories").click()
     page.wait_for_function("location.hash === ''")
-    page.wait_for_timeout(800)
+    page.wait_for_function("window.scrollY === 0")
     assert urlparse(page.url).path == "/"
     assert urlparse(page.url).fragment == ""
     assert page.evaluate("window.scrollY") == 0
 
 
-def test_US_homepage_2_5_keyboard_tab_order_and_focus_ring(page, base_url):
+def test_US_homepage_2_5_keyboard_tab_order_and_focus_ring(page, base_url, shot):
     """US-homepage-2.5 (story US-homepage-2): Tab reaches logo then each nav link in order, each with a visible focus indicator."""
     page.goto(base_url + "/", wait_until="networkidle")
     expected = ["SweetMemories"] + NAV_LABELS
@@ -208,18 +217,18 @@ def test_US_homepage_2_5_keyboard_tab_order_and_focus_ring(page, base_url):
         assert info["outlineStyle"] != "none" and info["outlineWidth"] > 0, f"no focus ring on {info['text']!r}"
         seen.append(info["text"])
     assert seen == expected
-    page.screenshot(path="e2e/homepage/screenshots/US-homepage-2.5.png")
+    shot(page, "US-homepage-2.5")
 
 
 def test_US_homepage_2_6_deep_link_templates(page, base_url):
     """US-homepage-2.6 (story US-homepage-2): opening /#templates scrolls the Templates heading into view."""
     page.goto(base_url + "/#templates", wait_until="networkidle")
     heading = _heading_or_block(page, "templates")
-    page.wait_for_timeout(800)
+    _wait_in_viewport(page, heading)
     assert _in_viewport(page, heading)
 
 
-def test_US_homepage_8_2_footer_contentinfo(page, base_url):
+def test_US_homepage_8_2_footer_contentinfo(page, base_url, shot):
     """US-homepage-8.2 (story US-homepage-8): contentinfo landmark shows "SweetMemories" and the tagline."""
     page.goto(base_url + "/", wait_until="networkidle")
     footer = page.get_by_role("contentinfo")
@@ -229,4 +238,4 @@ def test_US_homepage_8_2_footer_contentinfo(page, base_url):
     text = footer.inner_text()
     assert "SweetMemories" in text
     assert "Small pages for the moments worth keeping." in text
-    page.screenshot(path="e2e/homepage/screenshots/US-homepage-8.2.png")
+    shot(page, "US-homepage-8.2")

@@ -22,5 +22,5 @@ Rewrite `HomePage` as a composition of section components, one file per section 
 ## Verification
 
 - [x] Vitest (`renderToStaticMarkup`): a nav named "Main" contains the four links with hrefs `#who`, `#how`, `#templates` and `/sign-in`, and the footer text is present.
-- [ ] Manual: Tab order runs from the logo through the nav links, with visible focus. Pending: not yet run by hand; covered by e2e task 12 (DOM order and `focus-visible` styles checked in code review).
-- [x] Covers US-homepage-2 scenarios 1 to 5 and US-homepage-8 scenario 2.
+- [ ] Manual: Tab order runs from the logo through the nav links, with visible focus. Pending: not yet run by hand; DOM order and focus ring are covered by `test_US_homepage_2_5_keyboard_tab_order_and_focus_ring` (screenshot `e2e/homepage/screenshots/US-homepage-2.5.png`).
+- [x] Covers US-homepage-2 scenarios 1 to 5 and US-homepage-8 scenario 2. Scenario 2.2 and the scroll check of 2.4 are BLOCKED in e2e until the section tasks add content.
