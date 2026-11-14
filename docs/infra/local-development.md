@@ -33,7 +33,7 @@ Check Worker-runtime behavior (`nodejs_compat`, bindings) with `pnpm build && pn
 
 ## Check it works
 
-- `http://localhost:3000/` shows the heading "SweetMemories home page".
+- `http://localhost:3000/` shows the heading "Every little moment deserves a home.".
 - `http://localhost:3000/api/health` returns `{"status":"ok"}`:
 
 ```

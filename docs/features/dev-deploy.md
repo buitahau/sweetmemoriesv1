@@ -27,7 +27,7 @@ Out of scope: production environment, custom domains, database code, automatic e
 - **Story:** As a tester, I want every merged PR to appear on the dev environment automatically, so that I can test the latest `dev-v2` without running it locally.
 - **Scenarios:**
   1. *Happy path:* **Given** a PR with a green `ci` check, **When** it is squash-merged into `dev-v2`, **Then** a `deploy-dev` run starts for the merge commit and finishes `success` within 10 minutes.
-  2. *Live on dev:* **Given** the `deploy-dev` run succeeded, **When** a tester opens the dev URL `/` in a browser with no cookies, **Then** the page returns `200` and shows the heading "SweetMemories home page".
+  2. *Live on dev:* **Given** the `deploy-dev` run succeeded, **When** a tester opens the dev URL `/` in a browser with no cookies, **Then** the page returns `200` and shows the heading "Every little moment deserves a home.".
   3. *Health on dev:* **Given** the `deploy-dev` run succeeded, **When** a client sends `GET <dev URL>/api/health`, **Then** the response is `200`, `application/json`, body exactly `{"status":"ok"}`, `Cache-Control` containing `no-store`, and no `Set-Cookie`.
   4. *Existing e2e on dev:* **Given** the `deploy-dev` run succeeded, **When** the tester runs `e2e/project-skeleton` with `E2E_BASE_URL=<dev URL>`, **Then** every US-skeleton-1 and US-skeleton-2 scenario passes, except US-skeleton-1.6 ("server stopped"), which only applies locally.
   5. *Traceable version:* **Given** a successful deploy, **When** a tester opens the `deploy-dev` run summary, **Then** it shows the deployed commit SHA, the dev URL and the Cloudflare version ID.

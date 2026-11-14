@@ -1,5 +1,6 @@
 import { Footer } from './home/footer'
 import { Header } from './home/header'
+import { Hero } from './home/hero'
 import { HowSection } from './home/how-section'
 import { TemplatesSection } from './home/templates-section'
 import { WhoSection } from './home/who-section'
@@ -7,12 +8,13 @@ import { WhoSection } from './home/who-section'
 export function HomePage() {
   return (
     <div className="min-h-screen bg-cream text-ink">
-      <Header />
+      <div className="bg-band">
+        <Header />
+      </div>
       <main>
-        {/* Task 03 replaces this h1 together with task 11. */}
-        <h1 className="p-8 text-center text-4xl font-semibold tracking-tight">
-          SweetMemories home page
-        </h1>
+        <div className="relative overflow-hidden rounded-b-[64px] bg-band">
+          <Hero />
+        </div>
         <WhoSection />
         <HowSection />
         <TemplatesSection />
