@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { Route } from './routes/__root'
 
@@ -106,5 +106,13 @@ describe('root head', () => {
     expect(p.crossOrigin).toBe('anonymous')
     expect(String(p.href)).toMatch(/fredoka-latin-700-normal.*\.woff2$/)
     expect(String(p.href)).not.toMatch(/^https?:\/\//)
+  })
+
+  it('declares a favicon link that points at an existing public file', () => {
+    const icons = links.filter((l) => l.rel === 'icon')
+    expect(icons).toHaveLength(1)
+    const href = String(icons[0].href)
+    expect(href).toMatch(/^\/[^/]/)
+    expect(existsSync(new URL(`../public${href}`, import.meta.url))).toBe(true)
   })
 })

@@ -110,7 +110,7 @@ function Collage() {
 
       <div className="absolute top-[70px] left-[60px] w-[min(380px,calc(100%-60px))] animate-sm-float-tilt overflow-hidden rounded-[28px] bg-white shadow-[0_24px_0_-8px_rgba(214,50,90,0.14),0_26px_48px_rgba(110,40,60,0.2)]">
         <div className="bg-card-peach px-4 py-3">
-          <div className="flex items-center gap-2 rounded-full bg-white px-4 py-2 text-[15px] font-semibold">
+          <div className="flex items-center gap-2 rounded-full bg-white px-3 py-2 text-[15px] font-semibold min-[400px]:px-4">
             <svg width="13" height="13" viewBox="0 0 12 12" aria-hidden="true">
               <rect x="2" y="5" width="8" height="6" rx="1.5" fill="#6B4A5A" />
               <path
@@ -120,30 +120,30 @@ function Collage() {
                 strokeWidth="1.4"
               />
             </svg>
-            <span className="[overflow-wrap:anywhere]">
+            <span className="text-[13px] min-[400px]:text-[15px]">
               sam.sweetmemories.com/bobs-first-day
             </span>
           </div>
         </div>
-        <div className="relative h-[380px] bg-card-mint px-7 py-[26px]">
-          <div className="font-hand text-[60px] leading-[0.95] font-bold text-forest">
+        <div className="relative h-[420px] bg-card-mint min-[400px]:h-[380px] px-7 py-[26px]">
+          <div className="font-hand text-[44px] leading-[0.95] min-[400px]:text-[60px] font-bold text-forest">
             Bob's first day
           </div>
           <div className="mt-1 text-[15px] text-forest-soft">
             Big backpack, bigger smile.
           </div>
           <Polaroid
-            className="bottom-[26px] left-[26px] w-[140px] animate-sm-sway-a p-2 pb-7"
+            className="bottom-[26px] left-[20px] w-[120px] min-[400px]:left-[26px] min-[400px]:w-[140px] animate-sm-sway-a p-2 pb-7"
             photo="h-[106px] bg-[#FFC1D0]"
             caption="at the gate"
           />
           <Polaroid
-            className="bottom-[54px] left-[160px] w-[140px] animate-sm-sway-b p-2 pb-7 [animation-delay:0.4s]"
+            className="bottom-[54px] left-[130px] w-[120px] min-[400px]:left-[160px] min-[400px]:w-[140px] animate-sm-sway-b p-2 pb-7 [animation-delay:0.4s]"
             photo="h-[106px] bg-[#BFE1FA]"
             caption="new friends"
           />
           <Polaroid
-            className="top-[100px] right-[22px] w-[120px] animate-sm-sway-c p-[7px] pb-6 [animation-delay:0.8s]"
+            className="top-[120px] right-[14px] w-[104px] min-[400px]:top-[100px] min-[400px]:right-[22px] min-[400px]:w-[120px] animate-sm-sway-c p-[7px] pb-6 [animation-delay:0.8s]"
             photo="h-[88px] bg-[#FFE08A]"
           >
             <div className="absolute -top-3 left-[34px] h-5 w-[54px] -rotate-3 rounded-[3px] bg-[#FFB27A] opacity-85" />

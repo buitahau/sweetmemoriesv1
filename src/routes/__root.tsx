@@ -23,6 +23,7 @@ export const Route = createRootRoute({
         href: fredoka700,
         crossOrigin: 'anonymous',
       },
+      { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
       { rel: 'stylesheet', href: appCss },
     ],
   }),
