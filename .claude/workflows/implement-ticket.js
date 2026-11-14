@@ -165,7 +165,7 @@ for (;;) {
   const attempt = fixCycles + 1
   phase('Test on dev')
   result = await agent(
-    `Test this ticket in the dev environment${DEV_URL ? ` (${DEV_URL})` : ''}, attempt ${attempt}. Follow your tester instructions: unit tests, curl checks for backend work, then browser e2e for the task and its parent feature (regression), open a real browser, capture evidence (screenshots, logs) and compare it with the expectations in the task file and feature user stories. Do not edit source files.\n\nTicket: ${ticket}\nMerged PR: ${currentMerge.prUrl}`,
+    `Test this ticket in the dev environment${DEV_URL ? ` (${DEV_URL})` : ''}, attempt ${attempt}. Follow your tester instructions: unit tests, curl checks for backend work, then browser e2e for the task and its parent feature (regression). For front-end work, also do the live browser walkthrough from your instructions: load the chrome-browser skill (fallback built-in-browser, else say so and use Playwright), open the dev URL in a real browser, follow each task scenario step by step (including mobile and tablet widths), take screenshots, inspect the components (text, DOM, focus, console), view every screenshot and write an expected-versus-actual line per step against the task file and feature user stories. Run the Playwright suite too. Put all evidence paths in the result. Do not edit source files.\n\nTicket: ${ticket}\nMerged PR: ${currentMerge.prUrl}`,
     { agentType: 'tester', schema: TEST_RESULT, label: `tester attempt ${attempt}`, phase: 'Test on dev' },
   )
   if (!result) throw new Error('tester returned nothing')
