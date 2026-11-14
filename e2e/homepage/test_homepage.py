@@ -4,7 +4,7 @@ Single file for the feature, per the e2e-from-user-stories skill. Task 12
 (e2e-homepage) adds the remaining US-homepage scenarios here. Public session,
 no cookies.
 
-Already covered: US-homepage-8.4 (pinned by task H0,
+Already covered: US-homepage-8.4 and 8.5 (pinned by task H0,
 docs/tasks/homepage/00-pin-copy-from-decisions.md).
 """
 import pytest
@@ -30,6 +30,59 @@ def home_html(pw, base_url):
 def test_US_homepage_8_4_no_unbuilt_features_promised(home_html, phrase):
     """US-homepage-8.4 (story US-homepage-8): rendered HTML of / has no collaboration promise."""
     assert phrase.lower() not in home_html, f"/ promises an unbuilt feature: {phrase!r}"
+
+
+# US-homepage-8.5: exact pinned strings from the spec Copy subsection, straight
+# apostrophes, no normalising. Each string is one test case so a drift names it.
+PINNED_COPY = [
+    # (a) Hero
+    "For families, little ones and whole neighborhoods",
+    "Made for the people you love to share with",
+    "Your page is live",
+    "Share this link",
+    # (b) Who it is for
+    "One page can be about one child, one summer or one street. Make it once and share it with everyone you love.",
+    "Grandparents, parents and cousins in one place. Everyone can see the photos and the stories behind them.",
+    "First steps, first days and every birthday from one to ten. A scrapbook that grows up with them.",
+    "A street party, a class trip or a team season. Keep the day and share it with everyone who was there.",
+    # (c) Templates
+    "A title, a few words and one photo. The simplest way to keep something.",
+    "A year-by-year album. One page for each birthday, from one to ten.",
+    "A trip or an outing told in moments, with a route and the best photos.",
+    # (d) Addresses
+    "Your family's home page. It lists everything you publish.",
+    "A memory page about Bob.",
+    "A memory page about Bob's first day.",
+    "A page the whole street can open.",
+    # (e) Final CTA
+    "It takes a template, a few photos and a few cozy minutes.",
+]
+
+
+@pytest.fixture(scope="module")
+def home_text(pw, base_url):
+    """Text of <body> on `/` (script and style removed, whitespace collapsed)."""
+    browser = pw.chromium.launch()
+    context = browser.new_context(viewport={"width": 1440, "height": 900})
+    try:
+        pg = context.new_page()
+        pg.goto(base_url + "/", wait_until="networkidle")
+        yield pg.evaluate(
+            r"""() => {
+                const b = document.body.cloneNode(true);
+                b.querySelectorAll('script,style').forEach(n => n.remove());
+                return b.textContent.replace(/\s+/g, ' ');
+            }"""
+        )
+    finally:
+        context.close()
+        browser.close()
+
+
+@pytest.mark.parametrize("copy", PINNED_COPY)
+def test_US_homepage_8_5_pinned_copy_present(home_text, copy):
+    """US-homepage-8.5 (story US-homepage-8): each pinned Copy string is in the visible text, exact."""
+    assert copy in home_text, f"pinned copy missing from /: {copy!r}"
 
 
 # ---------------------------------------------------------------------------
