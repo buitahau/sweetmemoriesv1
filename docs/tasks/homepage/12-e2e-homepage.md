@@ -9,7 +9,7 @@
 
 ## What to change
 
-`e2e/homepage/test_homepage.py` (single feature file; US-homepage-8.4 already lives there, do not duplicate) with one test per scenario of US-homepage-1 to US-homepage-10, each named by its story ID (see the `e2e-from-user-stories` skill).
+`e2e/homepage/test_homepage.py` (single feature file; US-homepage-8.4 and 8.5 already live there if added earlier, do not duplicate) with one test per scenario of US-homepage-1 to US-homepage-10, each named by its story ID (see the `e2e-from-user-stories` skill).
 
 ## Checklist
 
@@ -18,6 +18,7 @@
 - [ ] axe check
 - [ ] US-homepage-8.3 assertions: email regex, env values and names, git SHA, package version, `SITE_URL` only in head URL tags, capitalised-word allow-list (spec US-homepage-8.3 (c)); exact apostrophe-bearing strings use straight `'` with no normalising
 - [ ] US-homepage-10.3: under reduced motion, `h1`, "Start with Google" and every `h2` have computed opacity 1
+- [ ] US-homepage-8.5: every pinned Copy string listed in the scenario is present in the visible text (exact match, straight `'`)
 - [ ] US-homepage-5.4 marked skip, with a reason, until Templates exist
 
 ## Verification
