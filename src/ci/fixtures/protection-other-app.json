@@ -1,7 +1,9 @@
 {
   "required_status_checks": {
     "strict": true,
-    "contexts": ["ci"],
+    "contexts": [
+      "ci"
+    ],
     "checks": [
       {
         "context": "ci",
