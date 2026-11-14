@@ -16,4 +16,39 @@ describe('HomePage', () => {
   it('has no script or tracking markup', () => {
     expect(html).not.toContain('<script')
   })
+
+  it('has a nav named "Main" with the four links in order', () => {
+    const nav = html.match(/<nav[^>]*aria-label="Main"[^>]*>([\s\S]*?)<\/nav>/)
+    expect(nav).not.toBeNull()
+    const hrefs = [...nav![1].matchAll(/href="([^"]+)"/g)].map((m) => m[1])
+    expect(hrefs).toEqual(['#who', '#how', '#templates', '/sign-in'])
+    expect(nav![1]).toContain('Sign in')
+  })
+
+  it('links the logo to /', () => {
+    expect(html).toMatch(/<header[^>]*><a href="\/"[^>]*>[\s\S]*SweetMemories/)
+  })
+
+  it('renders the footer tagline in a footer', () => {
+    expect(html).toMatch(
+      /<footer[\s\S]*SweetMemories[\s\S]*Small pages for the moments worth keeping\.[\s\S]*<\/footer>/,
+    )
+  })
+
+  it('has empty section placeholders with the right ids', () => {
+    for (const id of ['who', 'how', 'templates']) {
+      expect(html).toContain(`<section id="${id}"></section>`)
+    }
+  })
+
+  it('does not contain the retired strings', () => {
+    for (const s of [
+      'add to',
+      'Invite people',
+      'just added a photo',
+      '12 cousins',
+    ]) {
+      expect(html).not.toContain(s)
+    }
+  })
 })

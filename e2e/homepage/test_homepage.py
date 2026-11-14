@@ -7,6 +7,9 @@ no cookies.
 Already covered: US-homepage-8.4. US-homepage-8.5 (pinned copy present) is
 added by task 12, once the sections that render the copy exist.
 """
+import re
+from urllib.parse import urlparse
+
 import pytest
 
 # Collaboration-sensitive strings from spec Conflict 1. A Memory has one owner
@@ -36,9 +39,6 @@ def test_US_homepage_8_4_no_unbuilt_features_promised(home_html, phrase):
 # Task 01 (design tokens, self-hosted fonts, motion base). The remaining
 # US-homepage scenarios depend on tasks 02 to 11 and are written in task 12.
 # ---------------------------------------------------------------------------
-from urllib.parse import urlparse  # noqa: E402
-
-
 @pytest.fixture
 def page(pw):
     browser = pw.chromium.launch()
@@ -115,3 +115,152 @@ def test_US_homepage_10_3_motion_allowed_keeps_animation(page, base_url):
     page.emulate_media(reduced_motion="no-preference")
     page.goto(base_url + "/", wait_until="networkidle")
     assert page.evaluate(_PROBE)["name"] == "sm-spin"
+
+
+# ---------------------------------------------------------------------------
+# Task 02 (page shell: header, nav, anchors, footer).
+# US-homepage-2 scenarios 1 to 6 and US-homepage-8 scenario 2. Scenarios 2.2,
+# 2.6 and 2.4 need section headings that later tasks add; they
+# skip (BLOCKED) while a section is still an empty placeholder.
+# Deferred: the mobile header (anchors hidden below 768 px, only logo and Sign
+# in shown) belongs to US-homepage-10.1 and is tested in task 12, like 8.5.
+# ---------------------------------------------------------------------------
+NAV_LABELS = ["Who it is for", "How it works", "Templates", "Sign in"]
+SECTION_HEADINGS = {
+    "who": "A little corner of the internet for everyone who loves each other.",
+    "how": "From a pile of photos to a page, in four easy steps.",
+    "templates": "Start simple, or tell the whole story.",
+}
+
+
+def _in_viewport(page, locator):
+    box = locator.bounding_box()
+    vh = page.viewport_size["height"]
+    return box is not None and box["y"] < vh and box["y"] + box["height"] > 0
+
+
+def _wait_in_viewport(page, locator):
+    """Poll until the heading is in the viewport (smooth scrolling safe)."""
+    handle = locator.element_handle()
+    page.wait_for_function(
+        "el => { const r = el.getBoundingClientRect(); return r.top < innerHeight && r.bottom > 0; }",
+        arg=handle,
+    )
+
+
+# Sections whose task has not shipped yet. Each section task (04, 05, 06) removes
+# its entry; once removed, a missing heading FAILS instead of skipping.
+PENDING_SECTION_TASKS = {"who": "04", "how": "05", "templates": "06"}
+
+
+def _heading_or_block(page, anchor):
+    h = page.get_by_role("heading", name=SECTION_HEADINGS[anchor])
+    if h.count() == 0:
+        if anchor in PENDING_SECTION_TASKS:
+            pytest.skip(f"BLOCKED: task {PENDING_SECTION_TASKS[anchor]} (heading for #{anchor} not shipped yet)")
+        pytest.fail(f"heading for #{anchor} missing: {SECTION_HEADINGS[anchor]!r}")
+    return h.first
+
+
+def test_US_homepage_2_1_nav_links_in_order(page, base_url, shot):
+    """US-homepage-2.1 (story US-homepage-2): navigation "Main" lists the four links in order at 1440 px."""
+    page.goto(base_url + "/", wait_until="networkidle")
+    nav = page.get_by_role("navigation", name="Main")
+    assert nav.count() == 1
+    links = nav.get_by_role("link")
+    assert links.all_inner_texts() == NAV_LABELS
+    for i in range(len(NAV_LABELS)):
+        assert links.nth(i).is_visible()
+    shot(page, "US-homepage-2.1")
+
+
+@pytest.mark.parametrize("anchor,label", [("who", "Who it is for"), ("how", "How it works"), ("templates", "Templates")])
+def test_US_homepage_2_2_anchor_links(page, base_url, anchor, label):
+    """US-homepage-2.2 (story US-homepage-2): an anchor link sets the hash and brings the section heading into view."""
+    page.goto(base_url + "/", wait_until="networkidle")
+    page.get_by_role("navigation", name="Main").get_by_role("link", name=label).click()
+    page.wait_for_function(f"location.hash === '#{anchor}'")
+    assert page.url.endswith(f"#{anchor}")
+    heading = _heading_or_block(page, anchor)
+    _wait_in_viewport(page, heading)
+    assert _in_viewport(page, heading)
+
+
+def test_US_homepage_2_3_sign_in_navigates(page, base_url):
+    """US-homepage-2.3 (story US-homepage-2): clicking Sign in goes to /sign-in.
+
+    TODO(task 09): /sign-in is a 404 today; add the "Sign in" heading check once that page exists.
+    """
+    page.goto(base_url + "/", wait_until="networkidle")
+    page.get_by_role("navigation", name="Main").get_by_role("link", name="Sign in").click()
+    page.wait_for_url(re.compile(r"/sign-in$"))
+    assert urlparse(page.url).path == "/sign-in"
+
+
+def test_US_homepage_2_4_logo_returns_to_top(page, base_url):
+    """US-homepage-2.4 (story US-homepage-2): from /#templates the logo goes to / and scrolls to the top."""
+    page.goto(base_url + "/#templates", wait_until="networkidle")
+    scrollable = page.evaluate("document.documentElement.scrollHeight > innerHeight")
+    # TODO(task 12): drop the `scrollable` conditions so the scroll-to-top check always runs.
+    if scrollable:
+        # Deep-link scrolling must work once the page can scroll; fail, do not skip.
+        page.wait_for_function("window.scrollY > 0")
+    page.get_by_role("banner").get_by_role("link", name="SweetMemories").click()
+    page.wait_for_function("location.hash === ''")
+    assert urlparse(page.url).path == "/"
+    assert urlparse(page.url).fragment == ""
+    if scrollable:
+        page.wait_for_function("window.scrollY === 0")
+        assert page.evaluate("window.scrollY") == 0
+
+
+def test_US_homepage_2_5_keyboard_tab_order_and_focus_ring(page, base_url, shot):
+    """US-homepage-2.5 (story US-homepage-2): Tab reaches logo then each nav link in order, each with a visible focus indicator."""
+    page.goto(base_url + "/", wait_until="networkidle")
+    expected = ["SweetMemories"] + NAV_LABELS
+    seen = []
+    for _ in expected:
+        page.keyboard.press("Tab")
+        info = page.evaluate(
+            """() => {
+              const el = document.activeElement;
+              const cs = getComputedStyle(el);
+              let bgEl = document.querySelector('header'), bg = 'rgba(0, 0, 0, 0)';
+              while (bgEl) {
+                bg = getComputedStyle(bgEl).backgroundColor;
+                if (!bg.endsWith(', 0)') && bg !== 'transparent') break;
+                bgEl = bgEl.parentElement;
+              }
+              return {text: el.innerText.trim(), outlineStyle: cs.outlineStyle,
+                      outlineWidth: parseFloat(cs.outlineWidth), tag: el.tagName,
+                      outlineColor: cs.outlineColor, pageBg: bg};
+            }"""
+        )
+        assert info["tag"] == "A"
+        assert info["outlineStyle"] != "none" and info["outlineWidth"] > 0, f"no focus ring on {info['text']!r}"
+        assert info["outlineColor"] != info["pageBg"], f"focus ring blends into page background on {info['text']!r}"
+        assert not info["outlineColor"].endswith(", 0)"), f"transparent focus ring on {info['text']!r}"
+        seen.append(info["text"])
+    assert seen == expected
+    shot(page, "US-homepage-2.5")
+
+
+def test_US_homepage_2_6_deep_link_templates(page, base_url):
+    """US-homepage-2.6 (story US-homepage-2): opening /#templates scrolls the Templates heading into view."""
+    page.goto(base_url + "/#templates", wait_until="networkidle")
+    heading = _heading_or_block(page, "templates")
+    _wait_in_viewport(page, heading)
+    assert _in_viewport(page, heading)
+
+
+def test_US_homepage_8_2_footer_contentinfo(page, base_url, shot):
+    """US-homepage-8.2 (story US-homepage-8): contentinfo landmark shows "SweetMemories" and the tagline."""
+    page.goto(base_url + "/", wait_until="networkidle")
+    footer = page.get_by_role("contentinfo")
+    assert footer.count() == 1
+    footer.scroll_into_view_if_needed()
+    assert footer.is_visible()
+    text = footer.inner_text()
+    assert "SweetMemories" in text
+    assert "Small pages for the moments worth keeping." in text
+    shot(page, "US-homepage-8.2")
