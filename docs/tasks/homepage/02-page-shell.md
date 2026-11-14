@@ -16,6 +16,7 @@ Rewrite `HomePage` as a composition of section components, one file per section 
 - [ ] Header with the logo (link to `/`) and `nav aria-label="Main"`: anchors `#who`, `#how`, `#templates`, plus a Sign in link to the Q-cta target
 - [ ] Footer with the logo and tagline
 - [ ] Empty section placeholders with the right ids
+- [ ] Keep the old "SweetMemories home page" `h1` unchanged: [03](03-hero.md) replaces it together with [11](11-retire-skeleton-heading.md) in one PR
 - [ ] Mobile header per the Q-mobile answer
 
 ## Verification
