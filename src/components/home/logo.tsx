@@ -11,11 +11,11 @@ export function Logo({
         width="30"
         height="30"
         rx="11"
-        fill={inverted ? '#FFFFFF' : '#FF8FAB'}
+        className={inverted ? 'fill-white' : 'fill-pink-300'}
       />
       <path
         d="M15 22s-6.5-4.1-6.5-8.4A3.6 3.6 0 0 1 15 11.6a3.6 3.6 0 0 1 6.5 2C21.5 17.9 15 22 15 22z"
-        fill={inverted ? '#FF8FAB' : '#FFFFFF'}
+        className={inverted ? 'fill-pink-300' : 'fill-white'}
       />
     </svg>
   )

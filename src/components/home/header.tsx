@@ -31,7 +31,7 @@ export function Header() {
         </a>
         <a
           href="/sign-in"
-          className={`inline-flex min-h-11 items-center rounded-full bg-white px-5 font-bold text-ink no-underline shadow-[0_4px_0_#E9C86A] ${focus}`}
+          className={`inline-flex min-h-11 items-center rounded-full bg-white px-5 font-bold text-ink no-underline shadow-[0_4px_0_var(--color-butter-shadow)] ${focus}`}
         >
           Sign in
         </a>
