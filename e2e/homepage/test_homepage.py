@@ -2,10 +2,8 @@
 
 Single file for the feature, per the e2e-from-user-stories skill. Task 12
 (e2e-homepage) adds the remaining US-homepage scenarios here. Public session,
-no cookies.
-
-Already covered: US-homepage-8.4. US-homepage-8.5 (pinned copy present) is
-added by task 12, once the sections that render the copy exist.
+no cookies. Each test name carries its scenario id; see the test names for
+coverage.
 """
 import re
 from urllib.parse import urlparse
@@ -272,14 +270,27 @@ def test_US_homepage_8_2_footer_contentinfo(page, base_url, shot):
 H1_TEXT = "Every little moment deserves a home."
 
 
+def _settle(page):
+    """Wait until entrance animations finish so visibility and screenshots are real."""
+    page.wait_for_function(
+        "document.getAnimations().every(a => a.effect && a.effect.getTiming().iterations === Infinity"
+        " || a.playState !== 'running')"
+    )
+
+
+def _hero(page):
+    return page.get_by_role("main").locator("section").first
+
+
 def _hero_cta(page):
     return page.get_by_role("main").get_by_role("link", name="Start with Google").first
 
 
-def test_US_homepage_1_1_hero_happy_path(pw, page, base_url, shot):
+def test_US_homepage_1_1_hero_happy_path(page, base_url, shot):
     """US-homepage-1.1 (story US-homepage-1): 200, one h1, sub copy and both CTAs visible without scrolling."""
     response = page.goto(base_url + "/", wait_until="networkidle")
     assert response.status == 200
+    _settle(page)
     h1 = page.get_by_role("heading", level=1)
     assert h1.count() == 1
     assert h1.inner_text().replace("\n", " ").strip() == H1_TEXT
@@ -294,6 +305,7 @@ def test_US_homepage_1_1_hero_happy_path(pw, page, base_url, shot):
 def test_US_homepage_1_2_reassurance_below_buttons(page, base_url):
     """US-homepage-1.2 (story US-homepage-1): "No password to make." is visible below the buttons."""
     page.goto(base_url + "/", wait_until="networkidle")
+    _settle(page)
     line = page.get_by_text("No password to make.").first
     assert line.is_visible()
     cta_box = _hero_cta(page).bounding_box()
@@ -303,12 +315,17 @@ def test_US_homepage_1_2_reassurance_below_buttons(page, base_url):
 def test_US_homepage_1_3_example_address_is_plain_text(page, base_url, shot):
     """US-homepage-1.3 (story US-homepage-1): collage shows "Bob's first day" and the address, not as a link."""
     page.goto(base_url + "/", wait_until="networkidle")
-    assert page.get_by_text("Bob's first day", exact=True).first.is_visible()
-    address = page.get_by_text("sam.sweetmemories.com/bobs-first-day", exact=True).first
+    _settle(page)
+    hero = _hero(page)
+    assert hero.get_by_text("Bob's first day", exact=True).first.is_visible()
+    address = hero.get_by_text("sam.sweetmemories.com/bobs-first-day", exact=True)
+    assert address.count() == 1
     assert address.is_visible()
     assert address.locator("xpath=ancestor-or-self::a").count() == 0
     assert page.locator("a[href*='sam.sweetmemories.com']").count() == 0
-    shot(page, "US-homepage-1.3")
+    card = address.locator("xpath=ancestor::div[contains(@class,'overflow-hidden')][1]")
+    # The card floats forever, so it is never "stable"; freeze animations for the capture.
+    shot(card, "US-homepage-1.3", animations="disabled")
 
 
 def test_US_homepage_1_4_see_how_it_works(page, base_url):

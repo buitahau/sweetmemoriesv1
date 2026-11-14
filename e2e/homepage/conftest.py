@@ -21,7 +21,8 @@ def base_url():
 def shot():
     SHOTS.mkdir(exist_ok=True)
 
-    def _shot(page, name):
-        page.screenshot(path=str(SHOTS / f"{name}.png"))
+    def _shot(target, name, **kwargs):
+        # target is a Page or a Locator
+        target.screenshot(path=str(SHOTS / f"{name}.png"), **kwargs)
 
     return _shot
