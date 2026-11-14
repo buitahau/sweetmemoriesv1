@@ -5,8 +5,11 @@ import { HomePage } from './home-page'
 describe('HomePage', () => {
   const html = renderToStaticMarkup(<HomePage />)
 
-  it('renders a level-1 heading "SweetMemories home page"', () => {
-    expect(html).toMatch(/<h1[^>]*>SweetMemories home page<\/h1>/)
+  it('renders the hero heading and no longer the skeleton heading', () => {
+    expect(html).toMatch(
+      /<h1[^>]*>Every little moment deserves a [\s\S]*home[\s\S]*\.<\/h1>/,
+    )
+    expect(html).not.toContain('SweetMemories home page')
   })
 
   it('renders exactly one h1', () => {

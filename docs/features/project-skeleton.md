@@ -3,13 +3,13 @@
 **Status:** done
 **Side:** both
 - backend: project scaffold, scripts and the `GET /api/health` server route.
-- front-end: the root layout and the home page route `/` with the text "SweetMemories home page".
+- front-end: the root layout and the home page route `/` with the text "Every little moment deserves a home.".
 
 Tasks: [../tasks/project-skeleton/](../tasks/project-skeleton/) (01 to 04). ADR: [0001](../adr/0001-single-tanstack-start-app.md). Open questions: [../decisions/project-skeleton.md](../decisions/project-skeleton.md). Mockups: none.
 
 ## Goal
 
-A runnable TanStack Start app that exposes a health check API and a home page showing "SweetMemories home page".
+A runnable TanStack Start app that exposes a health check API and a home page showing "Every little moment deserves a home.".
 
 ## Summary and assumptions
 
@@ -45,19 +45,19 @@ Scenarios:
 **Story:** As a visitor, I want to open the SweetMemories home page, so that I can see the site is live.
 
 Scenarios:
-1. *Happy path*: **Given** the app server is running, **When** a visitor opens `/` in a browser with no cookies, **Then** the page loads with status `200` and shows a top-level heading with the text "SweetMemories home page".
+1. *Happy path*: **Given** the app server is running, **When** a visitor opens `/` in a browser with no cookies, **Then** the page loads with status `200` and shows a top-level heading with the text "Every little moment deserves a home.".
 2. *Page title*: **Given** the app server is running, **When** a visitor opens `/`, **Then** the browser tab title contains "SweetMemories".
-3. *Server-rendered*: **Given** the app server is running, **When** a client fetches `/` without running JavaScript (plain HTTP GET), **Then** the returned HTML contains the text "SweetMemories home page".
+3. *Server-rendered*: **Given** the app server is running, **When** a client fetches `/` without running JavaScript (plain HTTP GET), **Then** the returned HTML contains the text "Every little moment deserves a home.".
 4. *Security, no cookies*: **Given** the app server is running, **When** a visitor opens `/` with no cookies, **Then** the response sets no cookies and the browser holds no cookies for the site afterwards.
 5. *No errors*: **Given** the app server is running, **When** a visitor opens `/`, **Then** the browser console shows no errors.
-6. *Unknown path (edge)*: **Given** the app server is running, **When** a visitor opens `/does-not-exist`, **Then** the response status is `404`, a "Page not found" message is shown, and the text "SweetMemories home page" is not shown as the main heading.
+6. *Unknown path (edge)*: **Given** the app server is running, **When** a visitor opens `/does-not-exist`, **Then** the response status is `404`, a "Page not found" message is shown, and the text "Every little moment deserves a home." is not shown as the main heading.
 
 ## Acceptance criteria
 
 - `GET /api/health` returns `200`, `application/json`, body `{"status":"ok"}`, `Cache-Control: no-store`, and no `Set-Cookie`.
 - `POST /api/health` returns `405`.
 - The health response exposes no secrets, environment details, versions or stack traces.
-- `/` returns `200`, is server-rendered, shows the heading "SweetMemories home page", has a title containing "SweetMemories", sets no cookies and logs no console errors.
+- `/` returns `200`, is server-rendered, shows the heading "Every little moment deserves a home.", has a title containing "SweetMemories", sets no cookies and logs no console errors.
 - Unknown paths return `404` with a "Page not found" message.
 - `install`, `dev`, `build`, `start`, `lint`, `test` (and running a single test) work from a clean clone and are documented in `CLAUDE.md` and `docs/infra/local-development.md`.
 - No auth, database, S3 or subdomain code is added.

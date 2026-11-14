@@ -9,7 +9,7 @@ import pytest
 
 from playwright.sync_api import Error as PlaywrightError, expect
 
-HEADING = "SweetMemories home page"
+HEADING = "Every little moment deserves a home."
 
 
 # ---------- US-skeleton-1: Health check ----------

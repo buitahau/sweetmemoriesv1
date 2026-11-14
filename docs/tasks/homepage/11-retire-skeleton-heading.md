@@ -1,6 +1,6 @@
 # 11 Retire the old "SweetMemories home page" assertions
 
-**Status:** todo
+**Status:** done
 **Side:** front-end
 **Size:** S
 **Dependencies:** 02 and 03 (lands in the same PR as 03; task 02 keeps the old `h1`)

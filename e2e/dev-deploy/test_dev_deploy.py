@@ -31,7 +31,7 @@ def _jobs(run_id):
     return json.loads(r.stdout)["jobs"]
 
 
-HEADING = "SweetMemories home page"
+HEADING = "Every little moment deserves a home."
 DOCS = ROOT / "docs" / "infra" / "dev-environment.md"
 BLOCKED_MERGE = "BLOCKED: needs a real merge into dev-v2 (this suite must not push or merge)"
 BLOCKED_BROKEN = "BLOCKED: needs a deliberately broken deploy on the shared dev Worker"
