@@ -264,3 +264,89 @@ def test_US_homepage_8_2_footer_contentinfo(page, base_url, shot):
     assert "SweetMemories" in text
     assert "Small pages for the moments worth keeping." in text
     shot(page, "US-homepage-8.2")
+
+
+# ---------------------------------------------------------------------------
+# Task 03 (hero). US-homepage-1 scenarios 1 to 6 and 9 (7 and 8 are above).
+# ---------------------------------------------------------------------------
+H1_TEXT = "Every little moment deserves a home."
+
+
+def _hero_cta(page):
+    return page.get_by_role("main").get_by_role("link", name="Start with Google").first
+
+
+def test_US_homepage_1_1_hero_happy_path(pw, page, base_url, shot):
+    """US-homepage-1.1 (story US-homepage-1): 200, one h1, sub copy and both CTAs visible without scrolling."""
+    response = page.goto(base_url + "/", wait_until="networkidle")
+    assert response.status == 200
+    h1 = page.get_by_role("heading", level=1)
+    assert h1.count() == 1
+    assert h1.inner_text().replace("\n", " ").strip() == H1_TEXT
+    sub = page.get_by_text("Turn first steps, birthdays and street parties into tiny pages")
+    assert sub.first.is_visible()
+    for link in (_hero_cta(page), page.get_by_role("link", name="See how it works")):
+        assert link.is_visible()
+        assert _in_viewport(page, link)
+    shot(page, "US-homepage-1.1")
+
+
+def test_US_homepage_1_2_reassurance_below_buttons(page, base_url):
+    """US-homepage-1.2 (story US-homepage-1): "No password to make." is visible below the buttons."""
+    page.goto(base_url + "/", wait_until="networkidle")
+    line = page.get_by_text("No password to make.").first
+    assert line.is_visible()
+    cta_box = _hero_cta(page).bounding_box()
+    assert line.bounding_box()["y"] >= cta_box["y"] + cta_box["height"] - 1
+
+
+def test_US_homepage_1_3_example_address_is_plain_text(page, base_url, shot):
+    """US-homepage-1.3 (story US-homepage-1): collage shows "Bob's first day" and the address, not as a link."""
+    page.goto(base_url + "/", wait_until="networkidle")
+    assert page.get_by_text("Bob's first day", exact=True).first.is_visible()
+    address = page.get_by_text("sam.sweetmemories.com/bobs-first-day", exact=True).first
+    assert address.is_visible()
+    assert address.locator("xpath=ancestor-or-self::a").count() == 0
+    assert page.locator("a[href*='sam.sweetmemories.com']").count() == 0
+    shot(page, "US-homepage-1.3")
+
+
+def test_US_homepage_1_4_see_how_it_works(page, base_url):
+    """US-homepage-1.4 (story US-homepage-1): "See how it works" sets #how and shows the How it works heading."""
+    page.goto(base_url + "/", wait_until="networkidle")
+    page.get_by_role("link", name="See how it works").click()
+    page.wait_for_function("location.hash === '#how'")
+    assert page.url.endswith("#how")
+    heading = _heading_or_block(page, "how")
+    _wait_in_viewport(page, heading)
+    assert _in_viewport(page, heading)
+
+
+def test_US_homepage_1_5_start_cta_goes_to_sign_in(page, base_url):
+    """US-homepage-1.5 (story US-homepage-1): hero "Start with Google" navigates to /sign-in."""
+    page.goto(base_url + "/", wait_until="networkidle")
+    _hero_cta(page).click()
+    page.wait_for_url(re.compile(r"/sign-in$"))
+    assert urlparse(page.url).path == "/sign-in"
+
+
+def test_US_homepage_1_6_server_rendered(pw, base_url):
+    """US-homepage-1.6 (story US-homepage-1): plain HTTP HTML, tags stripped, has the h1 text and the CTA."""
+    req = pw.request.new_context(base_url=base_url)
+    try:
+        r = req.get("/")
+        assert r.status == 200
+        text = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", "", r.text()))
+        assert "Every little moment deserves a home" in text
+        assert "Start with Google" in text
+    finally:
+        req.dispose()
+
+
+def test_US_homepage_1_9_console_clean(page, base_url):
+    """US-homepage-1.9 (story US-homepage-1): no console errors or hydration warnings after load."""
+    bad = []
+    page.on("console", lambda m: bad.append(m.text) if m.type in ("error", "warning") else None)
+    page.on("pageerror", lambda e: bad.append(str(e)))
+    page.goto(base_url + "/", wait_until="networkidle")
+    assert bad == [], f"console problems: {bad}"
