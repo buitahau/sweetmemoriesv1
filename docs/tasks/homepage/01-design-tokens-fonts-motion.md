@@ -23,6 +23,6 @@ Rebuild the mockup's inline styles as Tailwind v4 tokens in `src/styles.css` and
 ## Verification
 
 - [x] `pnpm lint`, `pnpm typecheck` and `pnpm build` pass.
-- [x] Manual on `pnpm dev`: the network tab shows font files from the same origin only, no Google Fonts requests.
-- [x] `curl -s localhost:3000/` contains one font preload link, and its href returns `200` with `font/woff2`.
+- [ ] Manual on `pnpm dev`: the network tab shows font files from the same origin only, no Google Fonts requests.
+- [ ] `curl -s localhost:3000/` contains one font preload link, and its href returns `200` with `font/woff2`.
 - [x] Reduced motion is checked by CSS review only here: the global `prefers-reduced-motion: reduce` rule is covered by a unit test on `src/styles.css`. No animated element exists yet (sections come later), so the computed `animation-name` check on a real element moves to task [03](03-hero.md) and [10](10-responsive-a11y-motion.md).
