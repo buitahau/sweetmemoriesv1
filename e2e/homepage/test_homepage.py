@@ -614,8 +614,8 @@ def test_US_homepage_3_3_faces_hidden_from_screen_readers(page, base_url):
         assert card.get_by_role("img").count() == 0
 
 
-def test_US_homepage_3_4_card_hover_lift_off_under_reduced_motion(page, base_url):
-    """US-homepage-3.4 (story US-homepage-3): hovering a card lifts it normally, but not under prefers-reduced-motion."""
+def test_US_homepage_10_3_card_hover_lift_off_under_reduced_motion(page, base_url):
+    """US-homepage-10.3 (story US-homepage-10): hovering a Who card lifts it normally, but not under prefers-reduced-motion."""
     page.emulate_media(reduced_motion="no-preference")
     sec = _who(page, base_url)
     card = sec.locator("article").nth(0)
