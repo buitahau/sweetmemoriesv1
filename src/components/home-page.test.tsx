@@ -53,6 +53,15 @@ describe('HomePage', () => {
     expect(html).toContain('<section id="addresses"')
   })
 
+  it('renders the final CTA before the footer', () => {
+    const cta = html.indexOf('Start with the memory everyone keeps telling.')
+    expect(cta).toBeGreaterThan(html.indexOf('<section id="addresses"'))
+    expect(cta).toBeLessThan(html.indexOf('<footer'))
+    expect(html).toContain(
+      'It takes a template, a few photos and a few cozy minutes.',
+    )
+  })
+
   it('does not contain the retired strings', () => {
     for (const s of [
       'add to',
