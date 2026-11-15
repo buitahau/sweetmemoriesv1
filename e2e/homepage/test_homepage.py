@@ -516,7 +516,9 @@ def test_US_homepage_10_2_header_links_single_line(pw, base_url, width):
         browser.close()
 
 
-@pytest.mark.parametrize("width", [320, 360, 375, 414])
+# 305 = a 320 px window minus a classic 15 px scrollbar: headless Chromium uses
+# overlay scrollbars, so 320 alone would not catch the header wrap seen in headed mode.
+@pytest.mark.parametrize("width", [305, 320, 360, 375, 414])
 def test_US_homepage_10_1_header_logo_and_sign_in_share_a_row(pw, base_url, width):
     """US-homepage-10.1: the logo and Sign in sit on one header row at phone widths."""
     browser = pw.chromium.launch()

@@ -6,13 +6,13 @@ const anchorLink = `hidden min-h-11 items-center whitespace-nowrap px-3.5 font-s
 
 export function Header() {
   return (
-    <header className="relative mx-auto flex max-w-[1200px] flex-wrap items-center gap-3 px-4 py-5 min-[360px]:px-5 md:gap-6 md:px-10">
+    <header className="relative mx-auto flex max-w-[1200px] flex-wrap items-center gap-2 px-4 py-5 min-[360px]:gap-3 min-[360px]:px-5 md:gap-6 md:px-10">
       <a
         href="/"
-        className={`flex items-center gap-2.5 text-ink no-underline ${focus}`}
+        className={`flex items-center gap-2 min-[360px]:gap-2.5 text-ink no-underline ${focus}`}
       >
         <Logo />
-        <span className="font-display text-lg font-semibold min-[360px]:text-xl tracking-tight md:text-2xl">
+        <span className="font-display text-[17px] min-[360px]:text-xl font-semibold tracking-tight md:text-2xl">
           SweetMemories
         </span>
       </a>
@@ -31,7 +31,7 @@ export function Header() {
         </a>
         <a
           href="/sign-in"
-          className={`inline-flex min-h-11 items-center whitespace-nowrap rounded-full bg-white px-5 font-bold text-ink no-underline shadow-[0_4px_0_var(--color-butter-shadow)] ${focus}`}
+          className={`inline-flex min-h-11 items-center whitespace-nowrap rounded-full bg-white px-3.5 min-[360px]:px-5 font-bold text-ink no-underline shadow-[0_4px_0_var(--color-butter-shadow)] ${focus}`}
         >
           Sign in
         </a>
