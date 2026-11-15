@@ -45,10 +45,10 @@ describe('HomePage', () => {
     )
   })
 
-  it('has the section ids, with an empty placeholder for the unbuilt templates section', () => {
+  it('has the section ids, including templates', () => {
     expect(html).toContain('<section id="who"')
     expect(html).toContain('<section id="how"')
-    expect(html).toContain('<section id="templates"></section>')
+    expect(html).toContain('<section id="templates"')
   })
 
   it('does not contain the retired strings', () => {
