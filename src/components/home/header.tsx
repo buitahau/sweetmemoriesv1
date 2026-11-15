@@ -6,13 +6,13 @@ const anchorLink = `hidden min-h-11 items-center whitespace-nowrap px-3.5 font-s
 
 export function Header() {
   return (
-    <header className="relative mx-auto flex max-w-[1200px] flex-wrap items-center gap-6 px-5 py-5 md:px-10">
+    <header className="relative mx-auto flex max-w-[1200px] flex-wrap items-center gap-3 px-5 md:gap-6 py-5 md:px-10">
       <a
         href="/"
         className={`flex items-center gap-2.5 text-ink no-underline ${focus}`}
       >
         <Logo />
-        <span className="font-display text-2xl font-semibold tracking-tight">
+        <span className="font-display text-xl font-semibold md:text-2xl tracking-tight">
           SweetMemories
         </span>
       </a>
