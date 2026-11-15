@@ -265,6 +265,59 @@ def test_US_homepage_8_2_footer_contentinfo(page, base_url, shot):
 
 
 # ---------------------------------------------------------------------------
+# Task 08 (final CTA). US-homepage-8 scenarios 1 and 5. Scenario 3 (no private
+# data) is automated in task 12.
+# ---------------------------------------------------------------------------
+FINAL_CTA_H2 = "Start with the memory everyone keeps telling."
+
+
+def test_US_homepage_8_1_final_cta_navigates_to_sign_in(page, base_url, shot):
+    """US-homepage-8.1 (story US-homepage-8): at the bottom, the final CTA heading and a Start with Google link to /sign-in."""
+    page.goto(base_url + "/", wait_until="networkidle")
+    heading = page.get_by_role("heading", level=2, name=FINAL_CTA_H2)
+    assert heading.count() == 1
+    heading.scroll_into_view_if_needed()
+    _settle(page)
+    assert heading.is_visible()
+    section = page.locator("section").filter(has=heading)
+    link = section.get_by_role("link", name="Start with Google")
+    assert link.is_visible()
+    assert link.get_attribute("href") == "/sign-in"
+    shot(page, "US-homepage-8.1")
+    link.click()
+    page.wait_for_url(re.compile(r"/sign-in/?$"))
+
+
+PINNED_COPY = [
+    "For families, little ones and whole neighborhoods",
+    "Made for the people you love to share with",
+    "Your page is live",
+    "Share this link",
+    "One page can be about one child, one summer or one street. Make it once and share it with everyone you love.",
+    "Grandparents, parents and cousins in one place. Everyone can see the photos and the stories behind them.",
+    "First steps, first days and every birthday from one to ten. A scrapbook that grows up with them.",
+    "A street party, a class trip or a team season. Keep the day and share it with everyone who was there.",
+    "A title, a few words and one photo. The simplest way to keep something.",
+    "A year-by-year album. One page for each birthday, from one to ten.",
+    "A trip or an outing told in moments, with a route and the best photos.",
+    "Your family's home page. It lists everything you publish.",
+    "A memory page about Bob.",
+    "A memory page about Bob's first day.",
+    "A page the whole street can open.",
+    "It takes a template, a few photos and a few cozy minutes.",
+]
+
+
+@pytest.mark.parametrize("text", PINNED_COPY)
+def test_US_homepage_8_5_pinned_copy_present(page, base_url, text):
+    """US-homepage-8.5 (story US-homepage-8): each pinned copy string is present in the visible text of /."""
+    page.goto(base_url + "/", wait_until="networkidle")
+    body = page.locator("body").inner_text()
+    body = re.sub(r"\s+", " ", body)
+    assert text in body, f"pinned copy missing: {text!r}"
+
+
+# ---------------------------------------------------------------------------
 # Task 03 (hero). US-homepage-1 scenarios 1 to 6 and 9 (7 and 8 are above).
 # ---------------------------------------------------------------------------
 H1_TEXT = "Every little moment deserves a home."
