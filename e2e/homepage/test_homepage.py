@@ -9,6 +9,7 @@ import re
 from urllib.parse import urlparse
 
 import pytest
+from playwright.sync_api import expect
 
 # Collaboration-sensitive strings from spec Conflict 1. A Memory has one owner
 # and no contributor or invite feature exists, so the page must not promise it.
@@ -49,10 +50,12 @@ def page(pw):
 
 def test_US_homepage_1_7_no_cookies(page, base_url):
     """US-homepage-1.7 (story US-homepage-1): no Set-Cookie header and no browser cookies on /."""
-    set_cookie = []
-    page.on("response", lambda r: set_cookie.append(r.url) if "set-cookie" in r.headers else None)
+    responses = []
+    page.on("response", lambda r: responses.append(r))
     page.goto(base_url + "/", wait_until="networkidle")
     page.mouse.wheel(0, 100000)
+    # Response.headers omits Set-Cookie; all_headers() includes it.
+    set_cookie = [r.url for r in responses if "set-cookie" in r.all_headers()]
     assert set_cookie == [], f"responses set cookies: {set_cookie}"
     assert page.context.cookies() == []
 
@@ -185,14 +188,12 @@ def test_US_homepage_2_2_anchor_links(page, base_url, anchor, label):
 
 
 def test_US_homepage_2_3_sign_in_navigates(page, base_url):
-    """US-homepage-2.3 (story US-homepage-2): clicking Sign in goes to /sign-in.
-
-    TODO(task 09): /sign-in is a 404 today; add the "Sign in" heading check once that page exists.
-    """
+    """US-homepage-2.3 (story US-homepage-2): clicking Sign in goes to /sign-in and shows the placeholder."""
     page.goto(base_url + "/", wait_until="networkidle")
     page.get_by_role("navigation", name="Main").get_by_role("link", name="Sign in").click()
     page.wait_for_url(re.compile(r"/sign-in$"))
     assert urlparse(page.url).path == "/sign-in"
+    expect(page.get_by_role("heading", level=1, name="Sign in")).to_be_visible()
 
 
 def test_US_homepage_2_4_logo_returns_to_top(page, base_url):
@@ -786,3 +787,67 @@ def test_US_homepage_7_3_home_page_vs_memory_pages(page, base_url):
         assert "page" in rows.nth(i).inner_text().lower()
         assert "home page" not in rows.nth(i).inner_text()
     assert [rows.nth(i).inner_text().count("memory page") for i in (1, 2)] == [1, 1]
+
+
+# ---------------------------------------------------------------------------
+# US-homepage-9: sign-in placeholder (task 09)
+# ---------------------------------------------------------------------------
+def test_US_homepage_9_1_sign_in_placeholder_happy_path(page, base_url, shot):
+    """US-homepage-9.1 (story US-homepage-9): /sign-in is 200 with heading, text and a Back to home link to /."""
+    resp = page.goto(base_url + "/sign-in", wait_until="networkidle")
+    assert resp.status == 200
+    expect(page.get_by_role("heading", level=1, name="Sign in")).to_be_visible()
+    expect(page.get_by_text("Google sign-in is coming soon.")).to_be_visible()
+    shot(page, "us-homepage-9-1-sign-in")
+    link = page.get_by_role("link", name="Back to home")
+    assert link.get_attribute("href") == "/"
+    link.click()
+    page.wait_for_url(re.compile(r"/$"))
+    assert urlparse(page.url).path == "/"
+    expect(page.get_by_role("heading", level=1).first).to_be_visible()
+    expect(page.get_by_role("heading", level=1, name="Sign in")).to_have_count(0)
+
+
+def test_US_homepage_9_2_sign_in_no_cookies_no_google(page, base_url):
+    """US-homepage-9.2 (story US-homepage-9): no Set-Cookie, no browser cookies, no request to accounts.google.com."""
+    responses, hosts = [], set()
+    page.on("response", lambda r: responses.append(r))
+    page.on("request", lambda r: hosts.add(urlparse(r.url).netloc) if r.url.startswith("http") else None)
+    page.goto(base_url + "/sign-in", wait_until="networkidle")
+    # Response.headers omits Set-Cookie; all_headers() includes it.
+    set_cookie = [r.url for r in responses if "set-cookie" in r.all_headers()]
+    assert set_cookie == [], f"responses set cookies: {set_cookie}"
+    assert page.context.cookies() == []
+    assert not {h for h in hosts if "google" in h}, f"Google requested: {hosts}"
+
+
+def _meta_tags(html):
+    from html.parser import HTMLParser
+
+    found = []
+
+    class _P(HTMLParser):
+        def handle_starttag(self, tag, attrs):
+            if tag == "meta":
+                found.append(attrs)
+
+    _P().feed(html)
+    return found
+
+
+def test_US_homepage_9_3_sign_in_not_indexed(pw, base_url):
+    """US-homepage-9.3 (story US-homepage-9): served HTML has <meta name="robots" content="noindex">."""
+    req = pw.request.new_context(base_url=base_url)
+    try:
+        r = req.get("/sign-in")
+        assert r.status == 200
+        metas = [
+            {k.lower(): (v or "") for k, v in attrs}
+            for attrs in _meta_tags(r.text())
+        ]
+        robots = [m for m in metas if m.get("name", "").lower() == "robots"]
+        assert robots, "robots meta missing"
+        assert "noindex" in robots[0].get("content", "").lower()
+        assert "set-cookie" not in {h["name"].lower() for h in r.headers_array}
+    finally:
+        req.dispose()
