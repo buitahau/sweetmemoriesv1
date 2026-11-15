@@ -124,9 +124,11 @@ function Collage() {
             </svg>
             <span
               data-testid="hero-address"
-              className="min-w-0 truncate text-[11px] whitespace-nowrap min-[520px]:text-[15px]"
+              className="min-w-0 text-[11px] min-[520px]:truncate min-[520px]:text-[15px] min-[520px]:whitespace-nowrap"
             >
-              sam.sweetmemories.com/bobs-first-day
+              sam.sweetmemories.com/
+              <wbr />
+              bobs-first-day
             </span>
           </div>
         </div>

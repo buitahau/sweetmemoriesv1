@@ -39,6 +39,16 @@ describe('Hero', () => {
     expect(html).toMatch(/<a href="#how"[^>]*>See how it works<\/a>/)
   })
 
+  it('lets the example address wrap after the slash and only truncates from 520px up', () => {
+    const span = html.match(
+      /<span[^>]*data-testid="hero-address"[^>]*>[\s\S]*?<\/span>/,
+    )![0]
+    expect(span).toContain('sam.sweetmemories.com/<wbr/>bobs-first-day')
+    expect(span).not.toMatch(/(^|[ "])truncate/)
+    expect(span).not.toMatch(/(^|[ "])whitespace-nowrap/)
+    expect(span).toContain('min-[520px]:truncate')
+  })
+
   it('shows the example title and address as plain text, not in a link', () => {
     expect(text).toContain("Bob's first day")
     expect(text).toContain('sam.sweetmemories.com/bobs-first-day')
