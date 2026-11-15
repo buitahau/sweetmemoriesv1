@@ -303,6 +303,16 @@
   animation-delay: 0.2s;
 }
 
+.sm-step {
+  transition: transform 0.25s ease;
+}
+.sm-step:hover {
+  transform: translateY(-6px);
+}
+.sm-step:hover .sm-num {
+  animation: sm-spin 0.6s ease-in-out;
+}
+
 /* Motion base: honour reduced motion everywhere. */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -313,6 +323,9 @@
   }
   /* Hover lifts are movement too: keep cards still. */
   .sm-card:hover {
+    transform: none;
+  }
+  .sm-step:hover {
     transform: none;
   }
 }

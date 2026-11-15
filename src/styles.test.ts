@@ -124,4 +124,11 @@ describe('reduced motion', () => {
     )
     expect(block).toMatch(/\.sm-card:hover\s*{\s*transform:\s*none;/)
   })
+
+  it('turns off the step hover lift inside the reduced-motion media query', () => {
+    const block = css.slice(
+      css.indexOf('@media (prefers-reduced-motion: reduce)'),
+    )
+    expect(block).toMatch(/\.sm-step:hover\s*{\s*transform:\s*none;/)
+  })
 })

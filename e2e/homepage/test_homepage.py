@@ -148,7 +148,7 @@ def _wait_in_viewport(page, locator):
 
 # Sections whose task has not shipped yet. Each section task (04, 05, 06) removes
 # its entry; once removed, a missing heading FAILS instead of skipping.
-PENDING_SECTION_TASKS = {"how": "05", "templates": "06"}
+PENDING_SECTION_TASKS = {"templates": "06"}
 
 
 def _heading_or_block(page, anchor):
@@ -527,3 +527,50 @@ def test_US_homepage_3_4_card_hover_lift_off_under_reduced_motion(page, base_url
     card.hover()
     page.wait_for_timeout(100)
     assert card.evaluate("el => getComputedStyle(el).transform") == "none"
+
+
+# ---------------------------------------------------------------------------
+# Task 05 (How it works, US-homepage-4)
+# ---------------------------------------------------------------------------
+HOW_STEPS = ["Sign in with Google", "Choose a template", "Add photos and words", "Publish and share"]
+
+
+def _how(page, base_url):
+    page.goto(base_url + "/", wait_until="networkidle")
+    sec = page.locator("section#how")
+    sec.scroll_into_view_if_needed()
+    return sec
+
+
+def test_US_homepage_4_1_four_steps_in_order(page, base_url, shot):
+    """US-homepage-4.1 (story US-homepage-4): #how has an ordered list of four steps in order."""
+    sec = _how(page, base_url)
+    items = sec.get_by_role("listitem")
+    assert items.count() == 4
+    titles = [items.nth(i).get_by_role("heading", level=3).inner_text().strip() for i in range(4)]
+    assert titles == HOW_STEPS
+    shot(sec, "US-homepage-4_1_how")
+
+
+def test_US_homepage_4_2_step_four_matches_product_flow(page, base_url):
+    """US-homepage-4.2 (story US-homepage-4): step 4 says the Memory goes live at its own address and invites sharing."""
+    sec = _how(page, base_url)
+    text = sec.get_by_role("listitem").nth(3).inner_text()
+    assert "goes live at its own address" in text
+    assert "Send the link to anyone." in text
+
+
+def test_US_homepage_4_3_semantics_numbers_not_read_twice(page, base_url):
+    """US-homepage-4.3 (story US-homepage-4): steps are an ol with 4 li; number badges are aria-hidden."""
+    sec = _how(page, base_url)
+    assert sec.locator("ol").count() == 1
+    assert sec.locator("ol > li").count() == 4
+    items = sec.locator("ol > li")
+    for i in range(4):
+        badge_hidden = items.nth(i).evaluate(
+            "el => [...el.querySelectorAll('[aria-hidden=\"true\"]')].some(n => n.textContent.trim() === String(%d))" % (i + 1)
+        )
+        assert badge_hidden, f"step {i + 1} number badge is not aria-hidden"
+    snap = sec.aria_snapshot()
+    for n in "1234":
+        assert f"text: \"{n}\"" not in snap and f"text: {n}\n" not in snap + "\n"
