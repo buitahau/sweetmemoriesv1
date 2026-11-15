@@ -1,6 +1,6 @@
 # Feature: homepage
 
-**Status:** in progress
+**Status:** done
 **Side:** front-end. The static page, its sections and the `/sign-in` placeholder route. No backend work: no data, no API, no session.
 **Mockup:** [Landing2.dc.html](../ui/Homepage/light%20pink/Landing2.dc.html) (folder kept as-is; moving it to `docs/ui/homepage/` is optional and not part of this work)
 
@@ -286,3 +286,10 @@ The strings "add to", "Invite people", "just added a photo" and "12 cousins" mus
 - **Test evidence (dev):** `e2e/homepage` 90 passed, 1 skipped (US-homepage-5.4, BLOCKED: no Template storage yet), as run by the reviewer against dev. The local `pnpm build && pnpm start` run is still pending.
 - **Open notes:** the git SHA is read from the local checkout, so against dev it may differ from the deployed commit. Env-value checks need `E2E_SITE_URL`, `E2E_DATABASE_URL` or a local `.env` to bite.
 - **Fix cycles:** 1.
+
+### Task 12 summary (e2e suite for homepage)
+
+- **Built:** `e2e/homepage/test_homepage.py`, one test per scenario of US-homepage-1 to US-homepage-10 named by story ID: no-cookie, same-origin and console-clean checks, viewports 375 and 768, reduced motion, axe, US-homepage-8.3 and 8.5 copy assertions, US-homepage-10.3 opacity. US-homepage-5.4 is skipped with a reason until Template storage exists. PR: #128.
+- **Test evidence (dev, deploy-dev run 43676194002 on a83b358):** unit tests 213/213 (Node 24), lint and typecheck clean; `e2e/homepage` 90 passed, 1 skipped (US-homepage-5.4, no Template storage yet). Walkthrough 38/38 at 1440, 768, 375 and reduced motion: no console errors, no failed requests, only dev host requests. Evidence (tester scratchpad): `logs/homepage-pytest.log`, `logs/homepage-junit.xml`, `logs/walkthrough.log`, `walkthrough.json`, `shots/01` to `17`; suite screenshots in the gitignored `e2e/homepage/screenshots`.
+- **Open notes:** the hero "home" highlight looks partly filled in screenshots taken mid-animation at 768 and 375, and covers the word once settled. `/sign-in` is a bare placeholder. The local `pnpm build && pnpm start` run of the suite was not done. Tester used headed Playwright because Chrome tools were unavailable; curl skipped (front-end only).
+- **Fix cycles:** 0.

@@ -1,6 +1,6 @@
 # 12 E2E suite for homepage
 
-**Status:** done (local `pnpm start` run pending)
+**Status:** done
 **Side:** front-end
 **Size:** M
 **Dependencies:** 00, 02 to 11
