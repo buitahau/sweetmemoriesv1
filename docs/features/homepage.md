@@ -223,3 +223,10 @@ The strings "add to", "Invite people", "just added a photo" and "12 cousins" mus
 - **Test evidence (dev):** unit tests 133/133 (Node 24), lint and typecheck clean; `e2e/homepage` 33 passed, 5 skipped (BLOCKED: US-2.2 x3, 2.6 deep-link heading, 1.4 heading check until tasks 04 to 06). `/` returns 200 with no `Set-Cookie`, one `h1`; reduced motion, 768 and 375 widths verified in a headed walkthrough. Evidence: `e2e/homepage/test_homepage.py`; tester scratchpad `evidence/homepage-e2e-dev-headed.log` and `walk/` screenshots (`s1-desktop-1440.png`, `mobile-375-fold.png`, `tablet-768-fold.png`, `rm-reduced-motion-1440.png`, `hl-*.png`).
 - **Open notes:** side-by-side mockup check at 1440 not done (needs a human); the "Your page is live" collage card is clipped by 41 px at 320 px and leaves a 14 px right gutter at 375 px (suspected `min-w-[340px]` on the collage container), to fix in task 10; `/sign-in` is 404 until task 09; `e2e` 10.2 checks overlap only, not clipping or gutter.
 - **Fix cycles:** 1.
+
+### Task 04 summary (who it is for)
+
+- **Built:** `section#who` with the `h2`, intro and three `article` cards (Families, Little ones, Neighborhoods and friends), each with an `h3`, text, an example label ("Grandpa's garden", "Mia, one to ten", "Maple Street party", straight apostrophe) and three decorative `aria-hidden` faces with a hover lift that is off under reduced motion. PRs: #109 (section), #110 (fix: disable card hover lift under reduced motion).
+- **Test evidence (dev):** unit tests 140/140 (Node 24), lint and typecheck clean; US-homepage-3 e2e 4/4; `e2e/homepage` 38 passed, 4 skipped (BLOCKED: US-2.2 x2, 1.4, 2.6 until tasks 05 and 06). No horizontal scroll at 1440, 768 and 375; no console errors or failed requests. Evidence: `e2e/homepage/test_homepage.py`; tester scratchpad `walk/04-who-desktop.png`, `04-who-tablet.png`, `04-who-mobile.png`, `04-card-hover-desktop.png`, `walk/walk-result.json`.
+- **Open notes:** at 768 px the cards lay out 2+1 with an empty slot beside the third card, to review in task 10.
+- **Fix cycles:** 1.

@@ -1,6 +1,6 @@
 # 04 Who it is for section
 
-**Status:** in review
+**Status:** done
 **Side:** front-end
 **Size:** S
 **Dependencies:** 02
@@ -18,6 +18,6 @@
 ## Verification
 
 - [x] Vitest: three `h3` titles in order with their example labels, and the face SVGs carry `aria-hidden="true"`.
-- [ ] Manual: the card hover lift works and is off under reduced motion.
+- [x] Manual: the card hover lift works and is off under reduced motion (verified in a headed walkthrough on dev).
 - [x] Vitest: "Grandpa's garden" uses the straight `'` exactly as pinned in the spec Copy subsection.
 - [x] Covers US-homepage-3.
