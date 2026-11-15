@@ -574,3 +574,68 @@ def test_US_homepage_4_3_semantics_numbers_not_read_twice(page, base_url):
     snap = sec.aria_snapshot()
     for n in "1234":
         assert f"text: \"{n}\"" not in snap and f"text: {n}\n" not in snap + "\n"
+
+
+# ---------------------------------------------------------------------------
+# Task 06 (Templates section). US-homepage-5 scenarios 1 to 4.
+# ---------------------------------------------------------------------------
+TEMPLATE_CARDS = [
+    ("One small moment", "3 blocks"),
+    ("Growing up: ages 1 to 10", "4 blocks"),
+    ("An adventure", "8 blocks"),
+]
+BLOCK_CHIPS = ["Text", "Timeline", "Gallery", "Carousel", "3×3 Photo Grid"]
+
+
+def _templates(page, base_url):
+    page.goto(base_url + "/", wait_until="networkidle")
+    sec = page.locator("section#templates")
+    sec.scroll_into_view_if_needed()
+    return sec
+
+
+def test_US_homepage_5_1_heading_and_three_template_cards(page, base_url, shot):
+    """US-homepage-5.1 (story US-homepage-5): #templates shows the heading and three Template cards with block counts."""
+    sec = _templates(page, base_url)
+    assert sec.get_by_role("heading", level=2).inner_text().strip() == SECTION_HEADINGS["templates"]
+    cards = sec.locator("article")
+    assert cards.count() == 3
+    for i, (name, count) in enumerate(TEMPLATE_CARDS):
+        card = cards.nth(i)
+        assert card.get_by_role("heading", level=3).inner_text().strip() == name
+        assert count in card.inner_text()
+    shot(sec, "US-homepage-5_1_templates")
+
+
+def test_US_homepage_5_2_block_chips_exact_and_ordered(page, base_url, shot):
+    """US-homepage-5.2 (story US-homepage-5): "Made from building blocks" chips are exactly the five Blocks, in order."""
+    sec = _templates(page, base_url)
+    assert sec.get_by_role("heading", name="Made from building blocks").count() == 1
+    chips = [t.strip() for t in sec.locator("ul > li").all_inner_texts()]
+    assert chips == BLOCK_CHIPS
+    text = sec.inner_text()
+    assert "Curved timeline" not in text
+    assert "Before and after" not in text
+    shot(sec, "US-homepage-5_2_chips")
+
+
+def test_US_homepage_5_3_illustrative_only_no_navigation_no_requests(page, base_url):
+    """US-homepage-5.3 (story US-homepage-5): clicking a Template card does not navigate and makes no network request."""
+    sec = _templates(page, base_url)
+    assert sec.locator("a").count() == 0
+    requests = []
+    page.on("request", lambda r: requests.append(r.url))
+    url_before = page.url
+    sec.locator("article").first.click()
+    page.wait_for_timeout(500)
+    assert page.url == url_before
+    assert requests == []
+
+
+def test_US_homepage_5_4_unapproved_template_not_listed(page, base_url):
+    """US-homepage-5.4 (story US-homepage-5, security rule 4): an unapproved Template name never appears on /."""
+    pytest.skip(
+        "BLOCKED: no database or Template storage exists yet, so an unapproved Template "
+        "cannot be created. Holds by construction (static section, no data source); "
+        "replace this skip once Templates and the review queue exist."
+    )
