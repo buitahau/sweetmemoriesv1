@@ -18,5 +18,5 @@
 ## Verification
 
 - [x] Vitest: the `ol` has 4 `li` with titles in the order of US-homepage-4 scenario 1.
-- [ ] Manual: the `#how` anchor scroll lands on the heading (not yet run; check with `pnpm dev`, open `/#how` and click the header "How it works" link).
+- [x] The `#how` anchor scroll lands on the heading: automated by e2e `test_US_homepage_1_4_see_how_it_works` (hero CTA) and `test_US_homepage_2_2_anchor_links[how]` (header link).
 - [x] Covers US-homepage-4.

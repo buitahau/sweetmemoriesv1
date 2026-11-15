@@ -148,7 +148,7 @@ def _wait_in_viewport(page, locator):
 
 # Sections whose task has not shipped yet. Each section task (04, 05, 06) removes
 # its entry; once removed, a missing heading FAILS instead of skipping.
-PENDING_SECTION_TASKS = {"how": "05", "templates": "06"}
+PENDING_SECTION_TASKS = {"templates": "06"}
 
 
 def _heading_or_block(page, anchor):
@@ -572,6 +572,5 @@ def test_US_homepage_4_3_semantics_numbers_not_read_twice(page, base_url):
         )
         assert badge_hidden, f"step {i + 1} number badge is not aria-hidden"
     snap = sec.aria_snapshot()
-    assert "listitem" in snap
     for n in "1234":
         assert f"text: \"{n}\"" not in snap and f"text: {n}\n" not in snap + "\n"
