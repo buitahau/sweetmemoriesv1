@@ -237,3 +237,10 @@ The strings "add to", "Invite people", "just added a photo" and "12 cousins" mus
 - **Test evidence (dev):** unit tests 146/146 (Node 24), lint and typecheck clean; `e2e/homepage` 43 passed, 2 skipped (BLOCKED: US-2.2 templates anchor, 2.6 deep link, until task 06). No horizontal scroll at 1440, 768 and 375; no console errors or failed requests; badge colours exact. Evidence: `e2e/homepage/test_homepage.py`; tester scratchpad `walk/01-how-1440.png`, `walk/01b-how-section-1440.png`, `walk/04b-how-section-768.png`, `walk/05b-how-section-375.png`, `walk/results.json`, `homepage-run.log`.
 - **Open notes:** US-homepage-5, 6, 7, 8.1, 8.3 and 9 have no e2e tests yet (later tasks). Tester used headed Playwright because Chrome tools were unavailable.
 - **Fix cycles:** 0.
+
+### Task 06 summary (templates)
+
+- **Built:** `section#templates` with the `h2`, intro, three static illustrative Template cards (decorative mini-page art, `h3` name, description, "N blocks" with 3, 4 and 8) and the "Made from building blocks" chip row with the five pinned Block names. No anchors and no data loading in the section (rule 4). PR: #114.
+- **Test evidence (dev):** unit tests 152/152 (Node 24), lint and typecheck clean; `e2e/homepage` 48 passed, 1 skipped (US-homepage-5.4, BLOCKED by construction: no Template storage yet); walkthrough 42/42 checks at 1440, 768 and 375 px, no horizontal scroll, no console errors or failed requests; regression `e2e/project-skeleton` 12 passed, `e2e/dev-deploy` 22 passed and 9 skipped (environment). Evidence: `e2e/homepage/screenshots/US-homepage-5_1_templates.png`, `e2e/homepage/screenshots/US-homepage-5_2_chips.png`; tester scratchpad `homepage-junit.xml`, `regression-junit2.xml`, `regression-run2.log`, `walkthrough/results.json`, `walkthrough/templates_1440.png`, `templates_768.png`, `templates_375.png`.
+- **Open notes:** "Made from building blocks" is an `h3` in the section (spec does not forbid it). US-homepage-5.4 to be asserted once Templates exist. Tester used headed Playwright because Chrome tools were unavailable.
+- **Fix cycles:** 0.
