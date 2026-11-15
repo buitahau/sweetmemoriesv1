@@ -1,6 +1,6 @@
 # 05 How it works section
 
-**Status:** todo
+**Status:** done
 **Side:** front-end
 **Size:** S
 **Dependencies:** 02
@@ -13,10 +13,10 @@
 
 ## Checklist
 
-- [ ] Each step has a decorative number badge (`aria-hidden`, coloured as in the mockup), an `h3` title and text
+- [x] Each step has a decorative number badge (`aria-hidden`, coloured as in the mockup), an `h3` title and text
 
 ## Verification
 
-- [ ] Vitest: the `ol` has 4 `li` with titles in the order of US-homepage-4 scenario 1.
-- [ ] Manual: the `#how` anchor scroll lands on the heading.
-- [ ] Covers US-homepage-4.
+- [x] Vitest: the `ol` has 4 `li` with titles in the order of US-homepage-4 scenario 1.
+- [x] Manual: the `#how` anchor scroll lands on the heading.
+- [x] Covers US-homepage-4.
