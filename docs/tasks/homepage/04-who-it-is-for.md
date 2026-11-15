@@ -1,6 +1,6 @@
 # 04 Who it is for section
 
-**Status:** todo
+**Status:** in review
 **Side:** front-end
 **Size:** S
 **Dependencies:** 02
@@ -13,11 +13,11 @@
 
 ## Checklist
 
-- [ ] Each card has an `h3` title, text, an example label and decorative faces (`aria-hidden`) with a hover bob
+- [x] Each card has an `h3` title, text, an example label and decorative faces (`aria-hidden`) with a hover bob
 
 ## Verification
 
-- [ ] Vitest: three `h3` titles in order with their example labels, and the face SVGs carry `aria-hidden="true"`.
+- [x] Vitest: three `h3` titles in order with their example labels, and the face SVGs carry `aria-hidden="true"`.
 - [ ] Manual: the card hover lift works and is off under reduced motion.
-- [ ] Vitest: "Grandpa's garden" uses the straight `'` exactly as pinned in the spec Copy subsection.
-- [ ] Covers US-homepage-3.
+- [x] Vitest: "Grandpa's garden" uses the straight `'` exactly as pinned in the spec Copy subsection.
+- [x] Covers US-homepage-3.

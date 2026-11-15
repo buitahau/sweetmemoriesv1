@@ -45,8 +45,9 @@ describe('HomePage', () => {
     )
   })
 
-  it('has empty section placeholders with the right ids', () => {
-    for (const id of ['who', 'how', 'templates']) {
+  it('has the section ids, with empty placeholders for the unbuilt ones', () => {
+    expect(html).toContain('<section id="who"')
+    for (const id of ['how', 'templates']) {
       expect(html).toContain(`<section id="${id}"></section>`)
     }
   })

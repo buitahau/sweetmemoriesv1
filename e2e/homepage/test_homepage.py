@@ -148,7 +148,7 @@ def _wait_in_viewport(page, locator):
 
 # Sections whose task has not shipped yet. Each section task (04, 05, 06) removes
 # its entry; once removed, a missing heading FAILS instead of skipping.
-PENDING_SECTION_TASKS = {"who": "04", "how": "05", "templates": "06"}
+PENDING_SECTION_TASKS = {"how": "05", "templates": "06"}
 
 
 def _heading_or_block(page, anchor):
@@ -458,3 +458,56 @@ def test_US_homepage_10_2_header_links_single_line(pw, base_url, width):
         assert data["scroll"][0] <= data["scroll"][1], f"horizontal scroll at {width}px"
     finally:
         browser.close()
+
+
+# ---------------------------------------------------------------------------
+# Task 04: US-homepage-3 (Who it is for)
+# ---------------------------------------------------------------------------
+WHO_HEADING = "A little corner of the internet for everyone who loves each other."
+WHO_CARDS = [
+    ("Families", "Grandpa's garden"),
+    ("Little ones", "Mia, one to ten"),
+    ("Neighborhoods and friends", "Maple Street party"),
+]
+
+
+def _who(page, base_url):
+    page.goto(base_url + "/", wait_until="networkidle")
+    sec = page.locator("section#who")
+    sec.scroll_into_view_if_needed()
+    return sec
+
+
+def test_US_homepage_3_1_who_heading_and_three_cards(page, base_url, shot):
+    """US-homepage-3.1 (story US-homepage-3): #who shows its heading and exactly three cards in order."""
+    sec = _who(page, base_url)
+    assert sec.get_by_role("heading", level=2).inner_text().strip() == WHO_HEADING
+    cards = sec.locator("article")
+    assert cards.count() == 3
+    titles = [cards.nth(i).get_by_role("heading", level=3).inner_text().strip() for i in range(3)]
+    assert titles == [t for t, _ in WHO_CARDS]
+    shot(sec, "US-homepage-3_1_who")
+
+
+def test_US_homepage_3_2_example_labels(page, base_url):
+    """US-homepage-3.2 (story US-homepage-3): each card shows its example label, with the straight apostrophe."""
+    sec = _who(page, base_url)
+    cards = sec.locator("article")
+    for i, (_, example) in enumerate(WHO_CARDS):
+        assert example in cards.nth(i).inner_text()
+    assert "Grandpa's garden" in cards.nth(0).inner_text()
+
+
+def test_US_homepage_3_3_faces_hidden_from_screen_readers(page, base_url):
+    """US-homepage-3.3 (story US-homepage-3): face illustrations are aria-hidden and absent from the accessibility tree."""
+    sec = _who(page, base_url)
+    cards = sec.locator("article")
+    for i in range(3):
+        card = cards.nth(i)
+        svgs = card.locator("svg")
+        assert svgs.count() > 0
+        hidden = card.evaluate(
+            "el => [...el.querySelectorAll('svg')].every(s => s.closest('[aria-hidden=\"true\"]') !== null)"
+        )
+        assert hidden, "a face SVG is not inside an aria-hidden container"
+        assert card.get_by_role("img").count() == 0
