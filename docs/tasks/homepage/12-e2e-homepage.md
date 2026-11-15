@@ -1,6 +1,6 @@
 # 12 E2E suite for homepage
 
-**Status:** in progress
+**Status:** done (local `pnpm start` run pending)
 **Side:** front-end
 **Size:** M
 **Dependencies:** 00, 02 to 11
@@ -23,5 +23,6 @@
 
 ## Verification
 
-- [ ] `pytest e2e/homepage` passes locally (`pnpm build && pnpm start`) and against dev through `E2E_BASE_URL`.
+- [ ] `pytest e2e/homepage` passes locally (`pnpm build && pnpm start`): pending.
+- [x] `pytest e2e/homepage` passes against dev through `E2E_BASE_URL`: 90 passed, 1 skipped (US-homepage-5.4, with its reason).
 - [x] Every scenario ID appears in a test name.

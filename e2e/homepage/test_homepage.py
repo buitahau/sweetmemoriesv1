@@ -154,16 +154,9 @@ def _wait_in_viewport(page, locator):
     )
 
 
-# Sections whose task has not shipped yet. Each section task (04, 05, 06) removes
-# its entry; once removed, a missing heading FAILS instead of skipping.
-PENDING_SECTION_TASKS: dict = {}
-
-
 def _heading_or_block(page, anchor):
     h = page.get_by_role("heading", name=SECTION_HEADINGS[anchor])
     if h.count() == 0:
-        if anchor in PENDING_SECTION_TASKS:
-            pytest.skip(f"BLOCKED: task {PENDING_SECTION_TASKS[anchor]} (heading for #{anchor} not shipped yet)")
         pytest.fail(f"heading for #{anchor} missing: {SECTION_HEADINGS[anchor]!r}")
     return h.first
 
@@ -344,9 +337,12 @@ CAPITALISED_ALLOW_LIST = {
 def _repo_env_values():
     """Configured env values (process env and .env), non-empty, for the leak check."""
     values = {}
+    # E2E_<NAME> lets a run against a deployed URL supply the deployed values;
+    # without it (or a local .env) the value checks below have nothing to compare.
     for name in ("DATABASE_URL", "NODE_ENV", "SITE_URL"):
-        if os.environ.get(name):
-            values[name] = os.environ[name]
+        v = os.environ.get(f"E2E_{name}") or os.environ.get(name)
+        if v:
+            values[name] = v
     env_file = ROOT / ".env"
     if env_file.exists():
         for line in env_file.read_text().splitlines():
@@ -367,7 +363,14 @@ def _split_head_body(html):
 
 
 def test_US_homepage_8_3_no_private_data(pw, base_url):
-    """US-homepage-8.3 (story US-homepage-8, rule 5): HTML of / has no email, env value, git SHA, version or stray name."""
+    """US-homepage-8.3 (story US-homepage-8, rule 5): HTML of / has no email, env value, git SHA, version or stray name.
+
+    Deviations from spec 8.3(b): the NODE_ENV value is not checked (a common word,
+    false positives); only the NAME is. The package version is matched only as
+    "x.y.z" or vx.y.z. Env values are checked only when set in the runner env,
+    E2E_<NAME> or a local .env; on CI and against dev without them, only the names,
+    email pattern and version are really checked.
+    """
     req = pw.request.new_context(base_url=base_url)
     try:
         r = req.get("/")
@@ -402,8 +405,16 @@ def test_US_homepage_8_3_no_private_data(pw, base_url):
     site_url = env_values.get("SITE_URL")
     if site_url:
         assert site_url not in body, "SITE_URL appears in the body; allowed only in head URL tags"
-        for m in re.finditer(re.escape(site_url), head):
-            tag = head[head.rfind("<", 0, m.start()):head.find(">", m.start()) + 1]
+        # JSON-LD scripts: the only SITE_URL-derived value allowed is `url` == SITE_URL + "/".
+        head_tags = head
+        for m in re.finditer(r'<script\b[^>]*type="application/ld\+json"[^>]*>(.*?)</script>', head, re.S | re.I):
+            head_tags = head_tags.replace(m.group(0), " ")
+            data = json.loads(html_lib.unescape(m.group(1)))
+            for item in (data if isinstance(data, list) else [data]):
+                if isinstance(item, dict) and "url" in item:
+                    assert item["url"] == site_url + "/", f"JSON-LD url is {item['url']!r}, expected {site_url + '/'!r}"
+        for m in re.finditer(re.escape(site_url), head_tags):
+            tag = head_tags[head_tags.rfind("<", 0, m.start()):head_tags.find(">", m.start()) + 1]
             assert re.search(r'rel="canonical"|property="og:(url|image)"|name="twitter:image"', tag), (
                 f"SITE_URL in a head tag other than canonical, og:url, og:image or twitter:image: {tag}"
             )
