@@ -4,25 +4,32 @@ const focus =
 export function FinalCta() {
   return (
     <section
-      id="start"
-      className="relative mx-5 mt-[100px] mb-[60px] overflow-hidden rounded-[48px] bg-pink-200 px-6 py-16 text-center md:mx-10 md:py-20"
+      aria-labelledby="final-cta-heading"
+      className="relative mt-[100px] overflow-hidden rounded-t-[64px] bg-pink-footer text-ink"
     >
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <span className="absolute -top-10 -left-10 size-40 rounded-full bg-band" />
-        <span className="absolute -right-8 -bottom-12 size-48 rounded-full bg-peach-blob" />
-        <span className="absolute top-10 right-[14%] size-8 rotate-12 rounded-[10px] bg-card-lilac" />
-        <span className="absolute bottom-10 left-[12%] size-6 rounded-full bg-card-mint" />
-      </div>
-      <div className="relative">
-        <h2 className="mx-auto max-w-[20ch] font-display text-[32px] leading-[1.1] font-bold text-ink md:text-[44px]">
-          Start with the memory everyone keeps telling.
-        </h2>
-        <p className="mx-auto mt-3.5 max-w-[44ch] text-[19px] text-ink-soft">
-          It takes a template, a few photos and a few cozy minutes.
-        </p>
+      <div
+        aria-hidden="true"
+        className="animate-sm-blob pointer-events-none absolute -top-[90px] -right-[90px] size-[300px] rounded-full bg-[#ffd6e0]"
+      />
+      <div
+        aria-hidden="true"
+        className="animate-sm-blob pointer-events-none absolute -bottom-[110px] -left-[70px] size-[260px] rounded-full bg-[#ffadc0] [animation-direction:reverse] [animation-duration:12s]"
+      />
+      <div className="relative mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-8 px-5 pt-16 pb-[72px] md:px-10 md:pt-[88px] md:pb-[92px]">
+        <div className="min-w-0 flex-[1_1_420px]">
+          <h2
+            id="final-cta-heading"
+            className="font-display text-[36px] leading-[1.05] font-bold tracking-[-0.01em] md:text-[54px]"
+          >
+            Start with the memory everyone keeps telling.
+          </h2>
+          <p className="mt-3.5 max-w-[40ch] text-[18px] md:text-[21px]">
+            It takes a template, a few photos and a few cozy minutes.
+          </p>
+        </div>
         <a
           href="/sign-in"
-          className={`sm-btn mt-8 inline-flex min-h-[60px] items-center rounded-full bg-cream px-8 text-[19px] font-bold text-ink no-underline shadow-sticker hover:shadow-sticker-hover focus-visible:shadow-sticker-hover active:shadow-sticker-press ${focus}`}
+          className={`sm-btn inline-flex min-h-[64px] items-center rounded-full bg-white px-9 text-xl font-bold text-ink no-underline shadow-[0_6px_0_#e89aae] hover:shadow-[0_9px_0_#e89aae] focus-visible:shadow-[0_9px_0_#e89aae] active:shadow-[0_2px_0_#e89aae] ${focus}`}
         >
           Start with Google
         </a>

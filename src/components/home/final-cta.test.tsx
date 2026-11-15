@@ -26,8 +26,19 @@ describe('FinalCta', () => {
     expect(links[0][2]).toBe('Start with Google')
   })
 
+  it('is a named region labelled by the heading', () => {
+    expect(html).toMatch(/<section[^>]*aria-labelledby="final-cta-heading"/)
+    expect(html).toMatch(/<h2[^>]*id="final-cta-heading"/)
+  })
+
   it('hides decorative shapes and has no h1 or script', () => {
-    expect(html).toContain('aria-hidden="true"')
+    const hidden = [
+      ...html.matchAll(/<div[^>]*aria-hidden="true"[^>]*><\/div>/g),
+    ]
+    expect(hidden).toHaveLength(2)
+    expect(
+      html.replace(/<div[^>]*aria-hidden="true"[^>]*><\/div>/g, ''),
+    ).toContain('<h2')
     expect(html).not.toContain('<h1')
     expect(html).not.toContain('<script')
   })
