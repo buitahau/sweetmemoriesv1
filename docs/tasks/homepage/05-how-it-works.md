@@ -1,6 +1,6 @@
 # 05 How it works section
 
-**Status:** in progress
+**Status:** done
 **Side:** front-end
 **Size:** S
 **Dependencies:** 02

@@ -230,3 +230,10 @@ The strings "add to", "Invite people", "just added a photo" and "12 cousins" mus
 - **Test evidence (dev):** unit tests 140/140 (Node 24), lint and typecheck clean; US-homepage-3 e2e 4/4; `e2e/homepage` 38 passed, 4 skipped (BLOCKED: US-2.2 x2, 1.4, 2.6 until tasks 05 and 06). No horizontal scroll at 1440, 768 and 375; no console errors or failed requests. Evidence: `e2e/homepage/test_homepage.py`; tester scratchpad `walk/04-who-desktop.png`, `04-who-tablet.png`, `04-who-mobile.png`, `04-card-hover-desktop.png`, `walk/walk-result.json`.
 - **Open notes:** at 768 px the cards lay out 2+1 with an empty slot beside the third card, to review in task 10.
 - **Fix cycles:** 1.
+
+### Task 05 summary (how it works)
+
+- **Built:** `section#how` with the `h2` and an `ol` of four `li` steps (Sign in with Google, Choose a template, Add photos and words, Publish and share), each with a decorative `aria-hidden` number badge (#FFC93C, #FFB27A, #9ADBBB, #9CD0F5 from the mockup), an `h3` and text. The `#how` anchor works from the hero "See how it works" link and the header link. PR: #112.
+- **Test evidence (dev):** unit tests 146/146 (Node 24), lint and typecheck clean; `e2e/homepage` 43 passed, 2 skipped (BLOCKED: US-2.2 templates anchor, 2.6 deep link, until task 06). No horizontal scroll at 1440, 768 and 375; no console errors or failed requests; badge colours exact. Evidence: `e2e/homepage/test_homepage.py`; tester scratchpad `walk/01-how-1440.png`, `walk/01b-how-section-1440.png`, `walk/04b-how-section-768.png`, `walk/05b-how-section-375.png`, `walk/results.json`, `homepage-run.log`.
+- **Open notes:** US-homepage-5, 6, 7, 8.1, 8.3 and 9 have no e2e tests yet (later tasks). Tester used headed Playwright because Chrome tools were unavailable.
+- **Fix cycles:** 0.
