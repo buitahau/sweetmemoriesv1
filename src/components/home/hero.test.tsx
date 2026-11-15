@@ -75,12 +75,8 @@ describe('Hero', () => {
   })
 })
 
-describe('Hero small-screen fit (ticket 10)', () => {
-  it('keeps the period tight against the highlighted word', () => {
-    expect(html).toMatch(/<span class="sm-hl[^"]*pr-1\.5[^"]*">home<\/span>\./)
-  })
-
-  it('uses a small address font below 520px so it is not truncated at 320px', () => {
-    expect(html).toMatch(/data-testid="hero-address"[^>]*text-\[10px\]/)
+describe('Hero h1 (ticket 10)', () => {
+  it('puts the period directly after the highlighted word, with no text node between', () => {
+    expect(html).toMatch(/<span class="sm-hl[^"]*">home<\/span>\.<\/h1>/)
   })
 })

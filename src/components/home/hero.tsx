@@ -111,8 +111,8 @@ function Collage() {
       </svg>
 
       <div className="absolute top-[70px] left-3 w-[min(380px,calc(100%-12px))] min-[520px]:left-[60px] min-[520px]:w-[min(380px,calc(100%-60px))] animate-sm-float-tilt overflow-hidden rounded-[28px] bg-white shadow-[0_24px_0_-8px_rgba(214,50,90,0.14),0_26px_48px_rgba(110,40,60,0.2)]">
-        <div className="bg-card-peach px-1.5 py-3 min-[520px]:px-4">
-          <div className="flex items-center gap-1.5 rounded-full bg-white px-2 py-2 text-[15px] font-semibold min-[520px]:gap-2 min-[520px]:px-4">
+        <div className="bg-card-peach px-2 py-3 min-[520px]:px-4">
+          <div className="flex items-center gap-1.5 rounded-full bg-white px-2.5 py-2 text-[15px] font-semibold min-[520px]:gap-2 min-[520px]:px-4">
             <svg width="13" height="13" viewBox="0 0 12 12" aria-hidden="true">
               <rect x="2" y="5" width="8" height="6" rx="1.5" fill="#6B4A5A" />
               <path
@@ -124,7 +124,7 @@ function Collage() {
             </svg>
             <span
               data-testid="hero-address"
-              className="min-w-0 truncate text-[10px] whitespace-nowrap min-[520px]:text-[15px]"
+              className="min-w-0 truncate text-[11px] whitespace-nowrap min-[520px]:text-[15px]"
             >
               sam.sweetmemories.com/bobs-first-day
             </span>

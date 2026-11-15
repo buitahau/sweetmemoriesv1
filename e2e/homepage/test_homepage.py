@@ -449,6 +449,7 @@ def test_US_homepage_10_2_collage_no_overlap_small_screens(pw, base_url, width):
         )
         pg = ctx.new_page()
         pg.goto(base_url + "/", wait_until="networkidle")
+        pg.evaluate("document.fonts.ready")  # text widths change when webfonts swap in
         data = pg.evaluate(
             """() => {
               const rect = (r) => [r.left, r.top, r.right, r.bottom];
@@ -522,6 +523,7 @@ def test_US_homepage_10_1_header_logo_and_sign_in_share_a_row(pw, base_url, widt
         ctx = browser.new_context(viewport={"width": width, "height": 800}, reduced_motion="reduce")
         pg = ctx.new_page()
         pg.goto(base_url + "/", wait_until="networkidle")
+        # 320px is left out on purpose: Sign in may wrap there (docs/features/homepage.md).
         logo = pg.locator("header > a").first.bounding_box()
         sign_in = pg.get_by_role("navigation", name="Main").get_by_role("link", name="Sign in").bounding_box()
         assert sign_in["y"] < logo["y"] + logo["height"], f"Sign in wraps under the logo at {width}px"
@@ -541,13 +543,18 @@ def test_US_homepage_10_1_h1_period_hugs_highlight(pw, base_url, width):
             """() => {
               const h1 = document.querySelector('h1');
               const hl = h1.querySelector('.sm-hl');
+              const word = document.createRange();
+              word.selectNodeContents(hl);
               const node = hl.nextSibling;
-              const rg = document.createRange();
-              rg.setStart(node, 0); rg.setEnd(node, 1);
-              return rg.getBoundingClientRect().left - hl.getBoundingClientRect().right;
+              const period = document.createRange();
+              period.setStart(node, 0); period.setEnd(node, 1);
+              // Visible gap: end of the word "home" to the period. It includes the
+              // highlight's right padding, which the pink background paints.
+              return period.getBoundingClientRect().left - word.getBoundingClientRect().right;
             }"""
         )
-        assert gap <= 4, f"gap of {gap}px between highlight and period at {width}px"
+        # 12px (px-3) must fail, 6px (pr-1.5) must pass.
+        assert gap <= 8, f"gap of {gap}px between highlight and period at {width}px"
     finally:
         browser.close()
 
