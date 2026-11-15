@@ -1,6 +1,6 @@
 # 10 Responsive layout, accessibility and reduced-motion pass
 
-**Status:** todo
+**Status:** done
 **Side:** front-end
 **Size:** M
 **Dependencies:** 03 to 08

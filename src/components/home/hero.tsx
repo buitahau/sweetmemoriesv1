@@ -61,7 +61,7 @@ function Polaroid({
 function Collage() {
   // Taller below 520px so the "Your page is live" card sits under the mini page instead of covering it.
   return (
-    <div className="relative h-[620px] min-w-[340px] flex-[1_1_480px] min-[520px]:h-[560px]">
+    <div className="relative h-[620px] min-w-0 flex-[1_1_480px] min-[520px]:h-[560px]">
       <div
         aria-hidden="true"
         className="absolute top-10 left-[30px] size-[440px] rounded-full bg-white opacity-55"
