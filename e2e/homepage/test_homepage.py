@@ -639,3 +639,97 @@ def test_US_homepage_5_4_unapproved_template_not_listed(page, base_url):
         "cannot be created. Holds by construction (static section, no data source); "
         "replace this skip once Templates and the review queue exist."
     )
+
+
+# --- US-homepage-6: Moments worth keeping ---------------------------------
+
+MOMENT_SUBTITLE = "A few of the small pages you could make today."
+MOMENT_CHIPS = [
+    "Bob's first day",
+    "Grandpa's garden",
+    "Maple Street party",
+    "Class of 3B",
+    "Mia, one to ten",
+    "The lake trip",
+    "Nana's recipes",
+    "Our new puppy",
+]
+
+
+def _moments(page, base_url):
+    page.goto(base_url + "/", wait_until="networkidle")
+    sec = page.locator("section#moments")
+    sec.scroll_into_view_if_needed()
+    return sec
+
+
+def test_US_homepage_6_1_moments_subtitle_and_eight_chips(page, base_url, shot):
+    """US-homepage-6.1 (story US-homepage-6): "Moments worth keeping" shows the subtitle and eight chips in order."""
+    sec = _moments(page, base_url)
+    assert sec.get_by_role("heading", level=2).inner_text().strip() == "Moments worth keeping"
+    assert sec.get_by_text(MOMENT_SUBTITLE, exact=True).is_visible()
+    chips = [t.strip() for t in sec.locator("ul > li").all_inner_texts()]
+    assert chips == MOMENT_CHIPS
+    shot(sec, "US-homepage-6_1_moments")
+
+
+def test_US_homepage_6_2_moment_chips_are_not_links(page, base_url):
+    """US-homepage-6.2 (story US-homepage-6): clicking "Bob's first day" does not change the URL."""
+    sec = _moments(page, base_url)
+    assert sec.locator("a").count() == 0
+    url_before = page.url
+    sec.get_by_text("Bob's first day", exact=True).click()
+    page.wait_for_timeout(500)
+    assert page.url == url_before
+
+
+# --- US-homepage-7: Addresses ----------------------------------------------
+
+ADDRESS_HEADING = "Your family name first, then a page for each memory."
+ADDRESS_ROWS = [
+    ("sam.sweetmemories.com", "Your family's home page. It lists everything you publish."),
+    ("sam.sweetmemories.com/bob", "A memory page about Bob."),
+    ("sam.sweetmemories.com/first-day-of-bob", "A memory page about Bob's first day."),
+    ("sam.sweetmemories.com/maple-street-party", "A page the whole street can open."),
+]
+
+
+def _addresses(page, base_url):
+    page.goto(base_url + "/", wait_until="networkidle")
+    sec = page.locator("section#addresses")
+    sec.scroll_into_view_if_needed()
+    return sec
+
+
+def test_US_homepage_7_1_four_address_rows_in_order(page, base_url, shot):
+    """US-homepage-7.1 (story US-homepage-7): the list shows four address rows in order, each with its description."""
+    sec = _addresses(page, base_url)
+    assert sec.get_by_role("heading", level=2).inner_text().strip() == ADDRESS_HEADING
+    rows = sec.locator("ul > li")
+    assert rows.count() == 4
+    for i, (url, desc) in enumerate(ADDRESS_ROWS):
+        lines = [ln.strip() for ln in rows.nth(i).inner_text().splitlines() if ln.strip()]
+        assert lines == [url, desc]
+    shot(sec, "US-homepage-7_1_addresses")
+
+
+def test_US_homepage_7_2_addresses_are_plain_text(page, base_url):
+    """US-homepage-7.2 (story US-homepage-7): clicking the second address does not navigate; no links."""
+    sec = _addresses(page, base_url)
+    assert sec.locator("a").count() == 0
+    url_before = page.url
+    sec.locator("ul > li").nth(1).click()
+    page.wait_for_timeout(500)
+    assert page.url == url_before
+
+
+def test_US_homepage_7_3_home_page_vs_memory_pages(page, base_url):
+    """US-homepage-7.3 (story US-homepage-7): row 1 is the family home page; rows 2 to 4 describe Memory pages."""
+    sec = _addresses(page, base_url)
+    rows = sec.locator("ul > li")
+    first = rows.nth(0).inner_text()
+    assert "home page" in first and "lists everything you publish" in first
+    for i in (1, 2, 3):
+        assert "page" in rows.nth(i).inner_text().lower()
+        assert "home page" not in rows.nth(i).inner_text()
+    assert [rows.nth(i).inner_text().count("memory page") for i in (1, 2)] == [1, 1]
