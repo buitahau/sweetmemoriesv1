@@ -1,7 +1,9 @@
 import { Footer } from './home/footer'
+import { AddressesSection } from './home/addresses-section'
 import { Header } from './home/header'
 import { Hero } from './home/hero'
 import { HowSection } from './home/how-section'
+import { MomentsSection } from './home/moments-section'
 import { TemplatesSection } from './home/templates-section'
 import { WhoSection } from './home/who-section'
 
@@ -18,6 +20,8 @@ export function HomePage() {
         <WhoSection />
         <HowSection />
         <TemplatesSection />
+        <MomentsSection />
+        <AddressesSection />
       </main>
       <Footer />
     </div>

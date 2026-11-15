@@ -49,6 +49,8 @@ describe('HomePage', () => {
     expect(html).toContain('<section id="who"')
     expect(html).toContain('<section id="how"')
     expect(html).toContain('<section id="templates"')
+    expect(html).toContain('<section id="moments"')
+    expect(html).toContain('<section id="addresses"')
   })
 
   it('does not contain the retired strings', () => {
