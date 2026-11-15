@@ -5,11 +5,16 @@ Single file for the feature, per the e2e-from-user-stories skill. Task 12
 no cookies. Each test name carries its scenario id; see the test names for
 coverage.
 """
+import html as html_lib
+import json
+import os
 import re
 from urllib.parse import urlparse
 
 import pytest
 from playwright.sync_api import expect
+
+from helpers import ROOT, run
 
 # Collaboration-sensitive strings from spec Conflict 1. A Memory has one owner
 # and no contributor or invite feature exists, so the page must not promise it.
@@ -316,6 +321,106 @@ def test_US_homepage_8_5_pinned_copy_present(page, base_url, text):
     body = page.locator("body").inner_text()
     body = re.sub(r"\s+", " ", body)
     assert text in body, f"pinned copy missing: {text!r}"
+
+
+# --- US-homepage-8.3: no private data (rule 5) ------------------------------
+
+EMAIL_RE = re.compile(r"[\w.+-]+@[\w-]+\.[\w.-]+")
+
+# Pinned list from spec US-homepage-8.3 (c), plus the words of the section titles
+# and chip labels in the Copy subsection. A legitimate new word is added here in
+# the same change that adds it to the page.
+CAPITALISED_ALLOW_LIST = {
+    "Sam", "Bob", "Mia", "Grandpa", "Nana", "Grandma", "Mum", "SweetMemories", "Google",
+    "Memory", "Memories", "Template", "Templates", "Block", "Blocks", "User", "Photo",
+    "Grid", "Street", "Maple", "Class",
+    # section titles and labels
+    "Who", "How", "Moments", "Addresses", "Families", "Little", "Neighborhoods",
+    "Sign", "Start", "Made", "Growing", "Text", "Timeline", "Gallery", "Carousel",
+    "One", "An", "Share", "Your", "Back", "Every",
+}
+
+
+def _repo_env_values():
+    """Configured env values (process env and .env), non-empty, for the leak check."""
+    values = {}
+    for name in ("DATABASE_URL", "NODE_ENV", "SITE_URL"):
+        if os.environ.get(name):
+            values[name] = os.environ[name]
+    env_file = ROOT / ".env"
+    if env_file.exists():
+        for line in env_file.read_text().splitlines():
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                k, v = line.split("=", 1)
+                v = v.strip().strip("\"'")
+                if v:
+                    values.setdefault(k.strip(), v)
+    return values
+
+
+def _split_head_body(html):
+    m = re.search(r"<body\b.*?</body>", html, re.S | re.I)
+    body = m.group(0) if m else html
+    head = html.replace(body, "")
+    return head, body
+
+
+def test_US_homepage_8_3_no_private_data(pw, base_url):
+    """US-homepage-8.3 (story US-homepage-8, rule 5): HTML of / has no email, env value, git SHA, version or stray name."""
+    req = pw.request.new_context(base_url=base_url)
+    try:
+        r = req.get("/")
+        assert r.status == 200
+        html = r.text()
+    finally:
+        req.dispose()
+    head, body = _split_head_body(html)
+
+    # (a) no email-like string
+    assert EMAIL_RE.findall(html) == [], f"email-like strings in HTML: {EMAIL_RE.findall(html)}"
+
+    # (b) env values and names, git SHA, package version
+    assert "DATABASE_URL" not in html and "NODE_ENV" not in html
+    env_values = _repo_env_values()
+    for name, value in env_values.items():
+        if name == "SITE_URL":
+            continue
+        # NODE_ENV values such as "production" are common words; only flag long values.
+        if len(value) >= 8:
+            assert value not in html, f"{name} value leaked into HTML"
+    git = run(["git", "rev-parse", "HEAD"])
+    sha = git.stdout.strip()
+    if git.returncode == 0 and re.fullmatch(r"[0-9a-f]{40}", sha):
+        assert sha not in html, "git SHA leaked into HTML"
+        assert sha[:7] not in html, "short git SHA leaked into HTML"
+    version = json.loads((ROOT / "package.json").read_text()).get("version")
+    if version:
+        assert f'"{version}"' not in html and f"v{version}" not in html, "package version leaked into HTML"
+    site_url = env_values.get("SITE_URL")
+    if site_url:
+        assert site_url not in body, "SITE_URL appears in the body; allowed only in head URL tags"
+        for m in re.finditer(re.escape(site_url), head):
+            tag = head[head.rfind("<", 0, m.start()):head.find(">", m.start()) + 1]
+            assert re.search(r'rel="canonical"|property="og:(url|image)"|name="twitter:image"|rel="alternate"', tag), (
+                f"SITE_URL in a head tag other than canonical, og:url or og:image: {tag}"
+            )
+
+    # (c) capitalised-word allow-list over the visible text of <body>
+    visible = re.sub(r"<(script|style)\b.*?</\1>", " ", body, flags=re.S | re.I)
+    nodes = [html_lib.unescape(t) for t in re.split(r"<[^>]*>", visible)]
+    stray = set()
+    for node in nodes:
+        node = re.sub(r"\s+", " ", node).strip()
+        if not node:
+            continue
+        for sentence in re.split(r"(?<=[.!?]) ", node):
+            for m in re.finditer(r"\b[A-Z][a-z]+\b|SweetMemories", sentence):
+                if m.start() == 0:
+                    continue
+                if m.group(0) not in CAPITALISED_ALLOW_LIST:
+                    stray.add(m.group(0))
+    assert not stray, f"capitalised words outside the allow-list (real names?): {sorted(stray)}"
 
 
 # ---------------------------------------------------------------------------

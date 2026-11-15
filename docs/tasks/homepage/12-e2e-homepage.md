@@ -1,6 +1,6 @@
 # 12 E2E suite for homepage
 
-**Status:** todo
+**Status:** done
 **Side:** front-end
 **Size:** M
 **Dependencies:** 00, 02 to 11
