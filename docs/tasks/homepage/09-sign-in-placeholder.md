@@ -21,5 +21,5 @@ A new route `/sign-in`. No auth code, no cookies. The Better Auth feature replac
 ## Verification
 
 - [x] Vitest: renders the heading, the text and a link to `/`.
-- [x] Manual: `curl -i localhost:3000/sign-in` returns `200`, no `Set-Cookie`, and HTML that contains `noindex`.
-- [x] Covers US-homepage-9.
+- [x] Manual: `curl -i localhost:3000/sign-in` returns `200`, no `Set-Cookie`, and HTML that contains `noindex`. Run against `pnpm dev`: 200, no `Set-Cookie`, `noindex` meta present in the SSR HTML.
+- [x] Covers US-homepage-9. The e2e suite (task 12) should also assert the noindex meta on the served page.
