@@ -1,6 +1,6 @@
 # 12 E2E suite for homepage
 
-**Status:** done
+**Status:** in progress
 **Side:** front-end
 **Size:** M
 **Dependencies:** 00, 02 to 11
@@ -13,15 +13,15 @@
 
 ## Checklist
 
-- [ ] No-cookie, same-origin-requests-only and console-clean (no errors, no hydration warnings) checks
-- [ ] Viewport checks (375 and 768) and reduced-motion check (`page.emulate_media(reduced_motion="reduce")`)
-- [ ] axe check
-- [ ] US-homepage-8.3 assertions: email regex, env values and names, git SHA, package version, `SITE_URL` only in head URL tags, capitalised-word allow-list (spec US-homepage-8.3 (c)); exact apostrophe-bearing strings use straight `'` with no normalising
-- [ ] US-homepage-10.3: under reduced motion, `h1`, "Start with Google" and every `h2` have computed opacity 1
-- [ ] US-homepage-8.5: every pinned Copy string listed in the scenario is present in the visible text (exact match, straight `'`)
-- [ ] US-homepage-5.4 marked skip, with a reason, until Templates exist
+- [x] No-cookie, same-origin-requests-only and console-clean (no errors, no hydration warnings) checks
+- [x] Viewport checks (375 and 768) and reduced-motion check (`page.emulate_media(reduced_motion="reduce")`)
+- [x] axe check
+- [x] US-homepage-8.3 assertions: email regex, env values and names, git SHA, package version, `SITE_URL` only in head URL tags, capitalised-word allow-list (spec US-homepage-8.3 (c)); exact apostrophe-bearing strings use straight `'` with no normalising
+- [x] US-homepage-10.3: under reduced motion, `h1`, "Start with Google" and every `h2` have computed opacity 1
+- [x] US-homepage-8.5: every pinned Copy string listed in the scenario is present in the visible text (exact match, straight `'`)
+- [x] US-homepage-5.4 marked skip, with a reason, until Templates exist
 
 ## Verification
 
 - [ ] `pytest e2e/homepage` passes locally (`pnpm build && pnpm start`) and against dev through `E2E_BASE_URL`.
-- [ ] Every scenario ID appears in a test name.
+- [x] Every scenario ID appears in a test name.

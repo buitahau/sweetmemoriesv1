@@ -336,8 +336,8 @@ CAPITALISED_ALLOW_LIST = {
     "Grid", "Street", "Maple", "Class",
     # section titles and labels
     "Who", "How", "Moments", "Addresses", "Families", "Little", "Neighborhoods",
-    "Sign", "Start", "Made", "Growing", "Text", "Timeline", "Gallery", "Carousel",
-    "One", "An", "Share", "Your", "Back", "Every",
+    "Made", "Growing", "Text", "Timeline", "Gallery", "Carousel",
+    "One", "An",
 }
 
 
@@ -386,9 +386,11 @@ def test_US_homepage_8_3_no_private_data(pw, base_url):
     for name, value in env_values.items():
         if name == "SITE_URL":
             continue
-        # NODE_ENV values such as "production" are common words; only flag long values.
-        if len(value) >= 8:
-            assert value not in html, f"{name} value leaked into HTML"
+        # NODE_ENV is exempt by name (its value is a common word); every other value is checked.
+        if name == "NODE_ENV":
+            continue
+        assert value not in html, f"{name} value leaked into HTML"
+    # Limitation: this reads the local checkout; against dev via E2E_BASE_URL the deployed commit may differ.
     git = run(["git", "rev-parse", "HEAD"])
     sha = git.stdout.strip()
     if git.returncode == 0 and re.fullmatch(r"[0-9a-f]{40}", sha):
@@ -402,8 +404,8 @@ def test_US_homepage_8_3_no_private_data(pw, base_url):
         assert site_url not in body, "SITE_URL appears in the body; allowed only in head URL tags"
         for m in re.finditer(re.escape(site_url), head):
             tag = head[head.rfind("<", 0, m.start()):head.find(">", m.start()) + 1]
-            assert re.search(r'rel="canonical"|property="og:(url|image)"|name="twitter:image"|rel="alternate"', tag), (
-                f"SITE_URL in a head tag other than canonical, og:url or og:image: {tag}"
+            assert re.search(r'rel="canonical"|property="og:(url|image)"|name="twitter:image"', tag), (
+                f"SITE_URL in a head tag other than canonical, og:url, og:image or twitter:image: {tag}"
             )
 
     # (c) capitalised-word allow-list over the visible text of <body>
