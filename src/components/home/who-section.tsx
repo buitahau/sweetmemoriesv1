@@ -85,7 +85,7 @@ export function WhoSection() {
             <h3 className="font-display text-[28px] leading-[1.15] font-semibold">
               {a.title}
             </h3>
-            <p className="text-[17px] text-[#4a3040]">{a.text}</p>
+            <p className="text-[17px] text-ink-card">{a.text}</p>
             <div className="mt-auto pt-1.5 font-hand text-2xl font-bold text-link-hover">
               {a.example}
             </div>

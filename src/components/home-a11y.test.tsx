@@ -78,7 +78,9 @@ describe('responsive layout (US-homepage-10.1)', () => {
     expect(html).toMatch(/<section[^>]*class="[^"]*flex-wrap[^"]*"/)
   })
 
-  it('has no fixed minimum width wider than a 375px viewport minus gutters', () => {
+  // Regression guard for the hero collage fix (min-w-[340px] -> min-w-0).
+  // Not proof of no overflow: the real 375px check is task 12's e2e.
+  it('hero collage has no fixed min-width wider than a 375px viewport minus gutters', () => {
     const mins = [...html.matchAll(/min-w-\[(\d+)px\]/g)].map((m) =>
       Number(m[1]),
     )
@@ -86,7 +88,9 @@ describe('responsive layout (US-homepage-10.1)', () => {
   })
 
   it('clips decorative overflow in the hero wrapper', () => {
-    expect(html).toContain('overflow-hidden')
+    expect(html).toMatch(
+      /<div class="(?=[^"]*\boverflow-hidden\b)(?=[^"]*\bbg-band\b)[^"]*"[^>]*>(?:<[^>]*>)*?<section/,
+    )
   })
 })
 
@@ -102,6 +106,16 @@ describe('colour contrast (US-homepage-10.6)', () => {
     ['link', 'cream', 'link on cream'],
     ['forest', 'card-mint', 'title on mint'],
     ['forest-soft', 'card-mint', 'subtitle on mint'],
+    ['ink-soft', 'pink-footer', 'soft text on footer'],
+    ['ink-muted', 'pink-footer', 'muted text on footer'],
+    ['ink-soft', 'pink-50', 'soft text on pink-50'],
+    ['ink-muted', 'pink-50', 'muted text on pink-50'],
+    ...['peach', 'mint', 'butter', 'lilac', 'sky'].flatMap(
+      (c): Array<[string, string, string]> => [
+        ['ink-card', `card-${c}`, `Who card text on ${c}`],
+        ['link-hover', `card-${c}`, `Who card example on ${c}`],
+      ],
+    ),
   ]
   it.each(pairs)('%s on %s meets AA (%s)', (fg, bg) => {
     expect(contrast(token(fg), token(bg))).toBeGreaterThanOrEqual(AA)
