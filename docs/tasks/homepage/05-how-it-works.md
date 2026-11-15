@@ -1,6 +1,6 @@
 # 05 How it works section
 
-**Status:** done
+**Status:** in progress
 **Side:** front-end
 **Size:** S
 **Dependencies:** 02
@@ -18,5 +18,5 @@
 ## Verification
 
 - [x] Vitest: the `ol` has 4 `li` with titles in the order of US-homepage-4 scenario 1.
-- [x] Manual: the `#how` anchor scroll lands on the heading.
+- [ ] Manual: the `#how` anchor scroll lands on the heading (not yet run; check with `pnpm dev`, open `/#how` and click the header "How it works" link).
 - [x] Covers US-homepage-4.

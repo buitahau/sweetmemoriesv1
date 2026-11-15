@@ -3,25 +3,25 @@ const steps = [
     title: 'Sign in with Google',
     text: 'One click. We use your Google account, so there is nothing new to remember.',
     badge: 'bg-[#FFC93C]',
-    line: 'border-[#F0D56E]',
+    line: 'border-card-butter-shadow',
   },
   {
     title: 'Choose a template',
     text: 'Start from a layout made for a person, a first day, an adventure or a childhood.',
     badge: 'bg-[#FFB27A]',
-    line: 'border-[#F2BE98]',
+    line: 'border-card-peach-shadow',
   },
   {
     title: 'Add photos and words',
     text: 'Fill in one block at a time while the page takes shape beside you.',
     badge: 'bg-[#9ADBBB]',
-    line: 'border-[#9FD8BD]',
+    line: 'border-card-mint-shadow',
   },
   {
     title: 'Publish and share',
     text: 'Your memory goes live at its own address. Send the link to anyone.',
     badge: 'bg-[#9CD0F5]',
-    line: 'border-[#A9D4F2]',
+    line: 'border-card-sky-shadow',
   },
 ] as const
 

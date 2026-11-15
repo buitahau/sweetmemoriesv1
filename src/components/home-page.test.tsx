@@ -45,7 +45,7 @@ describe('HomePage', () => {
     )
   })
 
-  it('has the section ids, with empty placeholders for the unbuilt ones', () => {
+  it('has the section ids, with an empty placeholder for the unbuilt templates section', () => {
     expect(html).toContain('<section id="who"')
     expect(html).toContain('<section id="how"')
     expect(html).toContain('<section id="templates"></section>')
