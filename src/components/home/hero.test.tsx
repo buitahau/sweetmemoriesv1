@@ -91,7 +91,14 @@ describe('Hero h1 (ticket 10)', () => {
   })
 
   it('keeps the top polaroid below the subtitle on small screens', () => {
-    expect(html).toContain('top-[165px] right-[14px]')
-    expect(html).toContain('h-[500px] bg-card-mint')
+    const tokens = html.split(/[\s"]+/)
+    for (const token of [
+      'top-[165px]',
+      'right-[14px]',
+      'h-[500px]',
+      'bg-card-mint',
+    ]) {
+      expect(tokens).toContain(token)
+    }
   })
 })

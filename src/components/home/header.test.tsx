@@ -14,9 +14,14 @@ describe('Header at the narrowest phone widths (305px layout)', () => {
   const html = renderToStaticMarkup(<Header />)
 
   it('tightens the gap, logo text and Sign in padding below 360px so the row fits', () => {
-    expect(html).toContain('gap-2')
-    expect(html).toContain('min-[360px]:gap-3')
-    expect(html).toContain('text-[17px]')
-    expect(html).toMatch(/px-3\.5 font-bold min-\[360px\]:px-5/)
+    for (const token of [
+      'gap-2',
+      'min-[360px]:gap-3',
+      'text-[17px]',
+      'px-3.5',
+      'min-[360px]:px-5',
+    ]) {
+      expect(html.split(/\s+/)).toContain(token)
+    }
   })
 })
