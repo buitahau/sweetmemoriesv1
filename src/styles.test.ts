@@ -116,3 +116,12 @@ describe('root head', () => {
     expect(existsSync(new URL(`../public${href}`, import.meta.url))).toBe(true)
   })
 })
+
+describe('reduced motion', () => {
+  it('turns off the card hover lift inside the reduced-motion media query', () => {
+    const block = css.slice(
+      css.indexOf('@media (prefers-reduced-motion: reduce)'),
+    )
+    expect(block).toMatch(/\.sm-card:hover\s*{\s*transform:\s*none;/)
+  })
+})

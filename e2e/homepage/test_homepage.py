@@ -511,3 +511,19 @@ def test_US_homepage_3_3_faces_hidden_from_screen_readers(page, base_url):
         )
         assert hidden, "a face SVG is not inside an aria-hidden container"
         assert card.get_by_role("img").count() == 0
+
+
+def test_US_homepage_3_4_card_hover_lift_off_under_reduced_motion(page, base_url):
+    """US-homepage-3.4 (story US-homepage-3): hovering a card lifts it normally, but not under prefers-reduced-motion."""
+    page.emulate_media(reduced_motion="no-preference")
+    sec = _who(page, base_url)
+    card = sec.locator("article").nth(0)
+    card.hover()
+    page.wait_for_timeout(500)
+    assert card.evaluate("el => getComputedStyle(el).transform") != "none"
+
+    page.emulate_media(reduced_motion="reduce")
+    page.mouse.move(0, 0)
+    card.hover()
+    page.wait_for_timeout(100)
+    assert card.evaluate("el => getComputedStyle(el).transform") == "none"
