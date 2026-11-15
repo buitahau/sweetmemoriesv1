@@ -439,8 +439,8 @@ def test_US_homepage_1_9_favicon_served(pw, base_url):
         req.dispose()
 
 
-@pytest.mark.parametrize("width", [305, 320, 360, 375, 400, 412, 414, 430, 480, 768, 1440])
 # 305 = a 320px window minus a classic 15px scrollbar (headless uses overlay scrollbars).
+@pytest.mark.parametrize("width", [305, 320, 360, 375, 400, 412, 414, 430, 480, 768, 1440])
 def test_US_homepage_10_2_collage_no_overlap_small_screens(pw, base_url, width):
     """US-homepage-10.2: no collage text overlaps another element and the address is not cut off."""
     browser = pw.chromium.launch()
@@ -516,7 +516,7 @@ def test_US_homepage_10_2_header_links_single_line(pw, base_url, width):
         browser.close()
 
 
-@pytest.mark.parametrize("width", [360, 375, 414])
+@pytest.mark.parametrize("width", [320, 360, 375, 414])
 def test_US_homepage_10_1_header_logo_and_sign_in_share_a_row(pw, base_url, width):
     """US-homepage-10.1: the logo and Sign in sit on one header row at phone widths."""
     browser = pw.chromium.launch()
@@ -524,7 +524,6 @@ def test_US_homepage_10_1_header_logo_and_sign_in_share_a_row(pw, base_url, widt
         ctx = browser.new_context(viewport={"width": width, "height": 800}, reduced_motion="reduce")
         pg = ctx.new_page()
         pg.goto(base_url + "/", wait_until="networkidle")
-        # Widths below 360 are not covered here; the spec's mobile header rule (docs/features/homepage.md) does not allow wrapping, so add them once verified.
         logo = pg.locator("header > a").first.bounding_box()
         sign_in = pg.get_by_role("navigation", name="Main").get_by_role("link", name="Sign in").bounding_box()
         assert sign_in["y"] < logo["y"] + logo["height"], f"Sign in wraps under the logo at {width}px"
