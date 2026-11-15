@@ -89,4 +89,9 @@ describe('Hero h1 (ticket 10)', () => {
   it('puts the period directly after the highlighted word, with no text node between', () => {
     expect(html).toMatch(/<span class="sm-hl[^"]*">home<\/span>\.<\/h1>/)
   })
+
+  it('keeps the top polaroid below the subtitle on small screens', () => {
+    expect(html).toContain('top-[165px] right-[14px]')
+    expect(html).toContain('h-[500px] bg-card-mint')
+  })
 })
