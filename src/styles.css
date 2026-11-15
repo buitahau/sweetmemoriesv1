@@ -311,4 +311,8 @@
     animation: none !important;
     transition: none !important;
   }
+  /* Hover lifts are movement too: keep cards still. */
+  .sm-card:hover {
+    transform: none;
+  }
 }
