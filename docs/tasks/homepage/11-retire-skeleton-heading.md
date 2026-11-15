@@ -29,4 +29,4 @@ Update every spec, test and doc that asserts the old heading. Leave the historic
 - [x] `pytest e2e/project-skeleton` passes locally (`pnpm build && pnpm start`): 12 passed.
 - [ ] Not yet run: after merge and deploy, `pytest e2e/dev-deploy` passes against dev (`E2E_BASE_URL` set to the dev URL).
 - [x] US-skeleton-2.6 still asserts that "Page not found" is shown and the home `h1` is not.
-- [ ] `grep -rn "SweetMemories home page" src e2e docs/features docs/infra` returns nothing. Agreed exceptions: the negative assertion in `src/components/home-page.test.tsx` and the historical notes in `docs/features/homepage.md` that describe the retired heading.
+- [x] `grep -rn "SweetMemories home page" src e2e docs/features docs/infra` returns nothing. Agreed exceptions: the negative assertion in `src/components/home-page.test.tsx` and the historical notes in `docs/features/homepage.md` that describe the retired heading.
