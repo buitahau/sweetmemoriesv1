@@ -1,3 +1,4 @@
+import { FinalCta } from './home/final-cta'
 import { Footer } from './home/footer'
 import { AddressesSection } from './home/addresses-section'
 import { Header } from './home/header'
@@ -22,6 +23,7 @@ export function HomePage() {
         <TemplatesSection />
         <MomentsSection />
         <AddressesSection />
+        <FinalCta />
       </main>
       <Footer />
     </div>
