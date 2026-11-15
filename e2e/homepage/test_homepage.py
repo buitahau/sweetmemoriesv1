@@ -148,7 +148,7 @@ def _wait_in_viewport(page, locator):
 
 # Sections whose task has not shipped yet. Each section task (04, 05, 06) removes
 # its entry; once removed, a missing heading FAILS instead of skipping.
-PENDING_SECTION_TASKS = {"templates": "06"}
+PENDING_SECTION_TASKS: dict = {}
 
 
 def _heading_or_block(page, anchor):
