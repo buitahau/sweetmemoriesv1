@@ -76,7 +76,6 @@ describe('Hero', () => {
 })
 
 describe('Hero small-screen fit (ticket 10)', () => {
-
   it('keeps the period tight against the highlighted word', () => {
     expect(html).toMatch(/<span class="sm-hl[^"]*pr-1\.5[^"]*">home<\/span>\./)
   })

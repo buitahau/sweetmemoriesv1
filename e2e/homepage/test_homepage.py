@@ -529,6 +529,29 @@ def test_US_homepage_10_1_header_logo_and_sign_in_share_a_row(pw, base_url, widt
         browser.close()
 
 
+@pytest.mark.parametrize("width", [375, 1440])
+def test_US_homepage_10_1_h1_period_hugs_highlight(pw, base_url, width):
+    """US-homepage-10.1: no visible gap between the highlighted word and the h1 period."""
+    browser = pw.chromium.launch()
+    try:
+        ctx = browser.new_context(viewport={"width": width, "height": 800}, reduced_motion="reduce")
+        pg = ctx.new_page()
+        pg.goto(base_url + "/", wait_until="networkidle")
+        gap = pg.evaluate(
+            """() => {
+              const h1 = document.querySelector('h1');
+              const hl = h1.querySelector('.sm-hl');
+              const node = hl.nextSibling;
+              const rg = document.createRange();
+              rg.setStart(node, 0); rg.setEnd(node, 1);
+              return rg.getBoundingClientRect().left - hl.getBoundingClientRect().right;
+            }"""
+        )
+        assert gap <= 4, f"gap of {gap}px between highlight and period at {width}px"
+    finally:
+        browser.close()
+
+
 # ---------------------------------------------------------------------------
 # Task 04: US-homepage-3 (Who it is for)
 # ---------------------------------------------------------------------------
