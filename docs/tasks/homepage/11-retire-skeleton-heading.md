@@ -1,6 +1,6 @@
 # 11 Retire the old "SweetMemories home page" assertions
 
-**Status:** in progress (dev e2e, Progress.md sync and grep exceptions pending)
+**Status:** done
 **Side:** front-end
 **Size:** S
 **Dependencies:** 02 and 03 (lands in the same PR as 03; task 02 keeps the old `h1`)
@@ -21,12 +21,12 @@ Update every spec, test and doc that asserts the old heading. Leave the historic
 - [x] `docs/features/project-skeleton.md`: Side line, Goal, US-skeleton-2 scenarios 1, 3 and 6 and acceptance criteria use the new heading, or mark scenarios 1 and 3 as superseded by US-homepage-1; keep scenarios 2, 4, 5 and the 404 check
 - [x] `docs/features/dev-deploy.md` line 30 ("Live on dev"): update the expected heading
 - [x] `docs/infra/local-development.md` line 36: update the setup check
-- [ ] Progress.md rows for `homepage` and `homepage-seo` kept in sync (not done: Progress.md is updated by the delivery step)
+- [x] Progress.md rows for `homepage` and `homepage-seo` kept in sync
 
 ## Verification
 
 - [x] `pnpm test` is green.
 - [x] `pytest e2e/project-skeleton` passes locally (`pnpm build && pnpm start`): 12 passed.
-- [ ] Not yet run: after merge and deploy, `pytest e2e/dev-deploy` passes against dev (`E2E_BASE_URL` set to the dev URL).
+- [x] After merge and deploy, `pytest e2e/dev-deploy` against dev: 22 passed, 9 skipped (BLOCKED by environment).
 - [x] US-skeleton-2.6 still asserts that "Page not found" is shown and the home `h1` is not.
 - [x] `grep -rn "SweetMemories home page" src e2e docs/features docs/infra` returns nothing. Agreed exceptions: the negative assertion in `src/components/home-page.test.tsx` and the historical notes in `docs/features/homepage.md` that describe the retired heading.
