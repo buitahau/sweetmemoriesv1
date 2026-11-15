@@ -61,7 +61,7 @@ function Polaroid({
 function Collage() {
   // Taller below 520px so the "Your page is live" card sits under the mini page instead of covering it.
   return (
-    <div className="relative h-[620px] min-w-[340px] flex-[1_1_480px] min-[520px]:h-[560px]">
+    <div className="relative h-[700px] min-w-0 flex-[1_1_480px] min-[520px]:h-[560px]">
       <div
         aria-hidden="true"
         className="absolute top-10 left-[30px] size-[440px] rounded-full bg-white opacity-55"
@@ -110,8 +110,8 @@ function Collage() {
         />
       </svg>
 
-      <div className="absolute top-[70px] left-[60px] w-[min(380px,calc(100%-60px))] animate-sm-float-tilt overflow-hidden rounded-[28px] bg-white shadow-[0_24px_0_-8px_rgba(214,50,90,0.14),0_26px_48px_rgba(110,40,60,0.2)]">
-        <div className="bg-card-peach px-3 py-3 min-[520px]:px-4">
+      <div className="absolute top-[70px] left-3 w-[min(380px,calc(100%-12px))] min-[520px]:left-[60px] min-[520px]:w-[min(380px,calc(100%-60px))] animate-sm-float-tilt overflow-hidden rounded-[28px] bg-white shadow-[0_24px_0_-8px_rgba(214,50,90,0.14),0_26px_48px_rgba(110,40,60,0.2)]">
+        <div className="bg-card-peach px-2 py-3 min-[520px]:px-4">
           <div className="flex items-center gap-1.5 rounded-full bg-white px-2.5 py-2 text-[15px] font-semibold min-[520px]:gap-2 min-[520px]:px-4">
             <svg width="13" height="13" viewBox="0 0 12 12" aria-hidden="true">
               <rect x="2" y="5" width="8" height="6" rx="1.5" fill="#6B4A5A" />
@@ -130,8 +130,8 @@ function Collage() {
             </span>
           </div>
         </div>
-        <div className="relative h-[380px] bg-card-mint px-7 py-[26px]">
-          <div className="font-hand text-[44px] leading-[0.95] font-bold min-[520px]:text-[60px] text-forest">
+        <div className="relative h-[450px] bg-card-mint px-7 py-[26px] min-[520px]:h-[380px]">
+          <div className="font-hand text-[40px] leading-[0.95] font-bold min-[520px]:text-[60px] text-forest">
             Bob's first day
           </div>
           <div className="mt-1 text-[15px] text-forest-soft">
