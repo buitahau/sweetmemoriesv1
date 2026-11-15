@@ -124,13 +124,15 @@ function Collage() {
             </svg>
             <span
               data-testid="hero-address"
-              className="min-w-0 truncate text-[11px] whitespace-nowrap min-[520px]:text-[15px]"
+              className="min-w-0 text-[11px] min-[520px]:truncate min-[520px]:text-[15px] min-[520px]:whitespace-nowrap"
             >
-              sam.sweetmemories.com/bobs-first-day
+              sam.sweetmemories.com/
+              <wbr />
+              bobs-first-day
             </span>
           </div>
         </div>
-        <div className="relative h-[450px] bg-card-mint px-7 py-[26px] min-[520px]:h-[380px]">
+        <div className="relative h-[480px] bg-card-mint px-7 py-[26px] min-[520px]:h-[380px]">
           <div className="font-hand text-[40px] leading-[0.95] font-bold min-[520px]:text-[60px] text-forest">
             Bob's first day
           </div>
@@ -148,7 +150,7 @@ function Collage() {
             caption="new friends"
           />
           <Polaroid
-            className="top-[120px] right-[14px] w-[104px] min-[520px]:top-[100px] min-[520px]:right-[22px] min-[520px]:w-[120px] animate-sm-sway-c p-[7px] pb-6 [animation-delay:0.8s]"
+            className="top-[145px] right-[14px] w-[104px] min-[520px]:top-[100px] min-[520px]:right-[22px] min-[520px]:w-[120px] animate-sm-sway-c p-[7px] pb-6 [animation-delay:0.8s]"
             photo="h-[88px] bg-[#FFE08A]"
           >
             <div className="absolute -top-3 left-[34px] h-5 w-[54px] -rotate-3 rounded-[3px] bg-[#FFB27A] opacity-85" />
@@ -215,7 +217,7 @@ export function Hero() {
           </div>
           <h1 className="animate-sm-rise sm-d1 mt-[22px] font-display text-5xl leading-none font-bold tracking-[-0.02em] md:text-[76px]">
             Every little moment deserves a{' '}
-            <span className="sm-hl animate-sm-hl rounded-[18px] px-3">
+            <span className="sm-hl animate-sm-hl rounded-[18px] pr-1.5 pl-3">
               home
             </span>
             .

@@ -439,7 +439,8 @@ def test_US_homepage_1_9_favicon_served(pw, base_url):
         req.dispose()
 
 
-@pytest.mark.parametrize("width", [320, 360, 375, 400, 412, 414, 430, 480, 768, 1440])
+# 305 = a 320px window minus a classic 15px scrollbar (headless uses overlay scrollbars).
+@pytest.mark.parametrize("width", [305, 320, 360, 375, 400, 412, 414, 430, 480, 768, 1440])
 def test_US_homepage_10_2_collage_no_overlap_small_screens(pw, base_url, width):
     """US-homepage-10.2: no collage text overlaps another element and the address is not cut off."""
     browser = pw.chromium.launch()
@@ -449,6 +450,7 @@ def test_US_homepage_10_2_collage_no_overlap_small_screens(pw, base_url, width):
         )
         pg = ctx.new_page()
         pg.goto(base_url + "/", wait_until="networkidle")
+        pg.evaluate("document.fonts.ready")  # general hardening: text widths change when webfonts swap in (not the 320px fix)
         data = pg.evaluate(
             """() => {
               const rect = (r) => [r.left, r.top, r.right, r.bottom];
@@ -510,6 +512,49 @@ def test_US_homepage_10_2_header_links_single_line(pw, base_url, width):
         for l in data["links"]:
             assert l["h"] < l["lh"] * 1.5, f"{l['text']!r} wraps at {width}px: {l}"
         assert data["scroll"][0] <= data["scroll"][1], f"horizontal scroll at {width}px"
+    finally:
+        browser.close()
+
+
+@pytest.mark.parametrize("width", [320, 360, 375, 414])
+def test_US_homepage_10_1_header_logo_and_sign_in_share_a_row(pw, base_url, width):
+    """US-homepage-10.1: the logo and Sign in sit on one header row at phone widths."""
+    browser = pw.chromium.launch()
+    try:
+        ctx = browser.new_context(viewport={"width": width, "height": 800}, reduced_motion="reduce")
+        pg = ctx.new_page()
+        pg.goto(base_url + "/", wait_until="networkidle")
+        logo = pg.locator("header > a").first.bounding_box()
+        sign_in = pg.get_by_role("navigation", name="Main").get_by_role("link", name="Sign in").bounding_box()
+        assert sign_in["y"] < logo["y"] + logo["height"], f"Sign in wraps under the logo at {width}px"
+    finally:
+        browser.close()
+
+
+@pytest.mark.parametrize("width", [375, 1440])
+def test_US_homepage_10_1_h1_period_hugs_highlight(pw, base_url, width):
+    """US-homepage-10.1: no visible gap between the highlighted word and the h1 period."""
+    browser = pw.chromium.launch()
+    try:
+        ctx = browser.new_context(viewport={"width": width, "height": 800}, reduced_motion="reduce")
+        pg = ctx.new_page()
+        pg.goto(base_url + "/", wait_until="networkidle")
+        gap = pg.evaluate(
+            """() => {
+              const h1 = document.querySelector('h1');
+              const hl = h1.querySelector('.sm-hl');
+              const word = document.createRange();
+              word.selectNodeContents(hl);
+              const node = hl.nextSibling;
+              const period = document.createRange();
+              period.setStart(node, 0); period.setEnd(node, 1);
+              // Visible gap: end of the word "home" to the period. It includes the
+              // highlight's right padding, which the pink background paints.
+              return period.getBoundingClientRect().left - word.getBoundingClientRect().right;
+            }"""
+        )
+        # 12px (px-3) must fail, 6px (pr-1.5) must pass.
+        assert gap <= 8, f"gap of {gap}px between highlight and period at {width}px"
     finally:
         browser.close()
 
