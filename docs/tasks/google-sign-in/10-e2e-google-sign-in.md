@@ -17,4 +17,4 @@
 
 - [ ] `pytest e2e/google-sign-in -rs` passes locally against `pnpm start`, and only the documented scenarios are skipped
 - [ ] One test checks that the seeded cookie is accepted by `getSession` (guards the cookie-format coupling)
-- [ ] A manual run on dev with a Google test account covers 3.1 and 3.2, recorded in the feature delivery notes
+- [ ] A manual run on dev covers 3.1 and 3.2, recorded in the feature delivery notes. The product owner's Google account must be a test user on the consent screen, and the run uses their own signed-in Chrome (Claude in Chrome, or Playwright over CDP), not a headless browser; see [ADR 0009](../../adr/0009-e2e-signed-in-state-without-real-google.md)

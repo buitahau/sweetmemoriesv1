@@ -13,7 +13,7 @@ Options:
 
 Recommended answer: Drizzle ORM + @neondatabase/serverless: Better Auth has a first-party adapter, it runs on Workers, and the committed migrations will serve Memory and Template tables too.
 
-Answer:
+Answer: Drizzle ORM + @neondatabase/serverless + drizzle-kit migrations (recommended).
 
 ### How should migrations reach the dev Neon branch? (Q-migrate)
 
@@ -23,7 +23,7 @@ Options:
 
 Recommended answer: Automatic step in deploy-dev: the schema can never lag behind the deployed code. It needs DATABASE_URL as a masked GitHub environment secret.
 
-Answer:
+Answer: Automatic migrate step in deploy-dev before the Worker deploy (recommended).
 
 ## Topic: ADR 0008: Session cookie scope and app origin
 
@@ -36,7 +36,7 @@ Options:
 
 Recommended answer: Main domain with host-only cookies: browsers never send them to user subdomains, so rule 1 holds without new infrastructure. The shared-domain option breaks rule 1.
 
-Answer:
+Answer: Main domain with host-only cookies (recommended).
 
 ## Topic: ADR 0009: E2E signed-in state
 
@@ -49,4 +49,4 @@ Options:
 
 Recommended answer: Seed the session in the local test database: no app code changes and no backdoor endpoint. The real Google round-trip stays a manual check on dev.
 
-Answer:
+Answer: Seed a User and Session in the local test database and set the signed cookie (recommended), for the automated suite. The real Google round-trip is checked on dev in the product owner's own signed-in Chrome (Claude in Chrome extension, or Playwright attached over CDP to a pre-signed-in profile), not in CI.

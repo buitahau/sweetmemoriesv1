@@ -20,6 +20,8 @@ Options:
 
 Option 1 (proposed). The real Google round-trip is covered by one manual check per release on dev, recorded as BLOCKED or manual in the e2e suite. The redirect to `accounts.google.com` (URL and parameters) is asserted automatically without completing it.
 
+**Real-account check on dev.** The product owner runs it in their own Chrome, where they are already signed in to Google, because a headless browser has no Google session and Google blocks sign-in in automated browsers. Either drive that Chrome through the Claude in Chrome extension, or attach Playwright to it with `connect_over_cdp` (Chrome started with `--remote-debugging-port` on a dedicated profile signed in by hand). This is on demand, never in CI. The Google OAuth consent screen on dev stays in Testing mode, with the product owner's account listed as a test user.
+
 ## Consequences
 
 - Easier: fast, deterministic signed-in tests and no secrets in CI beyond the existing ones.

@@ -13,7 +13,7 @@ Options:
 
 Recommended answer: Keep /sign-in: it matches the existing links, tests and the mockup's wording, so nothing else has to change.
 
-Answer:
+Answer: Keep /sign-in (recommended).
 
 ### Q-copy-search: The mockup promises 'You can hide any page from search engines.' No such feature exists. What should the page show?
 
@@ -24,7 +24,7 @@ Options:
 
 Recommended answer: Drop it until the feature exists: the page should not promise something the product cannot do.
 
-Answer:
+Answer: Drop that promise, show two promises (recommended).
 
 ### Q-copy-address: The mockup says 'Then you pick your address, like sam.sweetmemories.com', but the requirement sends the User straight to the dashboard and subdomain choice is not built. What should it say?
 
@@ -35,7 +35,7 @@ Options:
 
 Recommended answer: Keep only 'The same button makes your account.' until the subdomain feature defines when the User picks an address.
 
-Answer:
+Answer: Keep only 'The same button makes your account.' (recommended).
 
 ### Q-legal: The footer links to Terms and Privacy policy, but neither page exists. What should happen?
 
@@ -46,7 +46,7 @@ Options:
 
 Recommended answer: Hide the line until real pages exist: dead '#' links are misleading. Note that publishing the Google consent screen will need a privacy policy URL.
 
-Answer:
+Answer: Hide the 'By continuing you agree...' line until the pages exist (recommended).
 
 ### Q-consent: Who can sign in on dev? This sets the Google OAuth consent screen mode.
 
@@ -56,7 +56,7 @@ Options:
 
 Recommended answer: Testing mode for dev: it needs no Google verification or privacy policy, and it keeps dev limited to known testers.
 
-Answer:
+Answer: Testing mode for dev (recommended). The product owner's Google account must be added as a test user on the OAuth consent screen (manual step in Google Cloud Console), so the real-account check on dev works.
 
 ### Q-error-copy: Please confirm the error copy on the Login page.
 
@@ -66,7 +66,7 @@ Options:
 
 Recommended answer: Use the proposed two fixed messages: they are short, friendly and never echo the URL.
 
-Answer:
+Answer: Use the two proposed fixed messages (recommended).
 
 ## Topic: dashboard-home
 
@@ -79,7 +79,7 @@ Options:
 
 Recommended answer: Minimal greeting plus Sign out: it meets 'go to dashboard home page' without inventing Memory UI before the design exists.
 
-Answer:
+Answer: Minimal: 'Hi, <first name>' heading plus a Sign out button (recommended).
 
 ### Q-signout: Is sign-out in scope, and where should it land?
 
@@ -90,4 +90,4 @@ Options:
 
 Recommended answer: Yes, land on /: testers need to switch accounts, and the homepage is the natural signed-out start.
 
-Answer:
+Answer: Yes, sign-out is in scope and lands on / (recommended).
