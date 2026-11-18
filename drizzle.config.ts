@@ -9,14 +9,16 @@ try {
 
 const databaseUrl = process.env.DATABASE_URL
 if (!databaseUrl) {
-  throw new Error('DATABASE_URL is not set. Copy .env.example to .env and set it.')
+  throw new Error(
+    'DATABASE_URL is not set. Copy .env.example to .env and set it.',
+  )
 }
 
-// Schema lives under src/server/db/ (added with the first tables); SQL
+// Schema lives under src/server/db/schema/; SQL
 // migrations are committed under drizzle/ (ADR 0007).
 export default defineConfig({
   dialect: 'postgresql',
-  schema: './src/server/db/schema.ts',
+  schema: './src/server/db/schema',
   out: './drizzle',
   dbCredentials: { url: databaseUrl },
 })
