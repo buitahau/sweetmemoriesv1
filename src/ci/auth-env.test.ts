@@ -41,3 +41,10 @@ describe('google-sign-in: auth env keys', () => {
     expect(read('docs/infra/dev-environment.md')).toMatch(/signs everyone out/)
   })
 })
+
+describe('google-sign-in: gitignore covers local secret files', () => {
+  const lines = read('.gitignore').split('\n').map((l) => l.trim())
+  it.each(['.env', '.env.*', '.dev.vars*'])('ignores %s', (p) => {
+    expect(lines).toContain(p)
+  })
+})

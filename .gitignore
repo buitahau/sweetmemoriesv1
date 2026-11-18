@@ -6,6 +6,7 @@ dist
 .vinxi
 .env
 .env.*
+.dev.vars*
 !.env.example
 *.log
 .DS_Store
