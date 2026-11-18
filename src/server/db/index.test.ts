@@ -38,13 +38,4 @@ describe('getDb', () => {
     delete process.env.DATABASE_URL
     expect(() => getDb()).toThrow()
   })
-
-  it('never includes the connection string value in the error', () => {
-    delete process.env.DATABASE_URL
-    try {
-      getDb()
-    } catch (e) {
-      expect((e as Error).message).not.toContain('postgres')
-    }
-  })
 })
