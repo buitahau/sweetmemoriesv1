@@ -1,6 +1,6 @@
 # 02 Database access layer (ADR 0007)
 
-**Status:** in progress
+**Status:** done
 **Side:** backend
 **Size:** S
 **Dependencies:** [ADR 0007](../../adr/0007-database-access-and-migrations.md) accepted (work went ahead on the proposed decision; the ADR must be accepted in a docs PR before or alongside this merge)
@@ -21,3 +21,15 @@
 - [x] Lint and typecheck pass
 
 **Note for task 04:** `getDb()` uses the `neon-http` driver, which has no interactive transactions. Check the Better Auth adapter works without them, or move to `drizzle-orm/neon-serverless` with a per-request Pool. `drizzle-kit migrate` uses the WebSocket Pool driver, so migrations are unaffected.
+
+## Summary
+
+**Built:** a `getDb()` factory under `src/server/db/` (neon-http driver, reads `DATABASE_URL` per request, never echoes it), plus `drizzle.config.ts` and the `db:generate` and `db:migrate` scripts.
+
+**PRs:** [#138](https://github.com/buitahau/sweetmemoriesv1/pull/138) (database access layer), [#139](https://github.com/buitahau/sweetmemoriesv1/pull/139) (browser-like User-Agent in the task 02 health e2e check).
+
+**Test evidence (dev, attempt 2, PASS):** `pnpm test` 23 files / 237 tests, `pnpm typecheck` and `pnpm lint` clean. `/api/health` 200 on dev with no Set-Cookie. Task e2e (`e2e/google-sign-in`): 12 passed, 3 skipped (BLOCKED). Homepage and skeleton e2e 102 passed, 1 skipped; dev-deploy e2e 26 passed, 5 skipped. No visual regression in 26 screenshots. Logs and screenshots live in the tester's session scratchpad (`e2e-logs/google-sign-in.log`, `e2e-logs/homepage-skeleton.log`, `e2e-logs/dev-deploy.log`, `e2e-logs/probe.json`, `curl/`, `shots/`), not in the repo.
+
+**Still open:** `pnpm db:migrate` against a Neon dev branch is deferred to task 03. `/api/auth/*` returns 404 on dev until task 04, so open-redirect protection is not yet checked. T01_V1c and T01_V5 need maintainer credentials.
+
+**Fix cycles:** 1.
