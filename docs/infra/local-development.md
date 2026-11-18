@@ -15,6 +15,19 @@ No database, S3 or Google credentials are needed yet; the skeleton has none of t
 
 Nothing reads `DATABASE_URL` yet. When DB code arrives, point your `.env` `DATABASE_URL` (see `.env.example`) at your own Neon branch or a local Postgres. Never use the dev Worker's database locally: dev uses the shared Neon branch `dev` (see [dev-environment.md](dev-environment.md)).
 
+## Google sign-in settings (for the auth features)
+
+Nothing reads these yet either. Copy `.env.example` to `.env` and fill in:
+
+| Key | Local value |
+| --- | --- |
+| `DATABASE_URL` | your own database (see above) |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | the single shared Google Cloud OAuth client (scopes `openid email profile`), which has both the `http://localhost:3000/api/auth/callback/google` and the dev Worker redirect URIs (see dev-environment.md); take the values from Google Cloud Console |
+| `BETTER_AUTH_SECRET` | a separate random value, not the dev one (`openssl rand -base64 32`) |
+| `BETTER_AUTH_URL` | `http://localhost:3000` (informational; `SITE_URL` is authoritative for Better Auth's base URL, task 04 reconciles) |
+
+`.env`, `.env.*` and `.dev.vars*` are gitignored; never commit real values. `pnpm dev` loads `.env` through Vite. `wrangler dev` (`pnpm start`) takes local secrets from `.dev.vars` and, when no `.dev.vars` file exists, from `.env` (Cloudflare documents this; with `--env dev` it first looks for `.dev.vars.dev` / `.env.dev`). Keep a single `.env` and do not create a `.dev.vars`, so both commands see the same keys. Not yet verified against a running `wrangler dev`: check it when the first auth code reads these values.
+
 ## Install
 
 ```

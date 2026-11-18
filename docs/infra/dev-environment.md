@@ -81,6 +81,20 @@ No schedule. A maintainer resets `dev` when its data is messy or a schema change
 2. The connection string host stays the same, so the dev Worker needs no redeploy. If the role is recreated, update the GitHub Environment secret and re-run `deploy-dev` (steps 2 and 4 above).
 3. Check `curl -i <dev URL>/api/health` returns `200`, and that the parent branch was not changed.
 
+## Google sign-in secrets
+
+Feature: [google-sign-in](../features/google-sign-in.md). Names only, never values. The Worker needs `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` and `BETTER_AUTH_SECRET`. They are delivered like `DATABASE_URL`: stored as GitHub Environment `dev` secrets and pushed to the Worker by `deploy-dev` on every deploy; the workflow fails early ("Require ...") when one is missing. Nothing reads them yet.
+
+Ops (maintainer, not done from a code branch):
+
+1. In Google Cloud Console, create an OAuth client (web application) and the consent screen: scopes `openid email profile`, mode Testing (Q-consent), with the product owner's Google account added as a test user.
+2. Authorized redirect URIs: `http://localhost:3000/api/auth/callback/google` and `https://sweetmemories-dev.<account-subdomain>.workers.dev/api/auth/callback/google`.
+3. In GitHub, add `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` and `BETTER_AUTH_SECRET` under Settings, Environments, `dev`, Environment secrets. Do this before the workflow change merges, or `deploy-dev` fails at the "Require" step.
+4. Check: after a deploy, `pnpm exec wrangler secret list -c wrangler.jsonc --env dev` lists the three names.
+5. Rotate: update the GitHub Environment secret, then re-run `deploy-dev` (workflow_dispatch on `dev-v2`). Rotating `BETTER_AUTH_SECRET` signs everyone out.
+
+Local values are in [local-development.md](local-development.md).
+
 ## Cloudflare token (task 02, ops)
 
 Token scope: Workers Scripts Edit on the SweetMemories account only. Token owner: TBD. Rotation date: TBD. Record owner and date here, never the values.

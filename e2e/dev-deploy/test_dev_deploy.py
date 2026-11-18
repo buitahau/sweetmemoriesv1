@@ -353,13 +353,14 @@ def test_US_deploy_4_1_secrets_never_echoed(workflow):
     """US-deploy-4.1 (story US-deploy-4): secrets only reach steps as wrangler-action inputs, never printed.
 
     Exceptions: the wrangler-action step (no run script) may map secrets into its env, because its
-    `secrets:` input reads them from there; and the "Require DATABASE_URL" step may map the secret into
+    `secrets:` input reads them from there; and each "Require <SECRET>" step may map its secret into
     its env to test that it is non-empty, as long as its script never prints the value.
     """
     for s in _steps(workflow):
         run_script = s.get("run", "")
-        if s.get("name") == "Require DATABASE_URL":
-            assert not re.search(r"(echo|printf|cat)[^|;&\n]*\$\{?DATABASE_URL", run_script), "secret value printed"
+        if s.get("name", "").startswith("Require "):
+            secret = s["name"].split()[1]
+            assert not re.search(rf"(echo|printf|cat)[^|;&\n]*\$\{{?{secret}", run_script), "secret value printed"
             assert "set -x" not in run_script and "set -o xtrace" not in run_script
             assert "secrets." not in run_script
             continue

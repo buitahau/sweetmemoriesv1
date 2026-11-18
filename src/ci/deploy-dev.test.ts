@@ -35,6 +35,12 @@ const ci = parse(read('.github/workflows/ci.yml')) as {
   jobs: { ci: { steps: Array<Step> } }
 }
 
+const authSecrets = [
+  'GOOGLE_CLIENT_ID',
+  'GOOGLE_CLIENT_SECRET',
+  'BETTER_AUTH_SECRET',
+]
+
 describe('deploy-dev workflow', () => {
   it('triggers only on push to dev-v2 and workflow_dispatch', () => {
     expect(Object.keys(doc.on).sort()).toEqual(['push', 'workflow_dispatch'])
@@ -87,7 +93,12 @@ describe('deploy-dev workflow', () => {
   it('pushes DATABASE_URL to the dev Worker from the Environment secret only', () => {
     const deploy = job.steps.find((s) => s.id === 'deploy') as Step
     expect(deploy.with?.environment).toBe('dev')
-    expect(String(deploy.with?.secrets).trim()).toBe('DATABASE_URL')
+    expect(
+      String(deploy.with?.secrets)
+        .trim()
+        .split('\n')
+        .map((l) => l.trim()),
+    ).toEqual(['DATABASE_URL', ...authSecrets])
     expect((deploy.env as Record<string, string>).DATABASE_URL).toBe(
       '${{ secrets.DATABASE_URL }}',
     )
@@ -110,6 +121,40 @@ describe('deploy-dev workflow', () => {
     expect(idx).toBeLessThan(ids.indexOf('deploy'))
     expect(job.steps[idx].run).toContain('test -n "$DATABASE_URL"')
   })
+
+  it.each(authSecrets)(
+    'pushes %s to the dev Worker from the Environment secret only',
+    (name) => {
+      const deploy = job.steps.find((s) => s.id === 'deploy') as Step
+      expect((deploy.env as Record<string, string>)[name]).toBe(
+        `\${{ secrets.${name} }}`,
+      )
+      expect(String(deploy.with?.command)).not.toContain(name)
+      const mentions = text.match(new RegExp(`.*${name}.*`, 'g')) ?? []
+      for (const m of mentions) {
+        expect(m).toMatch(
+          new RegExp(
+            `secrets\\.${name} \\}\\}|^\\s*${name}\\s*$|^\\s*#|name: Require ${name}|test -n "\\$${name}"`,
+          ),
+        )
+      }
+      expect(read('wrangler.jsonc')).not.toContain(name)
+    },
+  )
+
+  it.each(authSecrets)(
+    'fails before deploying when the %s secret is missing',
+    (name) => {
+      const ids = job.steps.map((s) => s.id)
+      const idx = job.steps.findIndex((s) => s.name === `Require ${name}`)
+      expect(idx).toBeGreaterThan(-1)
+      expect(idx).toBeLessThan(ids.indexOf('deploy'))
+      expect(job.steps[idx].run).toContain(`test -n "$${name}"`)
+      expect((job.steps[idx].env as Record<string, string>)[name]).toBe(
+        `\${{ secrets.${name} }}`,
+      )
+    },
+  )
 
   it('writes SHA, dev URL and version ID to the job summary', () => {
     const summary = job.steps.find((s) =>
