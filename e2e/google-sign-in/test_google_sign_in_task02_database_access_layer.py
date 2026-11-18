@@ -8,6 +8,7 @@ import json
 import os
 import re
 import shutil
+import urllib.error
 import urllib.request
 
 import pytest
@@ -37,8 +38,12 @@ def test_T02_V2_health_still_serves_200():
     """T02-V2: /api/health still returns 200 after the database layer was added (needs a running local or dev server)."""
     base = os.environ.get("E2E_BASE_URL", "http://localhost:3000")
     try:
-        with urllib.request.urlopen(base + "/api/health", timeout=10) as r:
+        # Cloudflare rejects urllib's default User-Agent with 403, so send a browser-like one.
+        req = urllib.request.Request(base + "/api/health", headers={"User-Agent": "Mozilla/5.0 (sweetmemories-e2e)"})
+        with urllib.request.urlopen(req, timeout=10) as r:
             status, body = r.status, r.read().decode()
+    except urllib.error.HTTPError as e:
+        pytest.fail(f"/api/health returned HTTP {e.code} at {base}")
     except OSError as e:
         pytest.skip(f"BLOCKED: no server reachable at {base}: {e}")
     assert status == 200
