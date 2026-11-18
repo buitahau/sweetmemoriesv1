@@ -1,6 +1,6 @@
 # 01 Google OAuth client and auth secrets
 
-**Status:** todo
+**Status:** in progress (code and docs done; maintainer steps pending)
 **Side:** backend
 **Size:** S
 **Dependencies:** Q-consent (see [open questions](../../decisions/google-sign-in-feature.md))
