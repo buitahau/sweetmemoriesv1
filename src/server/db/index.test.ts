@@ -27,7 +27,7 @@ describe('getDb', () => {
 
   it('returns a client without connecting when DATABASE_URL is set', () => {
     process.env.DATABASE_URL = FAKE_URL
-    expect(getDb()).toBeDefined()
+    expect(typeof getDb().select).toBe('function')
   })
 
   it('reads DATABASE_URL on every call, not at import time', () => {

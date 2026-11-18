@@ -16,8 +16,8 @@
 ## Verification
 
 - [x] Vitest: `getDb()` throws a clear error naming `DATABASE_URL` (not its value) when it is missing
-- [x] `pnpm build` and `pnpm start` still serve `/api/health` 200
-- [ ] `pnpm db:migrate` runs cleanly against a developer Neon branch with no migrations
+- [x] `pnpm build` and `pnpm start` still serve `/api/health` 200 (re-verified with a fresh build on port 3055 using the same wrangler args as `pnpm start`; port 3000 was held by an older dev server)
+- [ ] `pnpm db:migrate` runs cleanly against a developer Neon branch with no migrations (NOT YET RUN: no real Neon branch URL available to the developer agent; run it before merge or agree in the PR to defer, then follow up)
 - [x] Lint and typecheck pass
 
 **Note for task 04:** `getDb()` uses the `neon-http` driver, which has no interactive transactions. Check the Better Auth adapter works without them, or move to `drizzle-orm/neon-serverless` with a per-request Pool. `drizzle-kit migrate` uses the WebSocket Pool driver, so migrations are unaffected.
