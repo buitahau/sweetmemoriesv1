@@ -101,4 +101,10 @@ describe('Hero h1 (ticket 10)', () => {
       expect(tokens).toContain(token)
     }
   })
+
+  it('drops the live card below the mini page captions from 520px up', () => {
+    const tokens = html.split(/[\s"]+/)
+    expect(tokens).toContain('min-[520px]:-bottom-1')
+    expect(tokens).toContain('bottom-3.5')
+  })
 })

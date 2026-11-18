@@ -185,7 +185,7 @@ function Collage() {
 
       <div
         data-testid="live-card"
-        className="absolute right-0 bottom-3.5 w-56 animate-sm-wiggle rounded-[22px] bg-white px-[18px] py-3.5 shadow-[0_16px_32px_rgba(110,40,60,0.2)]"
+        className="absolute right-0 bottom-3.5 min-[520px]:-bottom-1 w-56 animate-sm-wiggle rounded-[22px] bg-white px-[18px] py-3.5 shadow-[0_16px_32px_rgba(110,40,60,0.2)]"
       >
         <div className="text-[13px] text-ink-muted">Your page is live</div>
         <div className="mt-0.5 font-hand text-[28px] leading-none font-bold text-link">
