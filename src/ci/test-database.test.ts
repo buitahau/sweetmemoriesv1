@@ -101,8 +101,8 @@ describe('dev-test-database: DATABASE_URL hygiene', () => {
   })
 
   it('no source file under src/ references DATABASE_URL except typings and tests', () => {
-    // Once a DB module exists, add it to `allowed` explicitly.
-    const allowed = ['src/env.d.ts']
+    // Add any new DB module to `allowed` explicitly.
+    const allowed = ['src/env.d.ts', 'src/server/db/index.ts']
     const files = execFileSync(
       'git',
       ['ls-files', '-co', '--exclude-standard', 'src'],
