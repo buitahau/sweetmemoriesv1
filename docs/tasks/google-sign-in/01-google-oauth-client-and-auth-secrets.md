@@ -20,6 +20,6 @@
 ## Verification
 
 - [ ] After a `deploy-dev` run, `wrangler secret list -c wrangler.jsonc --env dev` shows the three names, and `deploy-dev` fails early when one is missing
-- [ ] `.env.example` has the keys with empty values, and `git grep` finds no real values
-- [ ] The infra docs list the steps
-- [ ] Vitest (extend the existing env typing test or add one) confirms the keys are declared
+- [x] `.env.example` has the keys with empty values, and `git grep` finds no real values
+- [x] The infra docs list the steps
+- [x] Vitest (extend the existing env typing test or add one) confirms the keys are declared
