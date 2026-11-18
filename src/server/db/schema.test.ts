@@ -53,4 +53,22 @@ describe('first migration', () => {
       /ALTER TABLE "account" ADD CONSTRAINT .* FOREIGN KEY \("user_id"\) REFERENCES "public"."user"\("id"\)/,
     )
   })
+
+  it('cascades deletes from user to session and account', () => {
+    expect(sql.match(/ON DELETE cascade/g)?.length).toBeGreaterThanOrEqual(2)
+  })
+
+  it('has a journal entry for every SQL file and no extra entries', () => {
+    const journal = JSON.parse(
+      readFileSync(join(dir, 'meta/_journal.json'), 'utf8'),
+    ) as { entries: { idx: number; tag: string }[] }
+    expect(journal.entries.some((e) => e.idx === 0)).toBe(true)
+    expect(journal.entries.map((e) => `${e.tag}.sql`).sort()).toEqual(
+      [...sqlFiles].sort(),
+    )
+  })
+
+  it('does not commit a connection string', () => {
+    expect(sql).not.toMatch(/postgres(ql)?:\/\/[^\s:/]+:[^\s@]+@/)
+  })
 })
