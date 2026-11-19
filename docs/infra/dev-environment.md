@@ -63,7 +63,22 @@ Decision: [ADR 0004](../adr/0004-neon-dev-branch-test-database.md) (status: acce
 - No DB code exists yet; the secret is only typed in `src/env.d.ts`. The first DB feature reads it and uses `@neondatabase/serverless`.
 - Never print the value in CI logs, commit it, or return it from an endpoint.
 
-Neon names (names only, never secrets): project `sweetmemories`, branch `dev`, role `sweetmemories_dev_app` (non-owner: `CONNECT` plus `SELECT/INSERT/UPDATE/DELETE` on the app schema; a separate migrate role comes with the first schema work).
+Neon names (names only, never secrets): project `sweetmemories`, branch `dev`, role `sweetmemories_dev_app` (non-owner: `CONNECT` plus `SELECT/INSERT/UPDATE/DELETE` on the app schema). A separate owner role (the `DATABASE_MIGRATE_URL` role) runs migrations; see Schema below.
+
+Schema: `deploy-dev` runs `pnpm db:migrate` before each deploy with the GitHub Environment `dev` secret `DATABASE_MIGRATE_URL` (connection string of an owner role that can run DDL on the `dev` branch database). It is never pushed to the Worker. The Worker keeps using the non-owner `DATABASE_URL`. Without the migration the tables do not exist and `POST /api/auth/sign-in/social` answers an empty 500 (Better Auth cannot insert its verification row). Add `DATABASE_MIGRATE_URL` once; deploy-dev fails early if it is missing.
+
+Grants: tables created by the owner role are not readable by `sweetmemories_dev_app` unless it is granted access, and a plain `GRANT ... ON ALL TABLES` only covers tables that exist when it runs. Run once on the `dev` branch database as the owner role (replace `<owner>` with the migrate role name):
+
+```sql
+GRANT USAGE ON SCHEMA public TO sweetmemories_dev_app;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO sweetmemories_dev_app;
+ALTER DEFAULT PRIVILEGES FOR ROLE <owner> IN SCHEMA public
+  GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO sweetmemories_dev_app;
+```
+
+Without the default privileges, a later migration's new tables fail with `permission denied for table ...` and sign-in answers the same empty 500. The deploy smoke check POSTs `/api/auth/sign-in/social` (writes one verification row) and requires a Google URL, so missing tables or grants roll the deploy back.
+
+Rollback and migrations: the migration runs before the deploy and is not undone when the smoke check rolls the Worker back. Migrations must stay backward compatible with the previous Worker version (add, do not rename or drop, in one step), or a rollback leaves old code on a new schema.
 
 Ops (maintainer, not done from a code branch):
 

@@ -7,8 +7,10 @@ import {
   authSessionUrl,
   checkAuthSession,
   checkHealth,
+  checkSignIn,
   healthUrl,
   pollHealth,
+  signInUrl,
 } from './smoke-health'
 
 const ok = () =>
@@ -141,6 +143,51 @@ describe('checkAuthSession', () => {
   })
 })
 
+describe('checkSignIn', () => {
+  const google = () =>
+    new Response(
+      JSON.stringify({ url: 'https://accounts.google.com/o/oauth2/v2/auth?x=1', redirect: true }),
+      { status: 200 },
+    )
+  it('builds the sign-in URL', () => {
+    expect(signInUrl('https://x.workers.dev/p')).toBe(
+      'https://x.workers.dev/api/auth/sign-in/social',
+    )
+  })
+  it('passes on 200 with a Google URL and POSTs the expected body', async () => {
+    const f = fetchOf(google)
+    const r = await checkSignIn('https://x.dev/api/auth/sign-in/social', f)
+    expect(r.ok).toBe(true)
+    const init = (f as unknown as ReturnType<typeof vi.fn>).mock.calls[0][1]
+    expect(init.method).toBe('POST')
+    expect(JSON.parse(init.body)).toEqual({ provider: 'google', callbackURL: '/dashboard' })
+    expect(init.headers.origin).toBe('https://x.dev')
+  })
+  it('fails on 500 (database tables or grants missing)', async () => {
+    const r = await checkSignIn(
+      'https://x.dev/a',
+      fetchOf(() => new Response('', { status: 500 })),
+    )
+    expect(r).toMatchObject({ ok: false, status: 500 })
+    expect(r.reason).toContain('got 500')
+  })
+  it('fails on 200 with a non-Google URL', async () => {
+    const r = await checkSignIn(
+      'https://x.dev/a',
+      fetchOf(() => new Response(JSON.stringify({ url: 'https://evil.example/' }), { status: 200 })),
+    )
+    expect(r.ok).toBe(false)
+    expect(r.reason).toContain('Google')
+  })
+  it('fails on 200 with a non-JSON body and on a network error', async () => {
+    expect((await checkSignIn('https://x.dev/a', fetchOf(() => new Response('nope')))).ok).toBe(false)
+    const r = await checkSignIn('https://x.dev/a', (async () => {
+      throw new Error('down')
+    }) as unknown as typeof fetch)
+    expect(r.ok).toBe(false)
+  })
+})
+
 describe('pollHealth', () => {
   it('retries until healthy', async () => {
     const fetchFn = fetchOf(
@@ -183,10 +230,17 @@ describe('smoke-health CLI (entry point)', () => {
   const serve = async (status: number, body: string, authStatus = 200) => {
     const server = createServer((req, res) => {
       const auth = req.url?.startsWith('/api/auth/')
+      const signIn = req.url?.startsWith('/api/auth/sign-in/')
       res.writeHead(auth ? authStatus : status, {
         'content-type': 'application/json',
       })
-      res.end(auth ? 'null' : body)
+      res.end(
+        signIn
+          ? '{"url":"https://accounts.google.com/o/oauth2/v2/auth"}'
+          : auth
+            ? 'null'
+            : body,
+      )
     })
     await new Promise<void>((r) => server.listen(0, '127.0.0.1', r))
     const { port } = server.address() as AddressInfo

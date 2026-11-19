@@ -7,10 +7,12 @@ try {
   // no .env file: rely on the process environment
 }
 
-const databaseUrl = process.env.DATABASE_URL
+// DATABASE_MIGRATE_URL (owner role, DDL rights) wins when set: the app role used by the
+// Worker is non-owner and cannot create tables (deploy-dev migrates with the owner role).
+const databaseUrl = process.env.DATABASE_MIGRATE_URL || process.env.DATABASE_URL
 if (!databaseUrl) {
   throw new Error(
-    'DATABASE_URL is not set. Copy .env.example to .env and set it.',
+    'Neither DATABASE_MIGRATE_URL nor DATABASE_URL is set. Copy .env.example to .env and set one.',
   )
 }
 

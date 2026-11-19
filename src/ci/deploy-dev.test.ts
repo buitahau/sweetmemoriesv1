@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { parse } from 'yaml'
 
 const root = resolve(__dirname, '../..')
@@ -123,6 +123,54 @@ describe('deploy-dev workflow', () => {
     expect(idx).toBeGreaterThan(-1)
     expect(idx).toBeLessThan(ids.indexOf('deploy'))
     expect(job.steps[idx].run).toContain('test -n "$DATABASE_URL"')
+  })
+
+  it('migrates the dev database with the owner role before deploying', () => {
+    const ids = job.steps.map((s) => s.id)
+    const req = job.steps.findIndex((s) => s.name === 'Require DATABASE_MIGRATE_URL')
+    const mig = job.steps.findIndex((s) => s.name === 'Migrate dev database')
+    expect(req).toBeGreaterThan(-1)
+    expect(mig).toBeGreaterThan(req)
+    expect(mig).toBeLessThan(ids.indexOf('deploy'))
+    expect(job.steps[req].run).toContain('test -n "$DATABASE_MIGRATE_URL"')
+    expect(job.steps[mig].run).toBe('pnpm db:migrate')
+    expect((job.steps[mig].env as Record<string, string>).DATABASE_MIGRATE_URL).toBe(
+      '${{ secrets.DATABASE_MIGRATE_URL }}',
+    )
+    // The owner connection string must never reach the Worker.
+    const deploy = job.steps.find((s) => s.id === 'deploy') as Step
+    expect(String(deploy.with?.secrets)).not.toContain('DATABASE_MIGRATE_URL')
+    expect(deploy.env).not.toHaveProperty('DATABASE_MIGRATE_URL')
+  })
+
+  describe('drizzle config', () => {
+    const load = async (env: Record<string, string | undefined>) => {
+      vi.resetModules()
+      vi.stubEnv('DATABASE_MIGRATE_URL', env.DATABASE_MIGRATE_URL as string)
+      vi.stubEnv('DATABASE_URL', env.DATABASE_URL as string)
+      const mod = await import('../../drizzle.config')
+      return mod.default as { dbCredentials: { url: string } }
+    }
+    afterEach(() => vi.unstubAllEnvs())
+
+    it('prefers DATABASE_MIGRATE_URL over DATABASE_URL', async () => {
+      const cfg = await load({
+        DATABASE_MIGRATE_URL: 'postgres://owner/db',
+        DATABASE_URL: 'postgres://app/db',
+      })
+      expect(cfg.dbCredentials.url).toBe('postgres://owner/db')
+    })
+
+    it('falls back to DATABASE_URL', async () => {
+      const cfg = await load({ DATABASE_MIGRATE_URL: '', DATABASE_URL: 'postgres://app/db' })
+      expect(cfg.dbCredentials.url).toBe('postgres://app/db')
+    })
+
+    it('names both variables when neither is set', async () => {
+      await expect(load({ DATABASE_MIGRATE_URL: '', DATABASE_URL: '' })).rejects.toThrow(
+        /DATABASE_MIGRATE_URL.*DATABASE_URL/,
+      )
+    })
   })
 
   it.each(authSecrets)(

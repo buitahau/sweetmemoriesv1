@@ -70,6 +70,17 @@ jobs:
         env:
           BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
         run: test -n "$BETTER_AUTH_SECRET" || { echo "Environment secret BETTER_AUTH_SECRET is missing or empty" >&2; exit 1; }
+      # The Worker role is non-owner and cannot run DDL, so the schema is applied here with the
+      # owner role. Without this, Better Auth cannot write its verification row and
+      # POST /api/auth/sign-in/social answers an empty 500. Runs before the deploy.
+      - name: Require DATABASE_MIGRATE_URL
+        env:
+          DATABASE_MIGRATE_URL: ${{ secrets.DATABASE_MIGRATE_URL }}
+        run: test -n "$DATABASE_MIGRATE_URL" || { echo "Environment secret DATABASE_MIGRATE_URL is missing or empty" >&2; exit 1; }
+      - name: Migrate dev database
+        env:
+          DATABASE_MIGRATE_URL: ${{ secrets.DATABASE_MIGRATE_URL }}
+        run: pnpm db:migrate
       - name: Deploy to dev
         id: deploy
         uses: cloudflare/wrangler-action@953926a2e2182532811c01a25e53647d93bf07c0 # v4.1.3

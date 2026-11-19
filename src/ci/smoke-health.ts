@@ -1,6 +1,7 @@
 // Post-deploy smoke check for `deploy-dev`. Run: node src/ci/smoke-health.ts <base-url>
 // Passes only on 200, body exactly {"status":"ok"} and no Set-Cookie on /api/health, and
-// GET /api/auth/get-session answers 200 with no Set-Cookie (503 means auth config is missing).
+// GET /api/auth/get-session answers 200 with no Set-Cookie (503 means auth config is missing),
+// and POST /api/auth/sign-in/social answers 200 with a Google URL (proves the database works).
 // Keep it dependency-free and erasable-syntax-only so Node can run it directly.
 
 import { pathToFileURL } from 'node:url'
@@ -73,6 +74,67 @@ export async function checkAuthSession(
   return { ok: true, ...base, reason: 'auth route ok' }
 }
 
+export function signInUrl(baseUrl: string): string {
+  return new URL('/api/auth/sign-in/social', healthUrl(baseUrl)).toString()
+}
+
+/**
+ * Unlike `get-session`, this POST writes a Better Auth verification row, so it fails (5xx)
+ * when tables or grants are missing. Needs 200 and a Google authorization URL.
+ */
+export async function checkSignIn(
+  url: string,
+  fetchFn: typeof fetch = fetch,
+  requestTimeoutMs = 10_000,
+): Promise<HealthResult> {
+  let res: Response
+  try {
+    res = await fetchFn(url, {
+      method: 'POST',
+      redirect: 'manual',
+      headers: {
+        'content-type': 'application/json',
+        origin: new URL(url).origin,
+      },
+      body: JSON.stringify({ provider: 'google', callbackURL: '/dashboard' }),
+      signal: AbortSignal.timeout(requestTimeoutMs),
+    })
+  } catch (err) {
+    return { ok: false, reason: `request failed: ${String(err)}` }
+  }
+  let body = ''
+  try {
+    body = await res.text()
+  } catch {
+    // The status alone decides the result.
+  }
+  const base = { status: res.status, body }
+  if (res.status !== 200) {
+    return {
+      ok: false,
+      ...base,
+      reason: `sign-in expected status 200, got ${res.status} (database tables or grants missing?)`,
+    }
+  }
+  let target = ''
+  try {
+    const parsed = JSON.parse(body) as { url?: unknown }
+    target = typeof parsed.url === 'string' ? parsed.url : ''
+  } catch {
+    // handled below
+  }
+  let host = ''
+  try {
+    host = new URL(target).hostname
+  } catch {
+    // handled below
+  }
+  if (host !== 'accounts.google.com') {
+    return { ok: false, ...base, reason: 'sign-in did not return a Google authorization URL' }
+  }
+  return { ok: true, ...base, reason: 'sign-in ok' }
+}
+
 export async function checkHealth(
   url: string,
   fetchFn: typeof fetch = fetch,
@@ -117,7 +179,7 @@ export async function checkHealth(
 export async function pollHealth(
   baseUrl: string,
   opts: PollOptions = {},
-  target: 'health' | 'auth' = 'health',
+  target: 'health' | 'auth' | 'signin' = 'health',
 ): Promise<HealthResult> {
   const {
     fetchFn = fetch,
@@ -128,8 +190,18 @@ export async function pollHealth(
     now = Date.now,
     log = () => {},
   } = opts
-  const url = target === 'auth' ? authSessionUrl(baseUrl) : healthUrl(baseUrl)
-  const check = target === 'auth' ? checkAuthSession : checkHealth
+  const url =
+    target === 'auth'
+      ? authSessionUrl(baseUrl)
+      : target === 'signin'
+        ? signInUrl(baseUrl)
+        : healthUrl(baseUrl)
+  const check =
+    target === 'auth'
+      ? checkAuthSession
+      : target === 'signin'
+        ? checkSignIn
+        : checkHealth
   const deadline = now() + timeoutMs
   let last: HealthResult
   for (;;) {
@@ -158,7 +230,7 @@ async function main(): Promise<void> {
       ? { timeoutMs: override, intervalMs: 100 }
       : {}),
   }
-  for (const target of ['health', 'auth'] as const) {
+  for (const target of ['health', 'auth', 'signin'] as const) {
     const result = await pollHealth(baseUrl, opts, target)
     if (!result.ok) {
       console.error(
@@ -168,7 +240,7 @@ async function main(): Promise<void> {
     }
   }
   console.log(
-    `smoke check passed: ${healthUrl(baseUrl)} and ${authSessionUrl(baseUrl)}`,
+    `smoke check passed: ${healthUrl(baseUrl)} ${authSessionUrl(baseUrl)} and ${signInUrl(baseUrl)}`,
   )
 }
 
