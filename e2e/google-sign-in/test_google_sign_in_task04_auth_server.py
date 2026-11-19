@@ -89,6 +89,8 @@ def test_T04_V2c_valid_relative_callback_url_passes_the_guard():
     status, _, body = _call("/api/auth/sign-in/social", "POST",
                             {"provider": "google", "callbackURL": "/dashboard"})
     assert not (status == 400 and "Invalid request." in body), "guard rejected a valid body"
+    if status >= 500 and not _is_local():
+        pytest.fail(f"deployed server answers {status} on sign-in/social: database tables or grants are missing")
     if status != 200:
         pytest.skip(f"BLOCKED: real DATABASE_URL and Google client needed for the Google URL check (got {status})")
     url = json.loads(body).get("url", "")

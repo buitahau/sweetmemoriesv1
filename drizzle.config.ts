@@ -12,7 +12,7 @@ try {
 const databaseUrl = process.env.DATABASE_MIGRATE_URL || process.env.DATABASE_URL
 if (!databaseUrl) {
   throw new Error(
-    'DATABASE_URL is not set. Copy .env.example to .env and set it.',
+    'Neither DATABASE_MIGRATE_URL nor DATABASE_URL is set. Copy .env.example to .env and set one.',
   )
 }
 

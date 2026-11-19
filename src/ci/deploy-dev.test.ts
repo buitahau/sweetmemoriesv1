@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { parse } from 'yaml'
 
 const root = resolve(__dirname, '../..')
@@ -143,10 +143,34 @@ describe('deploy-dev workflow', () => {
     expect(deploy.env).not.toHaveProperty('DATABASE_MIGRATE_URL')
   })
 
-  it('drizzle config prefers DATABASE_MIGRATE_URL over DATABASE_URL', () => {
-    expect(read('drizzle.config.ts')).toMatch(
-      /process\.env\.DATABASE_MIGRATE_URL \|\| process\.env\.DATABASE_URL/,
-    )
+  describe('drizzle config', () => {
+    const load = async (env: Record<string, string | undefined>) => {
+      vi.resetModules()
+      vi.stubEnv('DATABASE_MIGRATE_URL', env.DATABASE_MIGRATE_URL as string)
+      vi.stubEnv('DATABASE_URL', env.DATABASE_URL as string)
+      const mod = await import('../../drizzle.config')
+      return mod.default as { dbCredentials: { url: string } }
+    }
+    afterEach(() => vi.unstubAllEnvs())
+
+    it('prefers DATABASE_MIGRATE_URL over DATABASE_URL', async () => {
+      const cfg = await load({
+        DATABASE_MIGRATE_URL: 'postgres://owner/db',
+        DATABASE_URL: 'postgres://app/db',
+      })
+      expect(cfg.dbCredentials.url).toBe('postgres://owner/db')
+    })
+
+    it('falls back to DATABASE_URL', async () => {
+      const cfg = await load({ DATABASE_MIGRATE_URL: '', DATABASE_URL: 'postgres://app/db' })
+      expect(cfg.dbCredentials.url).toBe('postgres://app/db')
+    })
+
+    it('names both variables when neither is set', async () => {
+      await expect(load({ DATABASE_MIGRATE_URL: '', DATABASE_URL: '' })).rejects.toThrow(
+        /DATABASE_MIGRATE_URL.*DATABASE_URL/,
+      )
+    })
   })
 
   it.each(authSecrets)(
