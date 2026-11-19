@@ -37,8 +37,14 @@ def _call(path, method="GET", body=None, headers=None):
         pytest.skip(f"BLOCKED: no server reachable at {BASE}: {e}")
 
 
+def _is_local():
+    return urllib.parse.urlparse(BASE).hostname in ("localhost", "127.0.0.1")
+
+
 def _configured_or_skip():
     status, _, _ = _call("/api/auth/get-session")
+    if status == 503 and not _is_local():
+        pytest.fail("deployed server answers 503 on /api/auth/*: auth config (SITE_URL, secrets, DATABASE_URL) is missing")
     if status == 503:
         pytest.skip("BLOCKED: server has no auth config (GOOGLE_CLIENT_ID, secrets, DATABASE_URL)")
 
@@ -93,6 +99,8 @@ def test_T04_V2c_valid_relative_callback_url_passes_the_guard():
 
 def test_T04_V3_missing_config_returns_503_with_generic_body():
     """T04-V3 / US-google-sign-in-4.4 (server half): without config the route returns 503 and no secret or stack trace."""
+    if not _is_local():
+        pytest.skip("BLOCKED: a deployed server must be configured; a 503 there is a failure (see _configured_or_skip)")
     status, _, body = _call("/api/auth/get-session")
     if status != 503:
         pytest.skip("BLOCKED: server is configured; the 503 path is covered by the Vitest suite and needs an unconfigured server")

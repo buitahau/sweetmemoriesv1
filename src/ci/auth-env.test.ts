@@ -30,6 +30,14 @@ describe('google-sign-in: auth env keys', () => {
     for (const key of keys) expect(w).not.toContain(key)
   })
 
+  it('deploy-dev pushes SITE_URL (from DEV_URL) to the Worker, or /api/auth/* answers 503', () => {
+    const y = read('.github/workflows/deploy-dev.yml')
+    expect(y).toContain('SITE_URL: ${{ vars.DEV_URL }}')
+    expect(y).toMatch(/secrets: \|[\s\S]*\n\s+SITE_URL\n/)
+    expect(y).toContain('name: Require SITE_URL')
+    expect(read('wrangler.jsonc')).not.toContain('"vars"')
+  })
+
   it('infra docs mention all three secrets and rotation', () => {
     for (const f of [
       'docs/infra/local-development.md',
