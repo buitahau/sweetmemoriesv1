@@ -44,6 +44,7 @@ describe('google-sign-in: auth env keys', () => {
     }
     const url = w.env.dev.vars?.SITE_URL
     expect(url).toMatch(/^https:\/\/[^/]+$/)
+    expect(read('docs/infra/dev-environment.md')).toContain(url as string)
     for (const key of [...keys, 'DATABASE_URL'])
       expect(Object.keys(w.env.dev.vars ?? {})).not.toContain(key)
     expect(Object.keys(w.vars ?? {})).not.toContain('SITE_URL')

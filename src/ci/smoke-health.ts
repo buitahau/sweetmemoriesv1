@@ -34,6 +34,11 @@ export function authSessionUrl(baseUrl: string): string {
   return new URL('/api/auth/get-session', healthUrl(baseUrl)).toString()
 }
 
+/**
+ * Limit: `get-session` without a cookie never queries the database, and the
+ * server only checks that the database connection string is present. A pass proves the auth
+ * config exists, not that the database is reachable or the URL is correct.
+ */
 export async function checkAuthSession(
   url: string,
   fetchFn: typeof fetch = fetch,
