@@ -26,19 +26,24 @@ describe('auth schema', () => {
     ['session', schema.session],
     ['account', schema.account],
   ])('%s has a foreign key to user', (_name, table) => {
-    const fks = getTableConfig(table).foreignKeys.map((fk) => fk.reference())
-    expect(fks).toHaveLength(1)
-    expect(getTableConfig(fks[0].foreignTable).name).toBe('user')
+    const { foreignKeys } = getTableConfig(table)
+    expect(foreignKeys).toHaveLength(1)
+    const [fk] = foreignKeys
+    expect(getTableConfig(fk.reference().foreignTable).name).toBe('user')
+    expect(fk.onDelete).toBe('cascade')
   })
 })
 
 describe('first migration', () => {
   const dir = join(process.cwd(), 'drizzle')
   const sqlFiles = readdirSync(dir).filter((f) => f.endsWith('.sql'))
-  const sql = sqlFiles.map((f) => readFileSync(join(dir, f), 'utf8')).join('\n')
+  const firstMigrationFiles = sqlFiles.filter((f) => f.startsWith('0000_'))
+  const sql = firstMigrationFiles
+    .map((f) => readFileSync(join(dir, f), 'utf8'))
+    .join('\n')
 
   it('is committed and creates the four tables', () => {
-    expect(sqlFiles.length).toBeGreaterThan(0)
+    expect(firstMigrationFiles).toHaveLength(1)
     for (const t of ['user', 'session', 'account', 'verification']) {
       expect(sql).toContain(`CREATE TABLE "${t}"`)
     }
@@ -47,15 +52,11 @@ describe('first migration', () => {
   it('has a unique constraint on user email and FKs from session and account', () => {
     expect(sql).toMatch(/CONSTRAINT "user_email_unique" UNIQUE\("email"\)/)
     expect(sql).toMatch(
-      /ALTER TABLE "session" ADD CONSTRAINT .* FOREIGN KEY \("user_id"\) REFERENCES "public"."user"\("id"\)/,
+      /ALTER TABLE "session" ADD CONSTRAINT .* FOREIGN KEY \("user_id"\) REFERENCES "public"."user"\("id"\) ON DELETE cascade/,
     )
     expect(sql).toMatch(
-      /ALTER TABLE "account" ADD CONSTRAINT .* FOREIGN KEY \("user_id"\) REFERENCES "public"."user"\("id"\)/,
+      /ALTER TABLE "account" ADD CONSTRAINT .* FOREIGN KEY \("user_id"\) REFERENCES "public"."user"\("id"\) ON DELETE cascade/,
     )
-  })
-
-  it('cascades deletes from user to session and account', () => {
-    expect(sql.match(/ON DELETE cascade/g)?.length).toBeGreaterThanOrEqual(2)
   })
 
   it('has a journal entry for every SQL file and no extra entries', () => {

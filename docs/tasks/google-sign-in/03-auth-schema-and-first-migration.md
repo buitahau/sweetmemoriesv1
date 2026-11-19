@@ -18,4 +18,4 @@
 - [x] Migration SQL reviewed: unique index on `user.email`, foreign key from `session` and `account` to `user`
 - [x] Vitest: the schema exports the four tables
 
-**Note:** `better-auth` is not installed until task 04, so the schema in `src/server/db/schema/auth.ts` was written to match the Better Auth core Drizzle schema by hand. Re-run the Better Auth CLI diff in task 04 to confirm.
+**Note:** `better-auth` is not installed until task 04, so the schema in `src/server/db/schema/auth.ts` was written to match the Better Auth core Drizzle schema by hand. Task 04 must run `@better-auth/cli generate` and compare the result with this schema; any difference ships as a new migration (0001), never as an edit to 0000.
