@@ -125,6 +125,30 @@ describe('deploy-dev workflow', () => {
     expect(job.steps[idx].run).toContain('test -n "$DATABASE_URL"')
   })
 
+  it('migrates the dev database with the owner role before deploying', () => {
+    const ids = job.steps.map((s) => s.id)
+    const req = job.steps.findIndex((s) => s.name === 'Require DATABASE_MIGRATE_URL')
+    const mig = job.steps.findIndex((s) => s.name === 'Migrate dev database')
+    expect(req).toBeGreaterThan(-1)
+    expect(mig).toBeGreaterThan(req)
+    expect(mig).toBeLessThan(ids.indexOf('deploy'))
+    expect(job.steps[req].run).toContain('test -n "$DATABASE_MIGRATE_URL"')
+    expect(job.steps[mig].run).toBe('pnpm db:migrate')
+    expect((job.steps[mig].env as Record<string, string>).DATABASE_MIGRATE_URL).toBe(
+      '${{ secrets.DATABASE_MIGRATE_URL }}',
+    )
+    // The owner connection string must never reach the Worker.
+    const deploy = job.steps.find((s) => s.id === 'deploy') as Step
+    expect(String(deploy.with?.secrets)).not.toContain('DATABASE_MIGRATE_URL')
+    expect(deploy.env).not.toHaveProperty('DATABASE_MIGRATE_URL')
+  })
+
+  it('drizzle config prefers DATABASE_MIGRATE_URL over DATABASE_URL', () => {
+    expect(read('drizzle.config.ts')).toMatch(
+      /process\.env\.DATABASE_MIGRATE_URL \|\| process\.env\.DATABASE_URL/,
+    )
+  })
+
   it.each(authSecrets)(
     'pushes %s to the dev Worker from the Environment secret only',
     (name) => {

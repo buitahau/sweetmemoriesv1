@@ -65,6 +65,8 @@ Decision: [ADR 0004](../adr/0004-neon-dev-branch-test-database.md) (status: acce
 
 Neon names (names only, never secrets): project `sweetmemories`, branch `dev`, role `sweetmemories_dev_app` (non-owner: `CONNECT` plus `SELECT/INSERT/UPDATE/DELETE` on the app schema; a separate migrate role comes with the first schema work).
 
+Schema: `deploy-dev` runs `pnpm db:migrate` before each deploy with the GitHub Environment `dev` secret `DATABASE_MIGRATE_URL` (connection string of an owner role that can run DDL on the `dev` branch database). It is never pushed to the Worker. The Worker keeps using the non-owner `DATABASE_URL`. Without the migration the tables do not exist and `POST /api/auth/sign-in/social` answers an empty 500 (Better Auth cannot insert its verification row). Add `DATABASE_MIGRATE_URL` once; deploy-dev fails early if it is missing.
+
 Ops (maintainer, not done from a code branch):
 
 1. In Neon, create the branch `dev` off main and a non-owner role scoped to the dev branch database.
