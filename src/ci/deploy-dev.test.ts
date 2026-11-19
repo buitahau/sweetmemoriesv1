@@ -98,7 +98,7 @@ describe('deploy-dev workflow', () => {
         .trim()
         .split('\n')
         .map((l) => l.trim()),
-    ).toEqual(['DATABASE_URL', ...authSecrets])
+    ).toEqual(['DATABASE_URL', ...authSecrets, 'SITE_URL'])
     expect((deploy.env as Record<string, string>).DATABASE_URL).toBe(
       '${{ secrets.DATABASE_URL }}',
     )
