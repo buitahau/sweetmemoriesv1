@@ -99,7 +99,7 @@ jobs:
             GOOGLE_CLIENT_SECRET
             BETTER_AUTH_SECRET
           command: deploy -c wrangler.jsonc --env dev --tag ${{ github.sha }} --message "deploy-dev ${{ github.sha }}"
-      - name: Smoke check /api/health
+      - name: Smoke check dev (health and auth sign-in)
         id: smoke
         env:
           # Fall back to the Environment variable if wrangler-action cannot parse the URL.
