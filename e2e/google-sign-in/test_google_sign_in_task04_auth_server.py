@@ -2,7 +2,7 @@
 
 Spec scenarios covered at the API level: US-google-sign-in-2.4 (open-redirect blocked), the server half of
 US-google-sign-in-4.4 (auth misconfigured gives a generic body) and US-google-sign-in-6.1 (/api/health sets no
-cookie). The task's Verification items are named T04-V1 to T04-V6. The browser scenarios of US-1 to 6 belong
+cookie). The task's Verification items are named T04-V1 to T04-V5 (plus V2b and V2c). The browser scenarios of US-1 to 6 belong
 to task 10. Live checks need a running server at E2E_BASE_URL (default http://localhost:3000, `pnpm start`);
 when the server has no auth config they skip as BLOCKED. Never run against production.
 """
@@ -10,6 +10,7 @@ import json
 import os
 import re
 import urllib.error
+import urllib.parse
 import urllib.request
 
 import pytest
@@ -20,9 +21,9 @@ BASE = os.environ.get("E2E_BASE_URL", "http://localhost:3000")
 UA = {"User-Agent": "Mozilla/5.0 (sweetmemories-e2e)"}
 
 
-def _call(path, method="GET", body=None):
+def _call(path, method="GET", body=None, headers=None):
     data = json.dumps(body).encode() if body is not None else None
-    headers = dict(UA)
+    headers = {**UA, **(headers or {})}
     if data is not None:
         headers["Content-Type"] = "application/json"
         headers["Origin"] = BASE
@@ -43,7 +44,7 @@ def _configured_or_skip():
 
 
 def test_T04_V1_config_has_no_cookie_domain_and_cross_subdomain_cookies_off():
-    """T04-V1 (ADR 0008): auth config never enables crossSubDomainCookies or sets a cookie domain; trustedOrigins is SITE_URL."""
+    """T04-V1 smoke check, source scan only (ADR 0008; cookie attributes are checked live in task 10): auth config never enables crossSubDomainCookies or sets a cookie domain; trustedOrigins is SITE_URL."""
     src = (ROOT / "src/server/auth/auth.ts").read_text()
     assert not re.search(r"crossSubDomainCookies\s*:\s*\{[^}]*enabled\s*:\s*true", src, re.S)
     assert not re.search(r"\bdomain\s*:", src), "a cookie domain must not be set"
@@ -73,6 +74,23 @@ def test_T04_V2b_foreign_error_callback_url_and_scopes_are_rejected():
         assert "accounts.google.com" not in body
 
 
+def test_T04_V2c_valid_relative_callback_url_passes_the_guard():
+    """T04-V2 (positive control): a valid relative callbackURL is not refused by the guard; with real config the
+    Google URL uses redirect_uri <SITE_URL>/api/auth/callback/google and scope exactly `openid email profile`."""
+    _configured_or_skip()
+    status, _, body = _call("/api/auth/sign-in/social", "POST",
+                            {"provider": "google", "callbackURL": "/dashboard"})
+    assert not (status == 400 and "Invalid request." in body), "guard rejected a valid body"
+    if status != 200:
+        pytest.skip(f"BLOCKED: real DATABASE_URL and Google client needed for the Google URL check (got {status})")
+    url = json.loads(body).get("url", "")
+    parsed = urllib.parse.urlparse(url)
+    query = urllib.parse.parse_qs(parsed.query)
+    assert parsed.netloc == "accounts.google.com"
+    assert query["redirect_uri"] == [f"{os.environ.get('SITE_URL', BASE)}/api/auth/callback/google"]
+    assert query["scope"] == ["openid email profile"]
+
+
 def test_T04_V3_missing_config_returns_503_with_generic_body():
     """T04-V3 / US-google-sign-in-4.4 (server half): without config the route returns 503 and no secret or stack trace."""
     status, _, body = _call("/api/auth/get-session")
@@ -88,10 +106,9 @@ def test_T04_V4_get_session_without_cookie_is_null():
     _configured_or_skip()
     status, _, body = _call("/api/auth/get-session")
     assert status == 200 and body.strip() in ("null", "")
-    req = urllib.request.Request(BASE + "/api/auth/get-session",
-                                 headers={**UA, "Cookie": "better-auth.session_token=forged.value"})
-    with urllib.request.urlopen(req, timeout=15) as r:
-        assert r.status == 200 and r.read().decode().strip() in ("null", "")
+    status, _, body = _call("/api/auth/get-session",
+                            headers={"Cookie": "better-auth.session_token=forged.value"})
+    assert status == 200 and body.strip() in ("null", ""), f"forged cookie gave {status}"
 
 
 def test_T04_V5_auth_responses_are_no_store_and_health_sets_no_cookie():
@@ -101,3 +118,7 @@ def test_T04_V5_auth_responses_are_no_store_and_health_sets_no_cookie():
     status, headers, body = _call("/api/health")
     assert status == 200 and json.loads(body) == {"status": "ok"}
     assert headers.get("Set-Cookie") is None
+    for path in ("/", "/sign-in"):
+        status, headers, _ = _call(path)
+        assert status == 200, f"{path} gave {status}"
+        assert headers.get("Set-Cookie") is None, f"{path} sets a cookie"
