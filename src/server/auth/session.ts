@@ -1,6 +1,8 @@
 import { getRequest } from '@tanstack/react-start/server'
 import { createAuth } from './auth'
 import { readAuthConfig } from './config'
+import { logAuthError } from './handler'
+import { isDbConfigured } from '../db'
 
 export type AuthSession = NonNullable<
   Awaited<ReturnType<ReturnType<typeof createAuth>['api']['getSession']>>
@@ -11,10 +13,11 @@ export async function getSession(
   request: Request,
 ): Promise<AuthSession | null> {
   const config = readAuthConfig(process.env)
-  if (!config) return null
+  if (!config || !isDbConfigured()) return null
   try {
     return await createAuth(config).api.getSession({ headers: request.headers })
-  } catch {
+  } catch (error) {
+    logAuthError('getSession failed', error)
     return null
   }
 }

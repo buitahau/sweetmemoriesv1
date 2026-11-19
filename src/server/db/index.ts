@@ -8,6 +8,11 @@ import { drizzle } from 'drizzle-orm/neon-http'
  * module-level connection, and the binding is only available at request time
  * (ADR 0007). Never log or echo the connection string.
  */
+/** True when a database connection string is configured (never exposes the value). */
+export function isDbConfigured(): boolean {
+  return Boolean(process.env.DATABASE_URL?.trim())
+}
+
 export function getDb() {
   const url = process.env.DATABASE_URL
   if (!url) {

@@ -15,7 +15,9 @@ import {
 
 let testDb: ReturnType<typeof drizzle>
 let testDbBroken = false
+let dbConfigured = true
 vi.mock('../db', () => ({
+  isDbConfigured: () => dbConfigured,
   getDb: () => {
     if (testDbBroken) throw new Error('boom leaked-detail')
     return testDb
@@ -70,7 +72,10 @@ afterAll(async () => {
     else process.env[k] = saved[k]
   }
 })
-beforeEach(() => setEnv(SECRET_ENV))
+beforeEach(() => {
+  setEnv(SECRET_ENV)
+  dbConfigured = true
+})
 afterEach(() => vi.restoreAllMocks())
 
 describe('readAuthConfig', () => {
@@ -106,7 +111,10 @@ describe('readAuthConfig', () => {
 })
 
 describe('buildAuthOptions', () => {
-  const options = buildAuthOptions(readAuthConfig(SECRET_ENV)!, testDb)
+  let options: ReturnType<typeof buildAuthOptions>
+  beforeAll(() => {
+    options = buildAuthOptions(readAuthConfig(SECRET_ENV)!, testDb)
+  })
   it('keeps cookies host-only (ADR 0008)', () => {
     expect(options.advanced.crossSubDomainCookies.enabled).toBe(false)
     expect(JSON.stringify(options)).not.toMatch(/"domain"/i)
@@ -252,6 +260,39 @@ describe('authHandler', () => {
       expect(text).not.toMatch(/GOOGLE|SECRET|SITE_URL/)
     },
   )
+
+  it('returns 503 with a generic body when the database is not configured', async () => {
+    dbConfigured = false
+    const res = await authHandler(signIn({ provider: 'google' }))
+    expect(res.status).toBe(503)
+    expect(await res.text()).not.toMatch(/DATABASE|postgres/i)
+  })
+
+  it('applies the sign-in guard to link-social', async () => {
+    const res = await authHandler(
+      signIn(
+        { provider: 'google', scopes: ['drive'] },
+        '/api/auth/link-social',
+      ),
+    )
+    expect(res.status).toBe(400)
+  })
+
+  it('logs the error name and message but not env values on failure', async () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    testDbBroken = true
+    try {
+      const res = await authHandler(signIn({ provider: 'google' }))
+      expect(res.status).toBe(500)
+      expect(await res.text()).not.toContain('boom')
+    } finally {
+      testDbBroken = false
+    }
+    expect(spy).toHaveBeenCalled()
+    const logged = String(spy.mock.calls[0].join(' '))
+    expect(logged).toContain('boom')
+    for (const v of Object.values(SECRET_ENV)) expect(logged).not.toContain(v)
+  })
 
   it('marks every response no-store', async () => {
     const ok = await authHandler(signIn({ provider: 'google' }))
