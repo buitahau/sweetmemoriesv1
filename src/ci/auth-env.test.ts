@@ -4,6 +4,13 @@ import { describe, expect, it } from 'vitest'
 
 const root = resolve(__dirname, '../..')
 const read = (p: string) => readFileSync(resolve(root, p), 'utf8')
+const parse = (t: string) =>
+  JSON.parse(
+    t
+      .split('\n')
+      .filter((l) => !l.trim().startsWith('//'))
+      .join('\n'),
+  )
 
 const keys = ['GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET', 'BETTER_AUTH_SECRET']
 
@@ -30,6 +37,19 @@ describe('google-sign-in: auth env keys', () => {
     for (const key of keys) expect(w).not.toContain(key)
   })
 
+  it('dev SITE_URL is a plain var in wrangler.jsonc (ADR 0006), no secrets in vars', () => {
+    const w = parse(read('wrangler.jsonc')) as {
+      vars?: Record<string, string>
+      env: { dev: { vars?: Record<string, string> } }
+    }
+    const url = w.env.dev.vars?.SITE_URL
+    expect(url).toMatch(/^https:\/\/[^/]+$/)
+    expect(read('docs/infra/dev-environment.md')).toContain(url as string)
+    for (const key of [...keys, 'DATABASE_URL'])
+      expect(Object.keys(w.env.dev.vars ?? {})).not.toContain(key)
+    expect(Object.keys(w.vars ?? {})).not.toContain('SITE_URL')
+  })
+
   it('infra docs mention all three secrets and rotation', () => {
     for (const f of [
       'docs/infra/local-development.md',
@@ -43,7 +63,9 @@ describe('google-sign-in: auth env keys', () => {
 })
 
 describe('google-sign-in: gitignore covers local secret files', () => {
-  const lines = read('.gitignore').split('\n').map((l) => l.trim())
+  const lines = read('.gitignore')
+    .split('\n')
+    .map((l) => l.trim())
   it.each(['.env', '.env.*', '.dev.vars*'])('ignores %s', (p) => {
     expect(lines).toContain(p)
   })

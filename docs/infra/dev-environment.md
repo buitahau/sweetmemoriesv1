@@ -24,7 +24,7 @@ Blocker: until steps 1 to 5 are done there is no live dev Worker and Task 02 is 
 4. Get a successful **push** run on `dev-v2`: merge a new commit into `dev-v2`. Do not re-run an old failed run. The e2e check US-deploy-1.1b only counts runs with event `push` and requires `updatedAt - createdAt` within 10 minutes, and a re-run keeps the original `createdAt`, so a late re-run fails the check even when the deploy succeeds. The `Refuse stale run` guard in `deploy-dev.yml` also blocks a re-run once `dev-v2` has moved on.
 5. Set the Environment variable `DEV_URL` to the printed dev URL and record it below.
 
-The Worker is only live after the first successful run. Dev URL: `https://sweetmemories-dev.haubuitatmp.workers.dev` (the smoke check falls back to `DEV_URL`).
+The Worker is only live after the first successful run. Dev URL: `https://sweetmemories-dev.haubuitatmp.workers.dev` (the smoke check falls back to `DEV_URL`). `SITE_URL` (Better Auth's base URL) is a plain var under `env.dev.vars` in `wrangler.jsonc` (ADR 0006), set to this URL; never also push it as a secret, because Cloudflare rejects a var and a secret with the same name. Without it every `/api/auth/*` request answers 503, so the smoke check also requires `GET /api/auth/get-session` to answer 200 with no `Set-Cookie`, and a failure rolls dev back. Locally, `.dev.vars` or `.env` override it.
 
 ## Which commit is live
 
