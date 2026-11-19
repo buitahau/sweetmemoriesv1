@@ -12,7 +12,10 @@
   "env": {
     "dev": {
       "name": "sweetmemories-dev",
-      "workers_dev": true
+      "workers_dev": true,
+      // Plain var (ADR 0006). Better Auth baseURL comes from SITE_URL; without it every
+      // /api/auth/* request answers 503. Do not also push SITE_URL from CI.
+      "vars": { "SITE_URL": "https://sweetmemories-dev.haubuitatmp.workers.dev" }
     }
   }
 }

@@ -98,7 +98,7 @@ describe('deploy-dev workflow', () => {
         .trim()
         .split('\n')
         .map((l) => l.trim()),
-    ).toEqual(['DATABASE_URL', ...authSecrets, 'SITE_URL'])
+    ).toEqual(['DATABASE_URL', ...authSecrets])
     expect((deploy.env as Record<string, string>).DATABASE_URL).toBe(
       '${{ secrets.DATABASE_URL }}',
     )
@@ -111,7 +111,10 @@ describe('deploy-dev workflow', () => {
         /\$\{\{ secrets\.DATABASE_URL \}\}|^\s*DATABASE_URL\s*$|^\s*#|name: Require DATABASE_URL|test -n "\$DATABASE_URL"/,
       )
     }
-    expect(read('wrangler.jsonc')).not.toMatch(/DATABASE_URL|"vars"/)
+    expect(read('wrangler.jsonc')).not.toMatch(/DATABASE_URL/)
+    // SITE_URL is a plain var (ADR 0006); Cloudflare rejects a var and a secret with one name.
+    expect(String(deploy.with?.secrets)).not.toContain('SITE_URL')
+    expect(deploy.env).not.toHaveProperty('SITE_URL')
   })
 
   it('fails before deploying when the DATABASE_URL secret is missing', () => {

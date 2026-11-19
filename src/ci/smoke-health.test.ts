@@ -3,7 +3,13 @@ import { createServer } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import { resolve } from 'node:path'
 import { describe, expect, it, vi } from 'vitest'
-import { checkHealth, healthUrl, pollHealth } from './smoke-health'
+import {
+  authSessionUrl,
+  checkAuthSession,
+  checkHealth,
+  healthUrl,
+  pollHealth,
+} from './smoke-health'
 
 const ok = () =>
   new Response('{"status":"ok"}', {
@@ -92,6 +98,49 @@ describe('checkHealth', () => {
   })
 })
 
+describe('checkAuthSession', () => {
+  const session = () => new Response('null', { status: 200 })
+  it('builds the get-session URL', () => {
+    expect(authSessionUrl('https://x.workers.dev/p')).toBe(
+      'https://x.workers.dev/api/auth/get-session',
+    )
+  })
+  it('passes on 200 with no cookie', async () => {
+    expect((await checkAuthSession('https://x/a', fetchOf(session))).ok).toBe(
+      true,
+    )
+  })
+  it('fails on 503 (auth config missing)', async () => {
+    const r = await checkAuthSession(
+      'https://x/a',
+      fetchOf(
+        () =>
+          new Response('{"error":"Sign-in is unavailable."}', { status: 503 }),
+      ),
+    )
+    expect(r).toMatchObject({ ok: false, status: 503 })
+  })
+  it('fails when Set-Cookie is present', async () => {
+    const r = await checkAuthSession(
+      'https://x/a',
+      fetchOf(
+        () =>
+          new Response('null', {
+            status: 200,
+            headers: { 'set-cookie': 'a=b' },
+          }),
+      ),
+    )
+    expect(r.ok).toBe(false)
+  })
+  it('fails on a network error', async () => {
+    const r = await checkAuthSession('https://x/a', (async () => {
+      throw new Error('down')
+    }) as unknown as typeof fetch)
+    expect(r.ok).toBe(false)
+  })
+})
+
 describe('pollHealth', () => {
   it('retries until healthy', async () => {
     const fetchFn = fetchOf(
@@ -131,10 +180,13 @@ describe('smoke-health CLI (entry point)', () => {
       encoding: 'utf8',
       timeout: 30_000,
     })
-  const serve = async (status: number, body: string) => {
-    const server = createServer((_req, res) => {
-      res.writeHead(status, { 'content-type': 'application/json' })
-      res.end(body)
+  const serve = async (status: number, body: string, authStatus = 200) => {
+    const server = createServer((req, res) => {
+      const auth = req.url?.startsWith('/api/auth/')
+      res.writeHead(auth ? authStatus : status, {
+        'content-type': 'application/json',
+      })
+      res.end(auth ? 'null' : body)
     })
     await new Promise<void>((r) => server.listen(0, '127.0.0.1', r))
     const { port } = server.address() as AddressInfo
@@ -164,6 +216,18 @@ describe('smoke-health CLI (entry point)', () => {
       const r = await spawnAsync([url])
       expect(r.code).toBe(0)
       expect(r.out).toContain('smoke check passed')
+    } finally {
+      server.close()
+    }
+  })
+
+  it('exits 1 when health is ok but /api/auth/get-session answers 503', async () => {
+    const { url, server } = await serve(200, '{"status":"ok"}', 503)
+    try {
+      const r = await spawnAsync([url])
+      expect(r.code).toBe(1)
+      expect(r.err).toContain('auth route expected status 200')
+      expect(r.err).toContain('status=503')
     } finally {
       server.close()
     }

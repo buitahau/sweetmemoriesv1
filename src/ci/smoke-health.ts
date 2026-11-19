@@ -1,5 +1,6 @@
 // Post-deploy smoke check for `deploy-dev`. Run: node src/ci/smoke-health.ts <base-url>
-// Passes only on 200, body exactly {"status":"ok"} and no Set-Cookie.
+// Passes only on 200, body exactly {"status":"ok"} and no Set-Cookie on /api/health, and
+// GET /api/auth/get-session answers 200 with no Set-Cookie (503 means auth config is missing).
 // Keep it dependency-free and erasable-syntax-only so Node can run it directly.
 
 import { pathToFileURL } from 'node:url'
@@ -27,6 +28,44 @@ export function healthUrl(baseUrl: string): string {
     throw new Error(`Unsupported URL protocol: ${url.protocol}`)
   }
   return new URL('/api/health', url).toString()
+}
+
+export function authSessionUrl(baseUrl: string): string {
+  return new URL('/api/auth/get-session', healthUrl(baseUrl)).toString()
+}
+
+export async function checkAuthSession(
+  url: string,
+  fetchFn: typeof fetch = fetch,
+  requestTimeoutMs = 10_000,
+): Promise<HealthResult> {
+  let res: Response
+  try {
+    res = await fetchFn(url, {
+      redirect: 'manual',
+      signal: AbortSignal.timeout(requestTimeoutMs),
+    })
+  } catch (err) {
+    return { ok: false, reason: `request failed: ${String(err)}` }
+  }
+  let body = ''
+  try {
+    body = await res.text()
+  } catch {
+    // The status alone decides the result.
+  }
+  const base = { status: res.status, body }
+  if (res.status !== 200) {
+    return {
+      ok: false,
+      ...base,
+      reason: `auth route expected status 200, got ${res.status} (auth env or database config missing?)`,
+    }
+  }
+  if (res.headers.has('set-cookie')) {
+    return { ok: false, ...base, reason: 'auth route sets a cookie' }
+  }
+  return { ok: true, ...base, reason: 'auth route ok' }
 }
 
 export async function checkHealth(
@@ -73,6 +112,7 @@ export async function checkHealth(
 export async function pollHealth(
   baseUrl: string,
   opts: PollOptions = {},
+  target: 'health' | 'auth' = 'health',
 ): Promise<HealthResult> {
   const {
     fetchFn = fetch,
@@ -83,11 +123,12 @@ export async function pollHealth(
     now = Date.now,
     log = () => {},
   } = opts
-  const url = healthUrl(baseUrl)
+  const url = target === 'auth' ? authSessionUrl(baseUrl) : healthUrl(baseUrl)
+  const check = target === 'auth' ? checkAuthSession : checkHealth
   const deadline = now() + timeoutMs
   let last: HealthResult
   for (;;) {
-    last = await checkHealth(url, fetchFn, requestTimeoutMs)
+    last = await check(url, fetchFn, requestTimeoutMs)
     if (last.ok) return last
     log(
       `smoke: ${url} not healthy (${last.reason}) status=${last.status ?? 'none'} body=${JSON.stringify(last.body ?? '')}`,
@@ -104,21 +145,26 @@ async function main(): Promise<void> {
     process.exit(2)
   }
   const override = Number(process.env.SMOKE_TIMEOUT_MS)
-  const result = await pollHealth(baseUrl, {
+  const opts: PollOptions = {
     log: console.log,
     ...(process.env.SMOKE_TIMEOUT_MS &&
     Number.isFinite(override) &&
     override > 0
       ? { timeoutMs: override, intervalMs: 100 }
       : {}),
-  })
-  if (!result.ok) {
-    console.error(
-      `smoke check FAILED: ${result.reason}; status=${result.status ?? 'none'} body=${JSON.stringify(result.body ?? '')}`,
-    )
-    process.exit(1)
   }
-  console.log(`smoke check passed: ${healthUrl(baseUrl)}`)
+  for (const target of ['health', 'auth'] as const) {
+    const result = await pollHealth(baseUrl, opts, target)
+    if (!result.ok) {
+      console.error(
+        `smoke check FAILED: ${result.reason}; status=${result.status ?? 'none'} body=${JSON.stringify(result.body ?? '')}`,
+      )
+      process.exit(1)
+    }
+  }
+  console.log(
+    `smoke check passed: ${healthUrl(baseUrl)} and ${authSessionUrl(baseUrl)}`,
+  )
 }
 
 if (

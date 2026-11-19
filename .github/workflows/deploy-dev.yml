@@ -66,10 +66,6 @@ jobs:
         env:
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
         run: test -n "$GOOGLE_CLIENT_SECRET" || { echo "Environment secret GOOGLE_CLIENT_SECRET is missing or empty" >&2; exit 1; }
-      - name: Require SITE_URL (Environment variable DEV_URL)
-        env:
-          SITE_URL: ${{ vars.DEV_URL }}
-        run: test -n "$SITE_URL" || { echo "Environment variable DEV_URL is missing or empty (it becomes SITE_URL)" >&2; exit 1; }
       - name: Require BETTER_AUTH_SECRET
         env:
           BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
@@ -82,9 +78,6 @@ jobs:
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
           BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
-          # Not secret, but pushed the same way so wrangler.jsonc stays free of vars. Better Auth's
-          # baseURL comes from SITE_URL; without it every /api/auth/* request answers 503.
-          SITE_URL: ${{ vars.DEV_URL }}
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -94,7 +87,6 @@ jobs:
             GOOGLE_CLIENT_ID
             GOOGLE_CLIENT_SECRET
             BETTER_AUTH_SECRET
-            SITE_URL
           command: deploy -c wrangler.jsonc --env dev --tag ${{ github.sha }} --message "deploy-dev ${{ github.sha }}"
       - name: Smoke check /api/health
         id: smoke

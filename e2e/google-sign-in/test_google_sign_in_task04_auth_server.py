@@ -38,7 +38,9 @@ def _call(path, method="GET", body=None, headers=None):
 
 
 def _is_local():
-    return urllib.parse.urlparse(BASE).hostname in ("localhost", "127.0.0.1")
+    if os.environ.get("E2E_REQUIRE_AUTH") == "1":
+        return False
+    return urllib.parse.urlparse(BASE).hostname in ("localhost", "127.0.0.1", "::1", "0.0.0.0")
 
 
 def _configured_or_skip():
