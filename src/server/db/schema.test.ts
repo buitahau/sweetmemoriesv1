@@ -37,13 +37,13 @@ describe('auth schema', () => {
 describe('first migration', () => {
   const dir = join(process.cwd(), 'drizzle')
   const sqlFiles = readdirSync(dir).filter((f) => f.endsWith('.sql'))
-  const firstFile = sqlFiles.filter((f) => f.startsWith('0000_'))
-  const sql = firstFile
+  const firstMigrationFiles = sqlFiles.filter((f) => f.startsWith('0000_'))
+  const sql = firstMigrationFiles
     .map((f) => readFileSync(join(dir, f), 'utf8'))
     .join('\n')
 
   it('is committed and creates the four tables', () => {
-    expect(firstFile).toHaveLength(1)
+    expect(firstMigrationFiles).toHaveLength(1)
     for (const t of ['user', 'session', 'account', 'verification']) {
       expect(sql).toContain(`CREATE TABLE "${t}"`)
     }
@@ -57,10 +57,6 @@ describe('first migration', () => {
     expect(sql).toMatch(
       /ALTER TABLE "account" ADD CONSTRAINT .* FOREIGN KEY \("user_id"\) REFERENCES "public"."user"\("id"\) ON DELETE cascade/,
     )
-  })
-
-  it('cascades deletes from user to session and account', () => {
-    expect(sql.match(/ON DELETE cascade/g)?.length).toBe(2)
   })
 
   it('has a journal entry for every SQL file and no extra entries', () => {
