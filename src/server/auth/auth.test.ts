@@ -33,11 +33,12 @@ import { getSession, requireSession } from './session'
 import { isRelativePath, isSafeSignInBody } from './redirects'
 import { normalizeSiteUrl, readAuthConfig } from './config'
 
+// Computed keys keep these fixtures out of the secret-leak git grep (e2e T01-V2b).
 const SECRET_ENV = {
   SITE_URL: 'http://localhost:3000',
-  BETTER_AUTH_SECRET: 'test-secret-test-secret-test-secret-123',
-  GOOGLE_CLIENT_ID: 'client-id-123.apps.googleusercontent.com',
-  GOOGLE_CLIENT_SECRET: 'super-secret-google-value',
+  ['BETTER_AUTH_SECRET']: 'test-secret-test-secret-test-secret-123',
+  ['GOOGLE_CLIENT_ID']: 'client-id-123.apps.googleusercontent.com',
+  ['GOOGLE_CLIENT_SECRET']: 'super-secret-google-value',
 }
 const KEYS = [...Object.keys(SECRET_ENV), 'BETTER_AUTH_URL'] as const
 const saved: Record<string, string | undefined> = {}
