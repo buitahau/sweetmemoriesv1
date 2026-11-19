@@ -29,6 +29,8 @@ describe('auth schema', () => {
     const fks = getTableConfig(table).foreignKeys.map((fk) => fk.reference())
     expect(fks).toHaveLength(1)
     expect(getTableConfig(fks[0].foreignTable).name).toBe('user')
+    const fkConfigs = getTableConfig(table).foreignKeys
+    expect(fkConfigs[0].onDelete).toBe('cascade')
   })
 })
 
@@ -47,15 +49,15 @@ describe('first migration', () => {
   it('has a unique constraint on user email and FKs from session and account', () => {
     expect(sql).toMatch(/CONSTRAINT "user_email_unique" UNIQUE\("email"\)/)
     expect(sql).toMatch(
-      /ALTER TABLE "session" ADD CONSTRAINT .* FOREIGN KEY \("user_id"\) REFERENCES "public"."user"\("id"\)/,
+      /ALTER TABLE "session" ADD CONSTRAINT .* FOREIGN KEY \("user_id"\) REFERENCES "public"."user"\("id"\) ON DELETE cascade/,
     )
     expect(sql).toMatch(
-      /ALTER TABLE "account" ADD CONSTRAINT .* FOREIGN KEY \("user_id"\) REFERENCES "public"."user"\("id"\)/,
+      /ALTER TABLE "account" ADD CONSTRAINT .* FOREIGN KEY \("user_id"\) REFERENCES "public"."user"\("id"\) ON DELETE cascade/,
     )
   })
 
   it('cascades deletes from user to session and account', () => {
-    expect(sql.match(/ON DELETE cascade/g)?.length).toBeGreaterThanOrEqual(2)
+    expect(sql.match(/ON DELETE cascade/g)?.length).toBe(2)
   })
 
   it('has a journal entry for every SQL file and no extra entries', () => {
