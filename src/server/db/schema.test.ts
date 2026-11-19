@@ -26,21 +26,24 @@ describe('auth schema', () => {
     ['session', schema.session],
     ['account', schema.account],
   ])('%s has a foreign key to user', (_name, table) => {
-    const fks = getTableConfig(table).foreignKeys.map((fk) => fk.reference())
-    expect(fks).toHaveLength(1)
-    expect(getTableConfig(fks[0].foreignTable).name).toBe('user')
-    const fkConfigs = getTableConfig(table).foreignKeys
-    expect(fkConfigs[0].onDelete).toBe('cascade')
+    const { foreignKeys } = getTableConfig(table)
+    expect(foreignKeys).toHaveLength(1)
+    const [fk] = foreignKeys
+    expect(getTableConfig(fk.reference().foreignTable).name).toBe('user')
+    expect(fk.onDelete).toBe('cascade')
   })
 })
 
 describe('first migration', () => {
   const dir = join(process.cwd(), 'drizzle')
   const sqlFiles = readdirSync(dir).filter((f) => f.endsWith('.sql'))
-  const sql = sqlFiles.map((f) => readFileSync(join(dir, f), 'utf8')).join('\n')
+  const firstFile = sqlFiles.filter((f) => f.startsWith('0000_'))
+  const sql = firstFile
+    .map((f) => readFileSync(join(dir, f), 'utf8'))
+    .join('\n')
 
   it('is committed and creates the four tables', () => {
-    expect(sqlFiles.length).toBeGreaterThan(0)
+    expect(firstFile).toHaveLength(1)
     for (const t of ['user', 'session', 'account', 'verification']) {
       expect(sql).toContain(`CREATE TABLE "${t}"`)
     }
