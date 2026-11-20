@@ -71,7 +71,35 @@ describe('SignInPage', () => {
   })
 })
 
+describe('SignInPage error states', () => {
+  it('shows the cancel message for access_denied', () => {
+    const h = renderToStaticMarkup(<SignInPage error="access_denied" />)
+    expect(h).toContain('Sign-in was cancelled. You can try again.')
+    expect(h).not.toMatch(/<button[^>]*\sdisabled(=|>|\s)/)
+  })
+
+  it('shows the generic message with no reflected text', () => {
+    const h = renderToStaticMarkup(
+      <SignInPage error="<script>alert(1)</script>" />,
+    )
+    expect(h).toContain(
+      'Something went wrong signing you in. Please try again.',
+    )
+    expect(h).not.toContain('alert(1)')
+    expect(h).not.toContain('<script')
+  })
+})
+
 describe('/sign-in route', () => {
+  it('validates the search param to a string error only', () => {
+    const v = Route.options.validateSearch as (
+      s: Record<string, unknown>,
+    ) => unknown
+    expect(v({ error: 'access_denied' })).toEqual({ error: 'access_denied' })
+    expect(v({ error: ['a'] })).toEqual({})
+    expect(v({})).toEqual({})
+  })
+
   it('sets a noindex robots meta', () => {
     const head = Route.options.head!({} as never) as {
       meta: Array<Record<string, string>>

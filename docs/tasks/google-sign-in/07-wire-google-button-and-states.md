@@ -1,6 +1,6 @@
 # 07 Wire the Google button, loading and error states
 
-**Status:** todo
+**Status:** done
 **Side:** front-end
 **Size:** S
 **Dependencies:** [04](04-better-auth-server-and-api-route.md), [06](06-login-page-ui-from-mockup.md)

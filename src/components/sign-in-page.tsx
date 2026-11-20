@@ -1,4 +1,13 @@
+import { useCallback, useMemo, useState } from 'react'
+import { authClient } from '../lib/auth-client'
 import { Logo } from './home/logo'
+import {
+  IDLE_LABEL,
+  LOADING_LABEL,
+  createSignInController,
+  errorMessageFor,
+  type SignInSocial,
+} from './sign-in-state'
 
 const FACES = ['#FFC09A', '#BFE1FA', '#CDEFE0', '#E6DBFA']
 
@@ -141,7 +150,25 @@ function Illustration() {
   )
 }
 
-export function SignInPage() {
+export function SignInPage({
+  error,
+  signInSocial = authClient.signIn.social as SignInSocial,
+}: {
+  error?: string
+  signInSocial?: SignInSocial
+}) {
+  const [view, setView] = useState<{
+    loading: boolean
+    message: string | null
+  }>({ loading: false, message: errorMessageFor(error) })
+  const start = useMemo(
+    () => createSignInController(signInSocial, setView),
+    [signInSocial],
+  )
+  const onClick = useCallback(() => {
+    void start()
+  }, [start])
+
   return (
     <div className="bg-cream text-ink font-body flex min-h-screen flex-wrap text-[17px] leading-[1.55]">
       <Illustration />
@@ -170,20 +197,24 @@ export function SignInPage() {
           <div className="animate-sm-rise sm-d2 flex flex-col gap-[18px] rounded-panel bg-white px-7 py-8 shadow-[0_8px_0_var(--color-pink-edge)]">
             <button
               type="button"
-              aria-busy="false"
-              className={`text-ink flex min-h-[60px] w-full cursor-pointer items-center justify-center gap-3.5 rounded-full border-0 bg-pink-button text-lg font-bold shadow-[0_5px_0_var(--color-pink-400),inset_0_0_0_1.5px_#3B2433] transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 active:translate-y-[3px] ${focus}`}
+              aria-busy={view.loading}
+              disabled={view.loading}
+              onClick={onClick}
+              className={`text-ink flex min-h-[60px] w-full cursor-pointer disabled:cursor-wait disabled:opacity-80 items-center justify-center gap-3.5 rounded-full border-0 bg-pink-button text-lg font-bold shadow-[0_5px_0_var(--color-pink-400),inset_0_0_0_1.5px_#3B2433] transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 active:translate-y-[3px] ${focus}`}
             >
               <span className="flex size-[34px] items-center justify-center rounded-full bg-white">
                 <GoogleMark />
               </span>
-              Continue with Google
+              {view.loading ? LOADING_LABEL : IDLE_LABEL}
             </button>
 
             <div
               role="status"
               aria-live="polite"
               className="text-ink-soft min-h-[21px] text-center text-sm"
-            />
+            >
+              {view.message}
+            </div>
 
             <div className="text-ink-muted flex items-center gap-3 text-sm">
               <span className="h-0.5 flex-1 rounded-[1px] bg-pink-edge" />
