@@ -187,6 +187,12 @@ describe('isSafeSignInBody', () => {
         scopes: ['https://www.googleapis.com/auth/drive'],
       }),
     ).toBe(false)
+    expect(
+      isSafeSignInBody({
+        provider: 'google',
+        scope: 'openid https://www.googleapis.com/auth/drive',
+      }),
+    ).toBe(false)
     expect(isSafeSignInBody(null)).toBe(false)
     expect(isSafeSignInBody([])).toBe(false)
   })
