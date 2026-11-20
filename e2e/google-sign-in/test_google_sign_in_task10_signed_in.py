@@ -1,6 +1,6 @@
 """US-google-sign-in-3 (3.3, 3.4), 5.1 and 6 as delivered by task 10 (docs/tasks/google-sign-in/10-e2e-google-sign-in.md).
 
-Signed-in state is seeded into a LOCAL test database and the signed cookie is set in the browser (ADR 0009, helpers.seed_signed_in_session).
+Signed-in state is seeded into your own Neon developer branch and the signed cookie is set in the browser (ADR 0009, helpers.seed_signed_in_session).
 Needs: E2E_BASE_URL (local, default http://localhost:3000), E2E_SEED_DATABASE_URL (your own Neon developer branch, with
 E2E_SEED_NEON_ENDPOINT=<its ep-... id>; the server speaks Neon HTTP, so a plain local Postgres needs a Neon HTTP proxy) and E2E_BETTER_AUTH_SECRET (or BETTER_AUTH_SECRET) equal to the server's secret. Without them the
 seeded scenarios skip as BLOCKED. Never point this at dev or production. Scenarios 3.1 and 3.2 are manual on dev (real Google) and skipped here.
@@ -127,8 +127,9 @@ def test_US_google_sign_in_3_4_cookie_not_sent_to_subdomain(browser, auth_config
 
         page.route(f"{BASE}/api/auth/get-session", add_cookie)
         page.goto(f"{BASE}/", wait_until="networkidle")
-        page.evaluate("fetch('/api/auth/get-session', {credentials: 'include'}).then(r => r.status)")
-        page.wait_for_timeout(500)
+        # evaluate awaits the fetch, so the Set-Cookie is processed before we read the jar
+        result = page.evaluate("fetch('/api/auth/get-session', {credentials: 'include'}).then(async r => ({status: r.status, body: await r.text()}))")
+        assert result["status"] == 200 and result["body"] not in ("", "null"), "Cookie header override was not applied: get-session returned no session"
         page.unroute(f"{BASE}/api/auth/get-session")
         stored = [c for c in ctx.cookies() if c["name"] == name]
         assert stored, "the server did not set a session cookie for the stale seeded session"
@@ -151,11 +152,17 @@ def test_US_google_sign_in_3_4_cookie_not_sent_to_subdomain(browser, auth_config
         ctx.close()
 
 
-def test_US_google_sign_in_5_1_signed_in_user_is_redirected_to_dashboard(signed_in_ctx):
-    """US-google-sign-in-5.1 (happy, session: user): opening /sign-in while signed in redirects to /dashboard (path only until the dashboard exists)."""
+@pytest.mark.parametrize("entry", ["direct", "homepage_link"])
+def test_US_google_sign_in_5_1_signed_in_user_is_redirected_to_dashboard(signed_in_ctx, entry):
+    """US-google-sign-in-5.1 (happy, session: user): opening /sign-in (directly or from the homepage Sign in link) while signed in redirects to /dashboard (path only until the dashboard exists)."""
     page = signed_in_ctx.new_page()
-    page.goto(f"{BASE}/sign-in", wait_until="networkidle")
-    _shot(page, "task10_5_1_redirect")
+    if entry == "direct":
+        page.goto(f"{BASE}/sign-in", wait_until="networkidle")
+    else:
+        page.goto(f"{BASE}/", wait_until="networkidle")
+        page.get_by_role("link", name="Sign in").first.click()
+        page.wait_for_url("**/dashboard")
+    _shot(page, f"task10_5_1_redirect_{entry}")
     assert urlparse(page.url).path == "/dashboard"
     expect(page.get_by_role("button", name="Continue with Google")).to_have_count(0)
 

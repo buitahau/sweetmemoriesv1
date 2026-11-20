@@ -1,6 +1,14 @@
 """Helpers shared by every e2e suite (a uniquely named module, so it cannot clash with the per-suite conftest files)."""
+import base64
+import hashlib
+import hmac
+import os
 import pathlib
+import secrets
 import subprocess
+import uuid
+from datetime import datetime, timedelta, timezone
+from urllib.parse import quote, urlparse
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 
@@ -13,18 +21,9 @@ def run(cmd, cwd=ROOT, timeout=300, env=None):
 # Session seeding (ADR 0009, google-sign-in task 10)
 #
 # Google sign-in cannot be automated, so signed-in e2e tests insert a User, Account and Session into
-# a LOCAL test database and set the signed Better Auth session cookie. The helper refuses to run
-# unless the server (E2E_BASE_URL) is local and the database is local or an explicitly allow-listed Neon developer branch.
+# your own Neon developer branch and set the signed Better Auth session cookie. The helper refuses to run
+# unless the server (E2E_BASE_URL) is local and the database is an explicitly allow-listed Neon developer branch.
 # ---------------------------------------------------------------------------------------------
-import base64
-import hashlib
-import hmac
-import os
-import secrets
-import uuid
-from datetime import datetime, timedelta, timezone
-from urllib.parse import quote, urlparse
-
 NEON_SUFFIX = "." + "neon" + ".tech"  # built from parts so the repo-wide connection-string scan stays clean
 LOCAL_HOSTS = {"localhost", "127.0.0.1", "::1", "[::1]"}
 
