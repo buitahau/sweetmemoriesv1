@@ -125,6 +125,9 @@ describe('buildAuthOptions', () => {
     expect(options.trustedOrigins).toEqual(['http://localhost:3000'])
     expect(options.baseURL).toBe('http://localhost:3000')
   })
+  it('sends API errors (such as an invalid OAuth state) to /sign-in', () => {
+    expect(options.onAPIError.errorURL).toBe('http://localhost:3000/sign-in')
+  })
   it('asks Google for openid email profile only', () => {
     expect(options.socialProviders.google.scope).toEqual([
       'openid',

@@ -3,8 +3,8 @@
 Task 01 (OAuth client and auth secrets) is infra only, so its scenarios are static checks of the
 committed repo, workflow and docs. They need no server and no credentials. Checks that need the
 Google Cloud console, the GitHub Environment `dev` or Cloudflare (`wrangler secret list`) are
-BLOCKED (skipped with the reason). The US-google-sign-in-1 to 6 browser scenarios belong to
-task 10 and are added to this folder then. Never run against production.
+BLOCKED (skipped with the reason). Browser scenarios arrive per task: tasks 06 and 07 cover
+US-google-sign-in-1, 2 and 4; US-3, 5 and 6 are added by task 10. Never run against production.
 """
 import pytest
 import yaml
