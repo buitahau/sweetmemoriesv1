@@ -14,9 +14,11 @@
 
 ## Verification
 
-- [ ] `pnpm db:migrate` creates the four tables on a fresh branch and is a no-op on a second run (NOT RUN against Neon: no developer branch URL available. Covered on PGlite by the first-migration test in PR #145: idempotent re-run, unique email, cascade. Run it live against a developer branch when a URL is available)
+- [ ] `pnpm db:migrate` creates the four tables on a fresh branch and is a no-op on a second run (first run done live on 2026-11-20 against the Neon `devv2` branch: the four tables were created and the migration recorded. The second no-op run and the `E2E_NEON_BRANCH_URL` check (`test_T03_V1c`) were not run. Idempotent re-run is also covered on PGlite by the first-migration test in PR #145)
 - [x] Migration SQL reviewed: unique index on `user.email`, foreign key from `session` and `account` to `user`
 - [x] Vitest: the schema exports the four tables
+
+**Note (2026-11-20):** the Neon `devv2` branch still held empty tables from the old v1 app (`user`, `account`, `session`, `verification` plus `block`, `template`, `page` and others). Migration 0000 failed there with "already exists", and drizzle-kit hid the error (silent exit code 1). Fixed by resetting the `public` schema (all tables were empty) before the first migrate. See the reset step in `docs/infra/dev-environment.md`.
 
 **Note:** `better-auth` is not installed until task 04, so the schema in `src/server/db/schema/auth.ts` was written to match the Better Auth core Drizzle schema by hand. Task 04 must run `@better-auth/cli generate` and compare the result with this schema; any difference ships as a new migration (0001), never as an edit to 0000.
 

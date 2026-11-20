@@ -63,7 +63,7 @@ Decision: [ADR 0004](../adr/0004-neon-dev-branch-test-database.md) (status: acce
 - No DB code exists yet; the secret is only typed in `src/env.d.ts`. The first DB feature reads it and uses `@neondatabase/serverless`.
 - Never print the value in CI logs, commit it, or return it from an endpoint.
 
-Neon names (names only, never secrets): project `sweetmemories`, branch `dev`, role `sweetmemories_dev_app` (non-owner: `CONNECT` plus `SELECT/INSERT/UPDATE/DELETE` on the app schema). A separate owner role (the `DATABASE_MIGRATE_URL` role) runs migrations; see Schema below.
+Neon names (names only, never secrets): project `sweetmemories`, branch `devv2` (the branch the dev Worker uses today; earlier text calls it `dev`), role `sweetmemories_dev_app` (non-owner: `CONNECT` plus `SELECT/INSERT/UPDATE/DELETE` on the app schema). A separate owner role (the `DATABASE_MIGRATE_URL` role) runs migrations; see Schema below.
 
 Schema: `deploy-dev` runs `pnpm db:migrate` before each deploy with the GitHub Environment `dev` secret `DATABASE_MIGRATE_URL` (connection string of an owner role that can run DDL on the `dev` branch database). It is never pushed to the Worker. The Worker keeps using the non-owner `DATABASE_URL`. Without the migration the tables do not exist and `POST /api/auth/sign-in/social` answers an empty 500 (Better Auth cannot insert its verification row). Add `DATABASE_MIGRATE_URL` once; deploy-dev fails early if it is missing.
 
@@ -75,6 +75,17 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO sweetmemo
 ALTER DEFAULT PRIVILEGES FOR ROLE <owner> IN SCHEMA public
   GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO sweetmemories_dev_app;
 ```
+
+Current state (2026-11-20): `DATABASE_URL` and `DATABASE_MIGRATE_URL` both hold the owner role connection string (`neondb_owner`) of the `devv2` branch, so the Worker still has DDL rights and the grants above are not needed yet. Creating `sweetmemories_dev_app` and switching `DATABASE_URL` to it, to restore least privilege, is still to do.
+
+First migrate on a branch that already has tables: migration 0000 runs `CREATE TABLE` for `user`, `session`, `account` and `verification`, so it fails with "already exists" if those names exist (drizzle-kit exits with code 1 and prints no reason). Check with `psql "$DATABASE_MIGRATE_URL" -c "\dt"`. If the tables are leftovers with no data, reset the schema once as the owner role, then re-run `deploy-dev`:
+
+```sql
+DROP SCHEMA public CASCADE;
+CREATE SCHEMA public;
+```
+
+The secret must be the bare connection string: no surrounding quotes, no `psql '...'` prefix, no trailing newline. A malformed value also makes the migrate step exit silently.
 
 Without the default privileges, a later migration's new tables fail with `permission denied for table ...` and sign-in answers the same empty 500. The deploy smoke check POSTs `/api/auth/sign-in/social` (writes one verification row) and requires a Google URL, so missing tables or grants roll the deploy back.
 
