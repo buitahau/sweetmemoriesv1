@@ -16,6 +16,8 @@ export function buildAuthOptions(
     baseURL: config.baseURL,
     secret: config.secret,
     trustedOrigins: [config.baseURL],
+    // A tampered/invalid OAuth state cannot carry errorCallbackURL; send it to the login page, not /api/auth/error.
+    onAPIError: { errorURL: `${config.baseURL}/sign-in` },
     database: drizzleAdapter(db, { provider: 'pg', schema }),
     socialProviders: {
       google: {
