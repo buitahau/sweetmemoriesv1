@@ -22,7 +22,8 @@ export const Route = createFileRoute('/sign-in')({
   },
   beforeLoad: async () => {
     const target = await getSignedInRedirect()
-    // `href` because the /dashboard route lands in dashboard-home 01.
+    // TODO(dashboard-home 01): once the /dashboard route exists, switch to a typed
+    // `to: '/dashboard'` and reuse SIGNED_IN_HOME instead of this untyped `href`.
     if (target) throw redirect({ href: target })
   },
   component: SignInRoute,

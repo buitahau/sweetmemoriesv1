@@ -18,7 +18,7 @@ describe('signedInRedirectTarget', () => {
     getSessionMock.mockResolvedValue(null)
     expect(await signedInRedirectTarget(req)).toBeNull()
   })
-  it('renders the page for an expired or forged session (getSession returns null)', async () => {
+  it('passes the request to getSession and renders the page when it returns null', async () => {
     const r = new Request('http://localhost:3000/sign-in', {
       headers: { cookie: 'better-auth.session_token=expired.value' },
     })
