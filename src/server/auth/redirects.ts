@@ -21,14 +21,14 @@ const REDIRECT_FIELDS = [
 
 /**
  * Checks a sign-in request body. Redirect fields must be relative paths, and
- * `scopes` is refused so a caller cannot widen the Google scopes.
+ * `scopes` and `scope` are refused so a caller cannot widen the Google scopes.
  */
 export function isSafeSignInBody(body: unknown): boolean {
   if (body === null || typeof body !== 'object' || Array.isArray(body)) {
     return false
   }
   const record = body as Record<string, unknown>
-  if ('scopes' in record) return false
+  if ('scopes' in record || 'scope' in record) return false
   for (const field of REDIRECT_FIELDS) {
     if (field in record && !isRelativePath(record[field])) return false
   }
