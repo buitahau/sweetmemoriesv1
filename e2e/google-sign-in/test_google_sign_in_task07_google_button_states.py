@@ -124,6 +124,8 @@ def test_US_google_sign_in_2_3_double_click_sends_one_request(page):
     _open(page)
     _button(page).dblclick()
     expect(_button(page, "Opening Google…")).to_be_disabled()
+    # A fixed wait is intended: "no second request" cannot be awaited, so give a stray request time to arrive.
+    # A late one on slow CI would make this fail, never falsely pass.
     page.wait_for_timeout(500)
     assert len(calls) == 1, calls
     _shot(page, "US-google-sign-in-2.3_double_click")
@@ -139,7 +141,8 @@ def test_US_google_sign_in_2_4_open_redirect_blocked(page, auth_probe):
     )
     assert 400 <= r.status < 500, r.status
     assert "accounts.google.com" not in r.text()
-    _shot(page, "US-google-sign-in-2.4_open_redirect_blocked")
+    # No screenshot: page.request never navigates, so it would be a blank about:blank page.
+    print(f"2.4 response: status={r.status} body={r.text()[:200]!r}")
 
 
 def test_US_google_sign_in_4_1_cancelled_at_google(page):
@@ -180,6 +183,8 @@ def test_US_google_sign_in_4_3_unknown_error_code_not_reflected(page):
 
 def test_US_google_sign_in_4_4_auth_misconfigured_returns_to_idle(page):
     """US-google-sign-in-4.4 (story US-google-sign-in-4, failure): a failing sign-in request restores idle with the generic message and no leaks."""
+    # Client half only. The server half (no secret or stack trace in the 503 body) is covered by
+    # test_T04_V3_missing_config_returns_503_with_generic_body in test_google_sign_in_task04_auth_server.py.
     # The server answer for a missing Google client ID is simulated at the network layer so the case runs
     # on any server.
     secret_body = json.dumps({"error": "boom", "stack": "at secret.ts:1", "GOOGLE_CLIENT_SECRET": "s3cr3t"})
