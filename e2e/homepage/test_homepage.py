@@ -131,6 +131,8 @@ def test_US_homepage_10_3_motion_allowed_keeps_animation(page, base_url):
 # Deferred: the mobile header (anchors hidden below 768 px, only logo and Sign
 # in shown) belongs to US-homepage-10.1 and is tested in task 12, like 8.5.
 # ---------------------------------------------------------------------------
+# Login page h1 (task 06); the old "Sign in" placeholder is gone.
+SIGN_IN_HEADING = "Welcome! Come on in."
 NAV_LABELS = ["Who it is for", "How it works", "Templates", "Sign in"]
 SECTION_HEADINGS = {
     "who": "A little corner of the internet for everyone who loves each other.",
@@ -186,12 +188,12 @@ def test_US_homepage_2_2_anchor_links(page, base_url, anchor, label):
 
 
 def test_US_homepage_2_3_sign_in_navigates(page, base_url):
-    """US-homepage-2.3 (story US-homepage-2): clicking Sign in goes to /sign-in and shows the placeholder."""
+    """US-homepage-2.3 (story US-homepage-2): clicking Sign in goes to /sign-in and shows the login page."""
     page.goto(base_url + "/", wait_until="networkidle")
     page.get_by_role("navigation", name="Main").get_by_role("link", name="Sign in").click()
     page.wait_for_url(re.compile(r"/sign-in$"))
     assert urlparse(page.url).path == "/sign-in"
-    expect(page.get_by_role("heading", level=1, name="Sign in")).to_be_visible()
+    expect(page.get_by_role("heading", level=1, name=SIGN_IN_HEADING)).to_be_visible()
 
 
 def test_US_homepage_2_4_logo_returns_to_top(page, base_url):
@@ -961,8 +963,8 @@ def test_US_homepage_9_1_sign_in_placeholder_happy_path(page, base_url, shot):
     """US-homepage-9.1 (story US-homepage-9): /sign-in is 200 with heading, text and a Back to home link to /."""
     resp = page.goto(base_url + "/sign-in", wait_until="networkidle")
     assert resp.status == 200
-    expect(page.get_by_role("heading", level=1, name="Sign in")).to_be_visible()
-    expect(page.get_by_text("Google sign-in is coming soon.")).to_be_visible()
+    expect(page.get_by_role("heading", level=1, name=SIGN_IN_HEADING)).to_be_visible()
+    expect(page.get_by_role("button", name="Continue with Google")).to_be_visible()
     shot(page, "us-homepage-9-1-sign-in")
     link = page.get_by_role("link", name="Back to home")
     assert link.get_attribute("href") == "/"
@@ -970,7 +972,7 @@ def test_US_homepage_9_1_sign_in_placeholder_happy_path(page, base_url, shot):
     page.wait_for_url(re.compile(r"/$"))
     assert urlparse(page.url).path == "/"
     expect(page.get_by_role("heading", level=1).first).to_be_visible()
-    expect(page.get_by_role("heading", level=1, name="Sign in")).to_have_count(0)
+    expect(page.get_by_role("heading", level=1, name=SIGN_IN_HEADING)).to_have_count(0)
 
 
 def test_US_homepage_9_2_sign_in_no_cookies_no_google(page, base_url):
