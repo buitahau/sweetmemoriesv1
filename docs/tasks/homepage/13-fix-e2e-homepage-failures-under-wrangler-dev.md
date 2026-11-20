@@ -18,9 +18,10 @@ Found while closing [google-sign-in task 09](../google-sign-in/09-retire-sign-in
 - [ ] US-homepage-10.1: header "Sign in" wraps at narrow widths
 - [ ] Animation and transform checks (US-homepage-10)
 - [ ] Mobile nav and layout checks (US-homepage-10)
+- [ ] Also under `wrangler dev` (asset 404s, no CSS): `e2e/google-sign-in/test_google_sign_in_task06_login_page_ui.py::test_US_google_sign_in_1_5_mobile` and `test_US_google_sign_in_1_7_accessibility` at 1440, 768 and 375 px fail; they pass on `pnpm dev` where assets load. Re-run them with the rest of this task
 - [ ] Decide whether the `homepage` row in `docs/features/Progress.md` stays `done` or moves to `in progress` until these pass
 
 ## Verification
 
-- [ ] `pytest e2e/homepage` passes locally and against dev, or each remaining failure is documented with a reason
+- [ ] `pytest e2e/homepage` and the task06 scenarios 1.5 and 1.7 pass locally and against dev, or each remaining failure is documented with a reason
 - [ ] `pnpm test` is green
