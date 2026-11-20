@@ -54,6 +54,13 @@ def neon_endpoint_id(host):
     return first[: -len("-pooler")] if first.endswith("-pooler") else first
 
 
+def _psycopg():
+    """Import psycopg lazily: the no-server unit tests of this helper must not need it."""
+    import psycopg
+
+    return psycopg
+
+
 def check_seed_allowed(base_url, database_url, secret):
     """Guard: local server, a database URL, the secret.
 
@@ -92,7 +99,7 @@ def seed_signed_in_session(base_url, email=None, name="Sam Tester", lifetime_day
     database_url = os.environ.get("E2E_SEED_DATABASE_URL", "")
     secret = os.environ.get("E2E_BETTER_AUTH_SECRET") or os.environ.get("BETTER_AUTH_SECRET", "")
     check_seed_allowed(base_url, database_url, secret)
-    import psycopg  # imported lazily: only the seeding tests need it
+    psycopg = _psycopg()
 
     suffix = uuid.uuid4().hex[:10]
     email = email or f"e2e-{suffix}@example.test"
@@ -124,7 +131,6 @@ def seed_signed_in_session(base_url, email=None, name="Sam Tester", lifetime_day
 
 def delete_seeded_user(user_id):
     """Remove a seeded User (Account and Session rows go with it via ON DELETE CASCADE)."""
-    import psycopg
-
+    psycopg = _psycopg()
     with psycopg.connect(os.environ["E2E_SEED_DATABASE_URL"], autocommit=True) as conn:
         conn.execute('DELETE FROM "user" WHERE id = %s AND id LIKE \'e2e-user-%%\'', (user_id,))

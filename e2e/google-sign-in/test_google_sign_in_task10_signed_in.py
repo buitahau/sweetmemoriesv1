@@ -13,7 +13,7 @@ import uuid
 from urllib.parse import urlparse
 
 import pytest
-from playwright.sync_api import expect
+from playwright.sync_api import Error as PlaywrightError, expect
 
 from helpers import SeedRefused, delete_seeded_user, seed_signed_in_session, sign_cookie_value
 
@@ -142,7 +142,7 @@ def test_US_google_sign_in_3_4_cookie_not_sent_to_subdomain(browser, auth_config
         seen.clear()
         try:
             page.goto(f"{sub}/", wait_until="load")
-        except Exception:
+        except PlaywrightError:
             pass  # the app may refuse or not resolve the subdomain; the request headers are what matter
         sub_requests = [r for r in seen if urlparse(r.url).hostname == "sam.localhost"]
         assert sub_requests, "no request reached sam.localhost"
