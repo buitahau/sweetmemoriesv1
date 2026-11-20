@@ -5,8 +5,8 @@ One test per scenario:
   5.2 expired or invalid session cookie: the Login page shows normally
 plus the task 08 verification item (T08_V3): anonymous /sign-in sets no Set-Cookie header and no cookie.
 
-5.1 here is the manual-cookie variant; task 10 (test_google_sign_in_task10_signed_in.py) owns the
-self-seeded 5.1 and is the single source for the scenario. 5.1 is BLOCKED unless E2E_SESSION_COOKIE ("name=value", a session cookie seeded per ADR 0009 into a
+5.1 here is the manual-cookie variant; task 10 (test_google_sign_in_task10_signed_in.py)
+owns the self-seeded 5.1 and is the single source for the scenario. 5.1 is BLOCKED unless E2E_SESSION_COOKIE ("name=value", a session cookie seeded per ADR 0009 into a
 local or test database) is set; task 10 adds the seeding helper (helpers.seed_signed_in_session). Never type real Google
 credentials. /dashboard answers 404 until dashboard-home 01 lands, so 5.1 asserts the URL path only.
 Run against a local or dev URL, never production:

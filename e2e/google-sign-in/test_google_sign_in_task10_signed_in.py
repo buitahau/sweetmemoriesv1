@@ -7,6 +7,7 @@ seeded scenarios skip as BLOCKED. Never point this at dev or production. Scenari
     E2E_BASE_URL=http://localhost:3000 pytest e2e/google-sign-in/test_google_sign_in_task10_signed_in.py -rs
 Screenshots go to e2e/google-sign-in/screenshots (git-ignored).
 """
+import json
 import os
 import pathlib
 import uuid
@@ -192,11 +193,15 @@ def test_US_google_sign_in_6_2_homepage_has_no_user_data_when_signed_in(auth_con
     page = signed_in_ctx.new_page()
     resp = page.goto(f"{BASE}/", wait_until="networkidle")
     # the Given must hold: the server accepts the seeded cookie (else this is the anonymous page and proves nothing)
-    session = page.evaluate("fetch('/api/auth/get-session').then(r => r.json())")
-    assert session and session["user"]["email"] == seeded["email"], "browser is not signed in"
+    session = page.evaluate(
+        "fetch('/api/auth/get-session').then(async r => ({status: r.status, text: await r.text()}))"
+    )
+    body = json.loads(session["text"]) if session["status"] == 200 and session["text"] not in ("", "null") else None
+    assert body and body["user"]["email"] == seeded["email"], "browser is not signed in"
     html = resp.text()
     _shot(page, "task10_6_2_homepage_signed_in")
     assert seeded["email"] not in html
     assert seeded["name"] not in html
-    assert seeded["email"] not in page.content()
-    assert seeded["name"] not in page.content()
+    rendered = page.content()
+    assert seeded["email"] not in rendered
+    assert seeded["name"] not in rendered
