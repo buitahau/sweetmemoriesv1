@@ -1,9 +1,14 @@
-"""US-google-sign-in-3 (3.3, 3.4), 5.1 and 6 as delivered by task 10 (docs/tasks/google-sign-in/10-e2e-google-sign-in.md).
+"""US-google-sign-in-3 (3.3, 3.4), 5.1 and 6 as delivered by task 10
+(docs/tasks/google-sign-in/10-e2e-google-sign-in.md).
 
-Signed-in state is seeded into your own Neon developer branch and the signed cookie is set in the browser (ADR 0009, helpers.seed_signed_in_session).
-Needs: E2E_BASE_URL (local, default http://localhost:3000), E2E_SEED_DATABASE_URL (your own Neon developer branch, with
-E2E_SEED_NEON_ENDPOINT=<its ep-... id>; the server speaks Neon HTTP, so a plain local Postgres needs a Neon HTTP proxy) and E2E_BETTER_AUTH_SECRET (or BETTER_AUTH_SECRET) equal to the server's secret. Without them the
-seeded scenarios skip as BLOCKED. Never point this at dev or production. Scenarios 3.1 and 3.2 are manual on dev (real Google) and skipped here.
+Signed-in state is seeded into your own Neon developer branch and the signed cookie is set in the browser
+(ADR 0009, helpers.seed_signed_in_session).
+Needs: E2E_BASE_URL (local, default http://localhost:3000), E2E_SEED_DATABASE_URL (your own Neon developer branch,
+with E2E_SEED_NEON_ENDPOINT=<its ep-... id>; the server speaks Neon HTTP, so a plain local Postgres needs a
+Neon HTTP proxy) and E2E_BETTER_AUTH_SECRET (or BETTER_AUTH_SECRET) equal to the server's secret.
+Without them the seeded scenarios skip as BLOCKED. Never point this at dev or production.
+Scenarios 3.1 and 3.2 are manual on dev (real Google) and skipped here.
+Run with Node 24 (T02_V1b and T03_V3 shell out to `pnpm test`).
     E2E_BASE_URL=http://localhost:3000 pytest e2e/google-sign-in/test_google_sign_in_task10_signed_in.py -rs
 Screenshots go to e2e/google-sign-in/screenshots (git-ignored).
 """
@@ -92,10 +97,20 @@ def test_US_google_sign_in_3_2_returning_user_manual():
     """US-google-sign-in-3.2: BLOCKED/manual, recorded in the feature delivery notes."""
 
 
-def test_T10_V2_seeded_cookie_is_accepted_by_get_session(pw, auth_configured, seeded):
-    """Task 10 Verification (guards the cookie-format coupling): the seeded signed cookie yields this User's session; a cookie signed with another secret does not.
+def _inject_cookie(name, value):
+    def handler(route):
+        route.continue_(headers={**route.request.headers, "cookie": f"{name}={value}"})
 
-    Calls the Better Auth /api/auth/get-session endpoint, not the app helper getSession in src/server/auth/session.ts. Both go through auth.api.getSession with the request headers, so this guards the same coupling; 5.1 exercises the app helper through the /dashboard redirect.
+    return handler
+
+
+def test_T10_V2_seeded_cookie_is_accepted_by_get_session(pw, auth_configured, seeded):
+    """Task 10 Verification (guards the cookie-format coupling).
+
+    The seeded signed cookie yields this User's session; a cookie signed with another secret does not.
+    Calls the Better Auth /api/auth/get-session endpoint, not the app helper getSession in
+    src/server/auth/session.ts. Both go through auth.api.getSession with the request headers, so this
+    guards the same coupling; 5.1 exercises the app helper through the /dashboard redirect.
     """
     _, body = _get_session(pw, seeded["cookie_name"], seeded["cookie_value"])
     assert body is not None, "seeded cookie was not accepted: check E2E_BETTER_AUTH_SECRET matches the server"
@@ -115,6 +130,8 @@ def test_US_google_sign_in_3_3_session_cookie_attributes(pw, auth_configured, se
     assert "httponly" in attrs
     assert "samesite=lax" in attrs
     assert not any(a.startswith("domain") for a in attrs), f"cookie must be host-only: {session[0].split(';')[1:]}"
+    # check_seed_allowed only permits a local server, so this runs over http and never sees Secure.
+    # The Secure-on-https half of 3.3 is not covered here; this only asserts Secure is absent on http.
     assert ("secure" in attrs) == BASE.startswith("https://")
 
 
@@ -128,12 +145,9 @@ def test_US_google_sign_in_3_4_cookie_not_sent_to_subdomain(browser, auth_config
     ctx = browser.new_context()
     try:
         page = ctx.new_page()
-        # The jar starts empty. The seeded cookie is sent by header on one request only, so a stored cookie can only come from the server's Set-Cookie.
-        def add_cookie(route):
-            headers = {**route.request.headers, "cookie": f"{name}={seeded_stale['cookie_value']}"}
-            route.continue_(headers=headers)
-
-        page.route(f"{BASE}/api/auth/get-session", add_cookie)
+        # The jar starts empty. The seeded cookie is sent by header on one request only,
+        # so a stored cookie can only come from the server's Set-Cookie.
+        page.route(f"{BASE}/api/auth/get-session", _inject_cookie(name, seeded_stale["cookie_value"]))
         page.goto(f"{BASE}/", wait_until="networkidle")
         # evaluate awaits the fetch, so the Set-Cookie is processed before we read the jar
         result = page.evaluate("fetch('/api/auth/get-session', {credentials: 'include'}).then(async r => ({status: r.status, body: await r.text()}))")
