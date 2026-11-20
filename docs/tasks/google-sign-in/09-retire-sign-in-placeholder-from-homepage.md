@@ -1,6 +1,6 @@
 # 09 Retire the sign-in placeholder from homepage specs and tests
 
-**Status:** in progress (e2e run pending)
+**Status:** in progress (e2e homepage suite has 13 unrelated failures)
 **Side:** front-end
 **Size:** S
 **Dependencies:** [06](06-login-page-ui-from-mockup.md)
@@ -16,13 +16,13 @@
 ## Verification
 
 - [x] `pnpm test` is green
-- [ ] `e2e/homepage` passes with no test asserting "coming soon" (grep confirms no test asserts it; the suite itself was not run by the developer agent)
+- [ ] `e2e/homepage` passes with no test asserting "coming soon" (grep confirms no test asserts it; ran `e2e/homepage` locally: 77 passed, 13 failed, 1 skipped. All US-homepage-2.3 and 9.x tests pass; the 13 failures are unrelated to the placeholder: font/favicon assets 404 under `wrangler dev`, header Sign in wrapping at narrow widths (10.1), animation/transform checks and mobile nav/layout. They need a separate fix or a run against the dev deploy)
 - [x] Progress.md lists both features as `todo` or `in progress`
 
 ## Summary
 
 **Built:** docs-only change. US-homepage-9 is marked superseded by google-sign-in in `docs/features/homepage.md`, and `docs/features/Progress.md` already lists google-sign-in as `in progress` and dashboard-home as `todo`. The unit test (`src/components/sign-in-page.test.tsx`) and the e2e assertions (US-homepage-2.3 and 9.x) were already moved to the login page in [#157](https://github.com/buitahau/sweetmemoriesv1/pull/157) and [#158](https://github.com/buitahau/sweetmemoriesv1/pull/158).
 
-**Test evidence:** `pnpm test` 29 files / 337 passed, typecheck clean. The e2e suite `e2e/homepage` was NOT run.
+**Test evidence:** `pnpm test` 29 files / 337 passed, typecheck clean. `e2e/homepage` run locally against `pnpm start`: 77 passed, 13 failed, 1 skipped. The sign-in stories (2.3, 9.x) pass; the failures are unrelated (asset 404s, narrow-width header wrap, animation and layout checks).
 
-**Still open:** run `e2e/homepage` against `pnpm dev` or the dev deploy, then tick the box above and set Status to done.
+**Still open:** fix or triage the 13 unrelated `e2e/homepage` failures (or confirm them against the dev deploy), then tick the box above and set Status to done.

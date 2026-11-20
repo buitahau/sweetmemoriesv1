@@ -960,7 +960,7 @@ def test_US_homepage_7_3_home_page_vs_memory_pages(page, base_url):
 # US-homepage-9: sign-in page (placeholder superseded by google-sign-in)
 # ---------------------------------------------------------------------------
 def test_US_homepage_9_1_sign_in_page_happy_path(page, base_url, shot):
-    """US-homepage-9.1 (story US-homepage-9): /sign-in is 200 with heading, text and a Back to home link to /."""
+    """US-homepage-9.1 (story US-homepage-9): /sign-in is 200 with heading, Continue with Google button and a Back to home link to /."""
     resp = page.goto(base_url + "/sign-in", wait_until="networkidle")
     assert resp.status == 200
     expect(page.get_by_role("heading", level=1, name=SIGN_IN_HEADING)).to_be_visible()
