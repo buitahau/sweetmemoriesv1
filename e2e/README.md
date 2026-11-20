@@ -3,7 +3,7 @@
 Python Playwright + pytest, one folder per feature (see the `e2e-from-user-stories` skill).
 
 ```
-python3 -m venv .venv-e2e && .venv-e2e/bin/pip install playwright pytest pyyaml axe-playwright-python
+python3 -m venv .venv-e2e && .venv-e2e/bin/pip install playwright pytest pyyaml axe-playwright-python "psycopg[binary]"
 .venv-e2e/bin/playwright install chromium
 pnpm build
 python3 .claude/skills/webapp-testing/scripts/with_server.py --server "pnpm start" --port 3000 -- \
@@ -22,4 +22,23 @@ python3 .claude/skills/webapp-testing/scripts/with_server.py --server "pnpm star
 
 `e2e/dev-test-database` reads the Neon dev branch (GET requests only) when `NEON_API_KEY` and `NEON_PROJECT_ID` are set (add `NEON_DEV_ROLE`, the role name, for the least-privilege check), and the Worker secret when `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` are set. Without them those scenarios skip as BLOCKED. A Neon API key can change the project even though this suite only reads, so use a project-scoped key and keep it out of the repo and CI logs. The ops steps themselves (task 01, task 02 secret) are done by a maintainer.
 
-`e2e/google-sign-in` currently holds the checks for task 01 (workflow, `.env.example`, docs, env typing; static, no browser or server), task 02 (database access layer: static plus a `/api/health` request to `E2E_BASE_URL` or localhost:3000), task 03 (auth schema and first migration: static, plus the live check below) and task 04 (Better Auth route: static plus live `/api/auth/*` requests to `E2E_BASE_URL` or localhost:3000; the live cases skip as BLOCKED when the server has no auth config; to check the 503 path (`-k T04_V3`) run `pnpm start` without auth vars). Maintainer steps (Google Cloud, GitHub Environment, `wrangler secret list`) skip as BLOCKED. Task 06 adds `test_google_sign_in_task06_login_page_ui.py` (browser, US-google-sign-in-1.1 to 1.7: Login page idle state; needs `axe-playwright-python`; run with `with_server.py` as above). Task 07 adds `test_google_sign_in_task07_google_button_states.py` (browser, US-google-sign-in-2.1 to 2.4 and 4.1 to 4.4, plus the bfcache reset; cases needing a configured auth server skip as BLOCKED unless the probe returns 2xx with an accounts.google.com URL; set `E2E_SITE_URL` if the server's SITE_URL differs from `E2E_BASE_URL`). Task 08 adds `test_google_sign_in_task08_redirect_signed_in.py` (US-google-sign-in-5.1 and 5.2; 5.1 is BLOCKED unless `E2E_SESSION_COOKIE=name=value` carries a seeded session per ADR 0009). The remaining browser scenarios (US-3, 6) are added by later tasks (task 10). The task 03 live check (`test_T03_V1c`) runs `pnpm db:migrate` twice against an empty Neon developer branch: set `E2E_NEON_BRANCH_URL=<branch connection string>` and `E2E_ALLOW_MIGRATE=1` (never a production or shared database); without the URL it skips as BLOCKED. Run it with `.venv-e2e/bin/pytest e2e/google-sign-in -rs`.
+`e2e/google-sign-in` holds the checks per task (run with `.venv-e2e/bin/pytest e2e/google-sign-in -rs`):
+
+- Task 01: workflow, `.env.example`, docs, env typing (static).
+- Task 02: database access layer (static plus a `/api/health` request to `E2E_BASE_URL` or localhost:3000).
+- Task 03: auth schema and first migration (static, plus the live check `test_T03_V1c`: runs `pnpm db:migrate` twice against an empty Neon developer branch; set `E2E_NEON_BRANCH_URL=<branch connection string>` and `E2E_ALLOW_MIGRATE=1`, never a production or shared database; skips as BLOCKED without the URL).
+- Task 04: Better Auth route (static plus live `/api/auth/*`; live cases skip as BLOCKED without auth config; for the 503 path (`-k T04_V3`) run `pnpm start` without auth vars). Maintainer steps (Google Cloud, GitHub Environment, `wrangler secret list`) skip as BLOCKED.
+- Task 06: `test_google_sign_in_task06_login_page_ui.py` (US-google-sign-in-1.1 to 1.7; needs `axe-playwright-python`; run with `with_server.py` as above).
+- Task 07: `test_google_sign_in_task07_google_button_states.py` (US 2.1 to 2.4 and 4.1 to 4.4, plus the bfcache reset; needs a configured auth server, otherwise BLOCKED; set `E2E_SITE_URL` if the server's SITE_URL differs from `E2E_BASE_URL`).
+- Task 08: `test_google_sign_in_task08_redirect_signed_in.py` (US 5.1 manual-cookie variant via `E2E_SESSION_COOKIE=name=value`, and 5.2).
+- Task 10: `test_google_sign_in_task10_signed_in.py` (US 3.3, 3.4, 5.1, 6.1, 6.2 and the `getSession` cookie-format check; 3.1 and 3.2 are manual on dev, ADR 0009) and `test_google_sign_in_task10_seed_helper.py` (unit checks of the helper, no server).
+
+### Session seeding (task 10)
+
+The seeded scenarios use `helpers.seed_signed_in_session`, which inserts a User, Account and Session and signs the cookie. Env vars (scenarios skip as BLOCKED without them):
+
+- `E2E_SEED_DATABASE_URL`: your own Neon developer branch. The server talks Neon's SQL-over-HTTP protocol, so a plain local Postgres only works behind a local Neon HTTP proxy; a database on a local host such as localhost is accepted without the allow-list.
+- `E2E_SEED_NEON_ENDPOINT`: that branch's `ep-...` endpoint id.
+- `E2E_BETTER_AUTH_SECRET` (or `BETTER_AUTH_SECRET`): must equal the server's secret.
+
+Run against `pnpm start` with the same `DATABASE_URL` and secret. The helper refuses a non-local `E2E_BASE_URL` and any non-local database that is not a Neon one with the allow-listed endpoint id (Neon hostnames never contain the branch name, so the allow-list is the only reliable guard against the dev or production database).
