@@ -150,8 +150,13 @@ def test_US_google_sign_in_3_4_cookie_not_sent_to_subdomain(browser, auth_config
         page.route(f"{BASE}/api/auth/get-session", _inject_cookie(name, seeded_stale["cookie_value"]))
         page.goto(f"{BASE}/", wait_until="networkidle")
         # evaluate awaits the fetch, so the Set-Cookie is processed before we read the jar
-        result = page.evaluate("fetch('/api/auth/get-session', {credentials: 'include'}).then(async r => ({status: r.status, body: await r.text()}))")
-        assert result["status"] == 200 and result["body"] not in ("", "null"), "Cookie header override was not applied: get-session returned no session"
+        result = page.evaluate(
+            "fetch('/api/auth/get-session', {credentials: 'include'})"
+            ".then(async r => ({status: r.status, body: await r.text()}))"
+        )
+        assert result["status"] == 200 and result["body"] not in ("", "null"), (
+            "Cookie header override was not applied: get-session returned no session"
+        )
         page.unroute(f"{BASE}/api/auth/get-session")
         stored = [c for c in ctx.cookies() if c["name"] == name]
         assert stored, "the server did not set a session cookie for the stale seeded session"
@@ -176,7 +181,8 @@ def test_US_google_sign_in_3_4_cookie_not_sent_to_subdomain(browser, auth_config
 
 @pytest.mark.parametrize("entry", ["direct", "homepage_link"])
 def test_US_google_sign_in_5_1_signed_in_user_is_redirected_to_dashboard(auth_configured, signed_in_ctx, entry):
-    """US-google-sign-in-5.1 (happy, session: user): opening /sign-in (directly or from the homepage Sign in link) while signed in redirects to /dashboard (path only until the dashboard exists)."""
+    """US-google-sign-in-5.1 (happy, session: user): opening /sign-in (directly or from the
+    homepage Sign in link) while signed in redirects to /dashboard (path only until the dashboard exists)."""
     page = signed_in_ctx.new_page()
     if entry == "direct":
         page.goto(f"{BASE}/sign-in", wait_until="networkidle")

@@ -127,3 +127,4 @@ Existing state: `src/routes/sign-in.tsx` and `src/components/sign-in-page.tsx` h
 
 - Manual dev run of US-google-sign-in-3.1 and 3.2 (ADR 0009): **NOT YET DONE**. It needs the product owner's Google test account in their own signed-in Chrome. Until it is recorded here, "creates or reuses one User and lands on `/dashboard`" has no evidence.
 - Seeded e2e scenarios (task 10) have not yet run against a real Neon developer branch: run `pytest e2e/google-sign-in -rs` against `pnpm start` with `E2E_SEED_DATABASE_URL`, `E2E_SEED_NEON_ENDPOINT` and `E2E_BETTER_AUTH_SECRET` set, and record the result here.
+- Manual dev run of 3.1 must also check the 3.3 cookie attribute that seeding cannot cover (seeding is local-only, ADR 0009): after the real sign-in on an https dev URL, inspect the `__Secure-better-auth.session_token` cookie in DevTools and confirm it is `Secure`, `HttpOnly` and `SameSite=Lax`. Record the result here.

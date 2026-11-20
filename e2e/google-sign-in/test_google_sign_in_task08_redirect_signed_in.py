@@ -43,10 +43,14 @@ def _assert_login_page(page):
 
 @pytest.mark.parametrize("entry", ["direct", "homepage_link"])
 def test_US_google_sign_in_5_1_signed_in_user_is_redirected_to_dashboard(ctx, entry):
-    """US-google-sign-in-5.1 (happy, session: user): a signed-in User opening /sign-in, directly or via the homepage "Sign in" link, lands on /dashboard."""
+    """US-google-sign-in-5.1 (happy, session: user): a signed-in User opening /sign-in,
+    directly or via the homepage "Sign in" link, lands on /dashboard."""
     seeded = os.environ.get("E2E_SESSION_COOKIE", "")
     if "=" not in seeded:
-        pytest.skip("BLOCKED: no seeded session (set E2E_SESSION_COOKIE=name=value, ADR 0009; or run the seeded 5.1 in test_google_sign_in_task10_signed_in.py)")
+        pytest.skip(
+            "BLOCKED: no seeded session (set E2E_SESSION_COOKIE=name=value, ADR 0009; "
+            "or run the seeded 5.1 in test_google_sign_in_task10_signed_in.py)"
+        )
     name, value = seeded.split("=", 1)
     _add_cookie(ctx, name, value)
     page = ctx.new_page()
