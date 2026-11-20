@@ -1,7 +1,7 @@
 # Feature: homepage
 
 **Status:** done
-**Side:** front-end. The static page, its sections and the `/sign-in` placeholder route. No backend work: no data, no API, no session.
+**Side:** front-end. The static page, its sections and the `/sign-in` placeholder route (superseded by google-sign-in). No backend work: no data, no API, no session.
 **Mockup:** [Landing2.dc.html](../ui/Homepage/light%20pink/Landing2.dc.html) (folder kept as-is; moving it to `docs/ui/homepage/` is optional and not part of this work)
 
 Tasks: [../tasks/homepage/](../tasks/homepage/) (00 to 12). ADR: [0005](../adr/0005-self-host-web-fonts.md). Open questions: [../decisions/homepage-feature.md](../decisions/homepage-feature.md), [../decisions/homepage-adr.md](../decisions/homepage-adr.md). Related: [homepage-seo](homepage-seo.md).
