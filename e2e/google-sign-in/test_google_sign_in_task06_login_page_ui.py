@@ -54,6 +54,8 @@ def _goto_sign_in(page):
 
 def _assert_login_page(page):
     assert urlparse(page.url).path == "/sign-in"
+    # Client-side navigation hides the status, so re-request the URL to check the 200.
+    assert page.request.get(page.url).status == 200
     expect(page.get_by_role("heading", level=1, name=H1)).to_be_visible()
     expect(page.get_by_role("button", name="Continue with Google")).to_be_visible()
 
@@ -73,14 +75,21 @@ def test_US_google_sign_in_1_1_from_homepage_start_with_google(open_ctx, section
     """US-google-sign-in-1.1 (story US-google-sign-in-1): hero and final-CTA Start with Google links open the Login page."""
     page = open_ctx().new_page()
     page.goto(BASE + "/", wait_until="networkidle")
-    links = page.get_by_role("link", name="Start with Google")
-    assert links.count() >= 2
-    link = links.first if section_name == "hero" else links.last
+    if section_name == "hero":
+        # The hero is the section that holds the page h1.
+        scope = page.locator("section").filter(has=page.get_by_role("heading", level=1))
+    else:
+        # The final CTA is a labelled region (aria-labelledby its heading).
+        scope = page.get_by_role("region", name="Start with the memory everyone keeps telling.")
+    link = scope.get_by_role("link", name="Start with Google")
+    expect(link).to_have_count(1)
     link.scroll_into_view_if_needed()
+    _shot(page, f"US-google-sign-in-1.1_{section_name}_before_click")
     assert link.get_attribute("href") == "/sign-in"
     link.click()
     page.wait_for_url(re.compile(r"/sign-in/?$"))
     _assert_login_page(page)
+    _shot(page, f"US-google-sign-in-1.1_{section_name}")
 
 
 def test_US_google_sign_in_1_2_content(open_ctx):
@@ -104,10 +113,12 @@ def test_US_google_sign_in_1_3_no_cookies_no_third_parties(open_ctx):
     """US-google-sign-in-1.3 (story US-google-sign-in-1): no Set-Cookie, no stored cookies, no Google requests."""
     ctx = open_ctx()
     page = ctx.new_page()
-    urls, set_cookie = [], []
+    urls, responses = [], []
     page.on("request", lambda r: urls.append(r.url))
-    page.on("response", lambda r: set_cookie.append(r.url) if "set-cookie" in {k.lower() for k in r.headers} else None)
+    page.on("response", lambda r: responses.append(r))
     _goto_sign_in(page)
+    # Response.headers omits cookie headers; all_headers() is blocking, so call it after the load.
+    set_cookie = [r.url for r in responses if "set-cookie" in r.all_headers()]
     assert set_cookie == [], f"responses set cookies: {set_cookie}"
     assert ctx.cookies() == []
     banned = ("accounts.google.com", "fonts.googleapis.com", "fonts.gstatic.com")
@@ -153,13 +164,17 @@ def test_US_google_sign_in_1_6_reduced_motion(open_ctx):
 @pytest.mark.parametrize("width,height", [(1440, 900), (768, 1024), (375, 812)])
 def test_US_google_sign_in_1_7_accessibility(open_ctx, width, height):
     """US-google-sign-in-1.7 (story US-google-sign-in-1): axe has no serious/critical issues; illustration hidden; Tab focus visible."""
+    # reduced_motion avoids false contrast results while elements are still fading in.
     page = open_ctx(width, height, reduced_motion="reduce").new_page()
     _goto_sign_in(page)
+    # The page stylesheet must have loaded, otherwise axe and the checks below run on an unstyled page.
+    assert page.evaluate("getComputedStyle(document.body).backgroundColor") != "rgba(0, 0, 0, 0)"
     res = Axe().run(page)
     bad = [v for v in res.response["violations"] if v["impact"] in ("serious", "critical")]
     assert bad == [], [(v["id"], v["impact"]) for v in bad]
     # The decorative illustration must be hidden from assistive technology.
     assert page.locator("section[aria-hidden='true']").count() >= 1
+    assert page.get_by_role("img").count() == 0, "illustration exposes images to assistive technology"
     # Tab reaches the button and shows a visible focus outline.
     btn = page.get_by_role("button", name="Continue with Google")
     for _ in range(6):
