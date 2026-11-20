@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { authClient } from '../lib/auth-client'
 import { Logo } from './home/logo'
 import {
@@ -150,9 +150,14 @@ function Illustration() {
   )
 }
 
+// Module-level so the reference is stable: Better Auth's client is a Proxy and
+// returns a new function on every property access.
+const defaultSignInSocial: SignInSocial = (options) =>
+  authClient.signIn.social(options)
+
 export function SignInPage({
   error,
-  signInSocial = authClient.signIn.social as SignInSocial,
+  signInSocial = defaultSignInSocial,
 }: {
   error?: string
   signInSocial?: SignInSocial
@@ -161,13 +166,14 @@ export function SignInPage({
     loading: boolean
     message: string | null
   }>({ loading: false, message: errorMessageFor(error) })
-  const start = useMemo(
-    () => createSignInController(signInSocial, setView),
-    [signInSocial],
+  // Kept in a ref so the in-flight guard survives re-renders.
+  const controller = useRef<ReturnType<typeof createSignInController> | null>(
+    null,
   )
   const onClick = useCallback(() => {
-    void start()
-  }, [start])
+    controller.current ??= createSignInController(signInSocial, setView)
+    void controller.current()
+  }, [signInSocial])
 
   return (
     <div className="bg-cream text-ink font-body flex min-h-screen flex-wrap text-[17px] leading-[1.55]">

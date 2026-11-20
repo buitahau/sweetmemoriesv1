@@ -9,8 +9,8 @@ export const IDLE_LABEL = 'Continue with Google'
  * Maps the `?error=` code to one of two fixed messages. The raw value is never
  * returned, so nothing from the URL can be reflected into the page.
  */
-export function errorMessageFor(code: unknown): string | null {
-  if (code === undefined || code === null || code === '') return null
+export function errorMessageFor(code: string | undefined): string | null {
+  if (code === undefined || code === '') return null
   return code === 'access_denied' ? CANCEL_MESSAGE : GENERIC_MESSAGE
 }
 
