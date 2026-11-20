@@ -43,7 +43,11 @@ def seeded():
 
 @pytest.fixture
 def seeded_stale():
-    """A session old enough that Better Auth refreshes it (and so re-sets the cookie) on the next getSession."""
+    """A session old enough that Better Auth refreshes it (and so re-sets the cookie) on the next getSession.
+
+    Assumes Better Auth's defaults: expiresIn 7 days and updateAge 1 day, so a session created 5 days ago
+    (2 days left) is past the refresh point. If session settings are ever added to buildAuthOptions
+    (src/server/auth/auth.ts), update lifetime_days here or 3.3 and 3.4 fail with "not refreshed"."""
     s = _seed(lifetime_days=5)
     yield s
     delete_seeded_user(s["user_id"], BASE)
@@ -156,7 +160,7 @@ def test_US_google_sign_in_3_4_cookie_not_sent_to_subdomain(browser, auth_config
 
 
 @pytest.mark.parametrize("entry", ["direct", "homepage_link"])
-def test_US_google_sign_in_5_1_signed_in_user_is_redirected_to_dashboard(signed_in_ctx, entry):
+def test_US_google_sign_in_5_1_signed_in_user_is_redirected_to_dashboard(auth_configured, signed_in_ctx, entry):
     """US-google-sign-in-5.1 (happy, session: user): opening /sign-in (directly or from the homepage Sign in link) while signed in redirects to /dashboard (path only until the dashboard exists)."""
     page = signed_in_ctx.new_page()
     if entry == "direct":
@@ -183,10 +187,13 @@ def test_US_google_sign_in_6_1_public_routes_set_no_cookie(pw, path):
         req.dispose()
 
 
-def test_US_google_sign_in_6_2_homepage_has_no_user_data_when_signed_in(signed_in_ctx, seeded):
+def test_US_google_sign_in_6_2_homepage_has_no_user_data_when_signed_in(auth_configured, signed_in_ctx, seeded):
     """US-google-sign-in-6.2 (security, session: user): the homepage HTML holds neither the User's email nor their name."""
     page = signed_in_ctx.new_page()
     resp = page.goto(f"{BASE}/", wait_until="networkidle")
+    # the Given must hold: the server accepts the seeded cookie (else this is the anonymous page and proves nothing)
+    session = page.evaluate("fetch('/api/auth/get-session').then(r => r.json())")
+    assert session and session["user"]["email"] == seeded["email"], "browser is not signed in"
     html = resp.text()
     _shot(page, "task10_6_2_homepage_signed_in")
     assert seeded["email"] not in html
