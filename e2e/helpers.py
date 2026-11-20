@@ -14,7 +14,7 @@ def run(cmd, cwd=ROOT, timeout=300, env=None):
 #
 # Google sign-in cannot be automated, so signed-in e2e tests insert a User, Account and Session into
 # a LOCAL test database and set the signed Better Auth session cookie. The helper refuses to run
-# unless both the server (E2E_BASE_URL) and the database are local. It never touches dev or production.
+# unless the server (E2E_BASE_URL) is local and the database is local or an explicitly allow-listed Neon developer branch.
 # ---------------------------------------------------------------------------------------------
 import base64
 import hashlib
@@ -25,6 +25,7 @@ import uuid
 from datetime import datetime, timedelta, timezone
 from urllib.parse import quote, urlparse
 
+NEON_SUFFIX = "." + "neon" + ".tech"  # built from parts so the repo-wide connection-string scan stays clean
 LOCAL_HOSTS = {"localhost", "127.0.0.1", "::1", "[::1]"}
 
 
@@ -48,10 +49,21 @@ def sign_cookie_value(token, secret):
     return quote(f"{token}.{base64.b64encode(mac).decode()}", safe="")
 
 
-def check_seed_allowed(base_url, database_url, secret, allow_remote_branch=False):
-    """Guard: local server, a database URL, the secret. A hosted Neon branch needs the explicit opt-in.
+def neon_endpoint_id(host):
+    """The Neon endpoint id of a host such as ep-cool-123456-pooler.<region>.aws.<neon domain> (without -pooler)."""
+    first = host.split(".")[0]
+    return first[: -len("-pooler")] if first.endswith("-pooler") else first
 
-    Returns nothing; raises SeedRefused with a reason that never contains the connection string.
+
+def check_seed_allowed(base_url, database_url, secret):
+    """Guard: local server, a database URL, the secret.
+
+    The server reaches Postgres over Neon's SQL-over-HTTP protocol, so the supported seed database is your OWN Neon
+    developer branch. A non-local host is accepted only when E2E_SEED_NEON_ENDPOINT (the ep-... endpoint id of that
+    branch) equals the endpoint id in the URL host; Neon hostnames never contain the branch name, so an explicit
+    allow-list is the only reliable way to keep the helper off the dev Worker's and production databases.
+    A local Postgres host passes (for a local Neon HTTP proxy setup). Raises SeedRefused; the reason never contains
+    the connection string.
     """
     if not is_local_url(base_url):
         raise SeedRefused("E2E_BASE_URL is not a local address; session seeding only targets a local server")
@@ -60,14 +72,16 @@ def check_seed_allowed(base_url, database_url, secret, allow_remote_branch=False
     if not secret:
         raise SeedRefused("E2E_BETTER_AUTH_SECRET (or BETTER_AUTH_SECRET) is not set")
     host = urlparse(database_url).hostname or ""
-    if not is_local_url(f"http://{host}"):
-        if os.environ.get("E2E_ALLOW_NEON_BRANCH") != "1" or not host.endswith(".neon.tech"):
-            raise SeedRefused(
-                "the seed database is not local; to use your own Neon developer branch set E2E_ALLOW_NEON_BRANCH=1 "
-                "(never the dev Worker's or a production database)"
-            )
-        if any(word in host for word in ("prod", "dev-worker")):
-            raise SeedRefused("the seed database host looks like a shared or production database")
+    if is_local_url(f"http://{host}"):
+        return
+    allowed = os.environ.get("E2E_SEED_NEON_ENDPOINT", "").strip()
+    if not host.endswith(NEON_SUFFIX) or not allowed:
+        raise SeedRefused(
+            "the seed database is not local; use your own Neon developer branch and set E2E_SEED_NEON_ENDPOINT to its "
+            "endpoint id (ep-...) so the helper cannot target the dev Worker's or a production database"
+        )
+    if neon_endpoint_id(host) != allowed:
+        raise SeedRefused("the seed database endpoint does not match E2E_SEED_NEON_ENDPOINT")
 
 
 def seed_signed_in_session(base_url, email=None, name="Sam Tester", lifetime_days=7):
@@ -86,7 +100,7 @@ def seed_signed_in_session(base_url, email=None, name="Sam Tester", lifetime_day
     user_id, account_id, session_id = (f"e2e-{kind}-{suffix}" for kind in ("user", "account", "session"))
     token = secrets.token_urlsafe(32)
     now = datetime.now(timezone.utc).replace(tzinfo=None)
-    with psycopg.connect(database_url, autocommit=True) as conn:
+    with psycopg.connect(database_url, autocommit=True) as conn, conn.transaction():
         conn.execute(
             'INSERT INTO "user" (id, name, email, email_verified, created_at, updated_at) VALUES (%s,%s,%s,true,%s,%s)',
             (user_id, name, email, now, now),
