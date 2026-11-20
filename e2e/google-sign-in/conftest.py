@@ -22,3 +22,17 @@ def secrets():
 @pytest.fixture(scope="session")
 def workflow():
     return yaml.safe_load((ROOT / ".github/workflows/deploy-dev.yml").read_text())
+
+
+@pytest.fixture(scope="module")
+def browser(pw):
+    b = pw.chromium.launch()
+    yield b
+    b.close()
+
+
+@pytest.fixture
+def ctx(browser):
+    c = browser.new_context(viewport={"width": 1440, "height": 900})
+    yield c
+    c.close()
