@@ -1,6 +1,6 @@
 # 09 Retire the sign-in placeholder from homepage specs and tests
 
-**Status:** in progress (e2e homepage suite has 13 unrelated failures)
+**Status:** done
 **Side:** front-end
 **Size:** S
 **Dependencies:** [06](06-login-page-ui-from-mockup.md)
@@ -16,7 +16,7 @@
 ## Verification
 
 - [x] `pnpm test` is green
-- [ ] `e2e/homepage` passes with no test asserting "coming soon" (grep confirms no test asserts it; ran `e2e/homepage` locally: 77 passed, 13 failed, 1 skipped. All US-homepage-2.3 and 9.x tests pass; the 13 failures are unrelated to the placeholder: font/favicon assets 404 under `wrangler dev`, header Sign in wrapping at narrow widths (10.1), animation/transform checks and mobile nav/layout. tracked in [homepage task 13](../homepage/13-fix-e2e-homepage-failures-under-wrangler-dev.md), which also records the dev-v2 baseline. Tick this box once the sign-in scenarios are green and that task owns the rest)
+- [x] `e2e/homepage` passes with no test asserting "coming soon" (verified on dev: US-homepage-2.3, 9.1, 9.2 and 9.3 pass; the 13 unrelated wrangler-dev failures did not reproduce on dev, see [homepage task 13](../homepage/13-fix-e2e-homepage-failures-under-wrangler-dev.md))
 - [x] Progress.md lists both features as `todo` or `in progress`
 
 ## Summary
@@ -27,6 +27,8 @@
 
 **Test evidence (first run):** `pnpm test` 29 files / 337 passed, typecheck clean. `e2e/homepage` run locally against `pnpm start`: 77 passed, 13 failed, 1 skipped. The sign-in stories (2.3, 9.x) pass; the failures are unrelated (asset 404s, narrow-width header wrap, animation and layout checks).
 
-**Still open:** the 13 unrelated `e2e/homepage` failures are tracked in [homepage task 13](../homepage/13-fix-e2e-homepage-failures-under-wrangler-dev.md). Once its baseline confirms they predate this branch, tick the box above with "sign-in scenarios green; unrelated failures tracked in homepage task 13" and set Status to done.
+**Dev test (PR [#162](https://github.com/buitahau/sweetmemoriesv1/pull/162), merge 7747927):** PASS. Headed Playwright against dev: google-sign-in + homepage e2e 138 passed, 0 failed, 8 blocked (no seeded session, no Neon branch URL, no Cloudflare or Google console access, homepage 5.4 needs Template storage). Two apparent failures (task02 T02_V1b, task03 T03_V3) came from a shell on Node 18 and pass on Node 24. Walkthrough at 1440, 768 and 375 px: header Sign in link goes to `/sign-in`, heading "Welcome! Come on in.", "Continue with Google" visible, no horizontal scroll, focus ring visible, no console errors. Evidence: `/tmp/claude-1000/-home-haukute-work-project-sweetmemoriesv1-sweetmemoriesv1/55189819-bf24-4890-9a44-bd96da5c6539/scratchpad/evidence/` (`dev-headed-run.log`, `dev-headed-junit.xml`, `walk09.json`, screenshots). Fix cycles: 0.
+
+**Resolved (was open):** the 13 unrelated `e2e/homepage` failures are tracked in [homepage task 13](../homepage/13-fix-e2e-homepage-failures-under-wrangler-dev.md). Once its baseline confirms they predate this branch, tick the box above with "sign-in scenarios green; unrelated failures tracked in homepage task 13" and set Status to done.
 
 **Coverage gap and owner:** within this ticket's scope (US-google-sign-in-1, 2, 4, 5 and the homepage stories) every scenario has a test. The rest has none yet: US-google-sign-in-3.3, 3.4, 6.1 and 6.2 have no `test_US_google_sign_in_*` test, and 3.1 and 3.2 are manual by design (ADR 0009). All of them belong to [google-sign-in task 10](10-e2e-google-sign-in.md) (status todo).
