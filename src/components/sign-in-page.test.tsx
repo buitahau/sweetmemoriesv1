@@ -91,12 +91,15 @@ describe('SignInPage error states', () => {
 })
 
 describe('/sign-in route', () => {
-  it('validates the search param to a string error only', () => {
+  it('validates the search param to a string error code', () => {
     const v = Route.options.validateSearch as (
       s: Record<string, unknown>,
     ) => unknown
     expect(v({ error: 'access_denied' })).toEqual({ error: 'access_denied' })
-    expect(v({ error: ['a'] })).toEqual({})
+    expect(v({ error: 123 })).toEqual({ error: '123' })
+    expect(v({ error: true })).toEqual({ error: 'true' })
+    expect(v({ error: null })).toEqual({})
+    expect(v({ error: ['a'] })).toEqual({ error: 'unknown' })
     expect(v({})).toEqual({})
   })
 

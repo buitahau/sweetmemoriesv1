@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { authClient } from '../lib/auth-client'
 import { Logo } from './home/logo'
 import {
@@ -170,6 +170,17 @@ export function SignInPage({
   const controller = useRef<ReturnType<typeof createSignInController> | null>(
     null,
   )
+  // A page restored from the back/forward cache keeps its JS state, so the
+  // button would stay stuck on "Opening Google…". Reset to idle.
+  useEffect(() => {
+    const onPageShow = (event: PageTransitionEvent) => {
+      if (!event.persisted) return
+      if (controller.current) controller.current.reset()
+      else setView({ loading: false, message: null })
+    }
+    window.addEventListener('pageshow', onPageShow)
+    return () => window.removeEventListener('pageshow', onPageShow)
+  }, [])
   const onClick = useCallback(() => {
     controller.current ??= createSignInController(signInSocial, setView)
     void controller.current()

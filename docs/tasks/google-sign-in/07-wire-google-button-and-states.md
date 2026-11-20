@@ -17,4 +17,5 @@
 ## Verification
 
 - [x] Vitest with a mocked client: one call per double click; loading attributes set; `?error=access_denied` shows the cancel message; `?error=<script>` shows the generic message with no reflected text; a rejected call restores idle
-- [ ] Manual on `pnpm start`: the click reaches the Google account chooser
+- [ ] Manual on `pnpm start`: the click reaches the Google account chooser (not run by the developer agent: needs real Google credentials and a browser; still open)
+- [x] Back/forward cache restore resets the button to idle (`pageshow` with `persisted`, `controller.reset()`)

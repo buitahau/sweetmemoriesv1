@@ -5,6 +5,7 @@ import {
   LOADING_MESSAGE,
   createSignInController,
   errorMessageFor,
+  normalizeErrorParam,
   type SignInView,
 } from './sign-in-state'
 
@@ -25,7 +26,35 @@ describe('errorMessageFor', () => {
   })
 })
 
+describe('normalizeErrorParam', () => {
+  it('drops absent and empty values', () => {
+    for (const v of [undefined, null, '']) {
+      expect(normalizeErrorParam(v)).toBeUndefined()
+    }
+  })
+  it('turns JSON-parsed non-strings into unknown codes', () => {
+    expect(normalizeErrorParam(123)).toBe('123')
+    expect(normalizeErrorParam(true)).toBe('true')
+    expect(errorMessageFor(normalizeErrorParam(123))).toBe(GENERIC_MESSAGE)
+    expect(errorMessageFor(normalizeErrorParam(false))).toBe(GENERIC_MESSAGE)
+  })
+  it('keeps strings as is', () => {
+    expect(normalizeErrorParam('access_denied')).toBe('access_denied')
+  })
+})
+
 describe('createSignInController', () => {
+  it('reset() returns to idle and allows another attempt', async () => {
+    const signIn = vi.fn(() => new Promise<void>(() => {}))
+    const views: SignInView[] = []
+    const start = createSignInController(signIn, (v) => views.push(v))
+    void start()
+    start.reset()
+    expect(views.at(-1)).toEqual({ loading: false, message: null })
+    void start()
+    expect(signIn).toHaveBeenCalledTimes(2)
+  })
+
   it('calls signIn.social once on a double click and shows loading', async () => {
     const signIn = vi.fn(() => new Promise<void>(() => {}))
     const views: SignInView[] = []

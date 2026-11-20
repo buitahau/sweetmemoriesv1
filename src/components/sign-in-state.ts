@@ -14,6 +14,17 @@ export function errorMessageFor(code: string | undefined): string | null {
   return code === 'access_denied' ? CANCEL_MESSAGE : GENERIC_MESSAGE
 }
 
+/**
+ * TanStack Router JSON-parses query values, so `?error=123` arrives as a
+ * number. Any present, non-empty value becomes a string code (unknown codes
+ * map to the generic message); the raw value is never rendered.
+ */
+export function normalizeErrorParam(value: unknown): string | undefined {
+  if (value === undefined || value === null || value === '') return undefined
+  if (typeof value === 'string') return value
+  return typeof value === 'object' ? 'unknown' : String(value)
+}
+
 export type SignInSocial = (options: {
   provider: 'google'
   callbackURL: string
@@ -36,7 +47,7 @@ export function createSignInController(
   let loading = false
   const emit = (message: string | null) => onChange({ loading, message })
 
-  return async function start(): Promise<void> {
+  async function start(): Promise<void> {
     if (loading) return
     loading = true
     emit(LOADING_MESSAGE)
@@ -56,4 +67,12 @@ export function createSignInController(
       emit(GENERIC_MESSAGE)
     }
   }
+
+  /** Back to idle, e.g. when the page is restored from the back/forward cache. */
+  function reset(): void {
+    loading = false
+    emit(null)
+  }
+
+  return Object.assign(start, { reset })
 }
