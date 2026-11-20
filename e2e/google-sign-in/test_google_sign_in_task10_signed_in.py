@@ -38,7 +38,7 @@ def _seed(lifetime_days=7):
 def seeded():
     s = _seed()
     yield s
-    delete_seeded_user(s["user_id"])
+    delete_seeded_user(s["user_id"], BASE)
 
 
 @pytest.fixture
@@ -46,7 +46,7 @@ def seeded_stale():
     """A session old enough that Better Auth refreshes it (and so re-sets the cookie) on the next getSession."""
     s = _seed(lifetime_days=5)
     yield s
-    delete_seeded_user(s["user_id"])
+    delete_seeded_user(s["user_id"], BASE)
 
 
 @pytest.fixture
@@ -88,7 +88,10 @@ def test_US_google_sign_in_3_2_returning_user_manual():
 
 
 def test_T10_V2_seeded_cookie_is_accepted_by_get_session(pw, auth_configured, seeded):
-    """Task 10 Verification (guards the cookie-format coupling): the seeded signed cookie yields this User's session; a cookie signed with another secret does not."""
+    """Task 10 Verification (guards the cookie-format coupling): the seeded signed cookie yields this User's session; a cookie signed with another secret does not.
+
+    Calls the Better Auth /api/auth/get-session endpoint, not the app helper getSession in src/server/auth/session.ts. Both go through auth.api.getSession with the request headers, so this guards the same coupling; 5.1 exercises the app helper through the /dashboard redirect.
+    """
     _, body = _get_session(pw, seeded["cookie_name"], seeded["cookie_value"])
     assert body is not None, "seeded cookie was not accepted: check E2E_BETTER_AUTH_SECRET matches the server"
     assert body["user"]["email"] == seeded["email"]
