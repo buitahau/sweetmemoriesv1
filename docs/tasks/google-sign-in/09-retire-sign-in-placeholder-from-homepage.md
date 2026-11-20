@@ -16,7 +16,7 @@
 ## Verification
 
 - [x] `pnpm test` is green
-- [ ] `e2e/homepage` passes with no test asserting "coming soon" (grep confirms no test asserts it; ran `e2e/homepage` locally: 77 passed, 13 failed, 1 skipped. All US-homepage-2.3 and 9.x tests pass; the 13 failures are unrelated to the placeholder: font/favicon assets 404 under `wrangler dev`, header Sign in wrapping at narrow widths (10.1), animation/transform checks and mobile nav/layout. They need a separate fix or a run against the dev deploy)
+- [ ] `e2e/homepage` passes with no test asserting "coming soon" (grep confirms no test asserts it; ran `e2e/homepage` locally: 77 passed, 13 failed, 1 skipped. All US-homepage-2.3 and 9.x tests pass; the 13 failures are unrelated to the placeholder: font/favicon assets 404 under `wrangler dev`, header Sign in wrapping at narrow widths (10.1), animation/transform checks and mobile nav/layout. tracked in [homepage task 13](../homepage/13-fix-e2e-homepage-failures-under-wrangler-dev.md), which also records the dev-v2 baseline. Tick this box once the sign-in scenarios are green and that task owns the rest)
 - [x] Progress.md lists both features as `todo` or `in progress`
 
 ## Summary
@@ -25,4 +25,4 @@
 
 **Test evidence:** `pnpm test` 29 files / 337 passed, typecheck clean. `e2e/homepage` run locally against `pnpm start`: 77 passed, 13 failed, 1 skipped. The sign-in stories (2.3, 9.x) pass; the failures are unrelated (asset 404s, narrow-width header wrap, animation and layout checks).
 
-**Still open:** fix or triage the 13 unrelated `e2e/homepage` failures (or confirm them against the dev deploy), then tick the box above and set Status to done.
+**Still open:** the 13 unrelated `e2e/homepage` failures are tracked in [homepage task 13](../homepage/13-fix-e2e-homepage-failures-under-wrangler-dev.md). Once its baseline confirms they predate this branch, tick the box above with "sign-in scenarios green; unrelated failures tracked in homepage task 13" and set Status to done.
