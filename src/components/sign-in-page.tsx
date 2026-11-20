@@ -80,7 +80,7 @@ function Illustration() {
         />
       </svg>
 
-      <div className="absolute left-1/2 top-1/2 -ml-[210px] -mt-[150px] hidden h-[360px] w-[420px] md:block">
+      <div className="absolute left-1/2 top-1/2 -ml-[210px] -mt-[150px] hidden h-[360px] w-[420px] min-[1080px]:block">
         <div className="animate-sm-sway-a absolute left-2.5 top-[30px] w-[190px] origin-top rounded-lg bg-white px-2.5 pb-10 pt-2.5 shadow-[0_14px_28px_rgba(110,40,60,0.2)]">
           <div className="h-[170px] rounded-[5px] bg-[#CDEFE0]" />
           <div className="font-hand absolute bottom-2 left-3.5 text-[26px] font-bold">
@@ -157,7 +157,7 @@ export function SignInPage() {
             </span>
           </a>
 
-          <div className="animate-sm-rise">
+          <div className="animate-sm-rise sm-d1">
             <h1 className="font-display text-[36px] font-bold leading-[1.05] tracking-tight md:text-5xl">
               Welcome! Come on in.
             </h1>
@@ -167,11 +167,11 @@ export function SignInPage() {
             </p>
           </div>
 
-          <div className="animate-sm-rise flex flex-col gap-[18px] rounded-panel bg-white px-7 py-8 shadow-[0_8px_0_#F6D3DC]">
+          <div className="animate-sm-rise sm-d2 flex flex-col gap-[18px] rounded-panel bg-white px-7 py-8 shadow-[0_8px_0_var(--color-pink-edge)]">
             <button
               type="button"
               aria-busy="false"
-              className={`text-ink flex min-h-[60px] w-full cursor-pointer items-center justify-center gap-3.5 rounded-full border-0 bg-[#FFA5BA] text-lg font-bold shadow-[0_5px_0_#E57E98,inset_0_0_0_1.5px_#3B2433] transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 active:translate-y-[3px] ${focus}`}
+              className={`text-ink flex min-h-[60px] w-full cursor-pointer items-center justify-center gap-3.5 rounded-full border-0 bg-pink-button text-lg font-bold shadow-[0_5px_0_var(--color-pink-400),inset_0_0_0_1.5px_#3B2433] transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 active:translate-y-[3px] ${focus}`}
             >
               <span className="flex size-[34px] items-center justify-center rounded-full bg-white">
                 <GoogleMark />
@@ -186,16 +186,16 @@ export function SignInPage() {
             />
 
             <div className="text-ink-muted flex items-center gap-3 text-sm">
-              <span className="h-0.5 flex-1 rounded-[1px] bg-[#F6D3DC]" />
+              <span className="h-0.5 flex-1 rounded-[1px] bg-pink-edge" />
               <span>New here?</span>
-              <span className="h-0.5 flex-1 rounded-[1px] bg-[#F6D3DC]" />
+              <span className="h-0.5 flex-1 rounded-[1px] bg-pink-edge" />
             </div>
             <p className="text-ink-card text-center text-[15px]">
               The same button makes your account.
             </p>
           </div>
 
-          <ul className="animate-sm-rise text-ink-card flex list-none flex-col gap-2.5 p-0 text-[15px]">
+          <ul className="animate-sm-rise sm-d3 text-ink-card flex list-none flex-col gap-2.5 p-0 text-[15px]">
             {PROMISES.map((p) => (
               <li key={p.text} className="flex items-start gap-3">
                 <span
@@ -218,7 +218,7 @@ export function SignInPage() {
             ))}
           </ul>
 
-          <p className="animate-sm-rise text-ink-muted text-[13px]">
+          <p className="animate-sm-rise sm-d3 text-ink-muted text-[13px]">
             <a
               href="/"
               className={`text-link hover:text-link-hover inline-flex min-h-11 items-center underline ${focus}`}

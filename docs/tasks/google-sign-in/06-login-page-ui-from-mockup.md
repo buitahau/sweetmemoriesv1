@@ -1,6 +1,6 @@
 # 06 Login page UI from mockup (idle state)
 
-**Status:** done
+**Status:** in progress
 **Side:** front-end
 **Size:** M
 **Dependencies:** none (can start now). Copy questions Q-copy-search, Q-copy-address, Q-legal answered
