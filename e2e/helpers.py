@@ -7,3 +7,111 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 
 def run(cmd, cwd=ROOT, timeout=300, env=None):
     return subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, timeout=timeout, env=env)
+
+
+# ---------------------------------------------------------------------------------------------
+# Session seeding (ADR 0009, google-sign-in task 10)
+#
+# Google sign-in cannot be automated, so signed-in e2e tests insert a User, Account and Session into
+# a LOCAL test database and set the signed Better Auth session cookie. The helper refuses to run
+# unless both the server (E2E_BASE_URL) and the database are local. It never touches dev or production.
+# ---------------------------------------------------------------------------------------------
+import base64
+import hashlib
+import hmac
+import os
+import secrets
+import uuid
+from datetime import datetime, timedelta, timezone
+from urllib.parse import quote, urlparse
+
+LOCAL_HOSTS = {"localhost", "127.0.0.1", "::1", "[::1]"}
+
+
+class SeedRefused(Exception):
+    """Raised when seeding is not allowed (non-local server or database) or not configured."""
+
+
+def is_local_url(url):
+    host = urlparse(url).hostname or ""
+    return host in LOCAL_HOSTS or host.endswith(".localhost")
+
+
+def session_cookie_name(base_url):
+    """Better Auth prefixes the cookie with __Secure- when the server runs on https (useSecureCookies)."""
+    return ("__Secure-" if base_url.startswith("https://") else "") + "better-auth.session_token"
+
+
+def sign_cookie_value(token, secret):
+    """Better Auth signed cookie: encodeURIComponent(token + "." + base64(HMAC-SHA256(secret, token)))."""
+    mac = hmac.new(secret.encode(), token.encode(), hashlib.sha256).digest()
+    return quote(f"{token}.{base64.b64encode(mac).decode()}", safe="")
+
+
+def check_seed_allowed(base_url, database_url, secret, allow_remote_branch=False):
+    """Guard: local server, a database URL, the secret. A hosted Neon branch needs the explicit opt-in.
+
+    Returns nothing; raises SeedRefused with a reason that never contains the connection string.
+    """
+    if not is_local_url(base_url):
+        raise SeedRefused("E2E_BASE_URL is not a local address; session seeding only targets a local server")
+    if not database_url:
+        raise SeedRefused("E2E_SEED_DATABASE_URL is not set")
+    if not secret:
+        raise SeedRefused("E2E_BETTER_AUTH_SECRET (or BETTER_AUTH_SECRET) is not set")
+    host = urlparse(database_url).hostname or ""
+    if not is_local_url(f"http://{host}"):
+        if os.environ.get("E2E_ALLOW_NEON_BRANCH") != "1" or not host.endswith(".neon.tech"):
+            raise SeedRefused(
+                "the seed database is not local; to use your own Neon developer branch set E2E_ALLOW_NEON_BRANCH=1 "
+                "(never the dev Worker's or a production database)"
+            )
+        if any(word in host for word in ("prod", "dev-worker")):
+            raise SeedRefused("the seed database host looks like a shared or production database")
+
+
+def seed_signed_in_session(base_url, email=None, name="Sam Tester", lifetime_days=7):
+    """Insert a User, Account and Session; return a dict with the cookie to set and the ids to clean up.
+
+    Reads E2E_SEED_DATABASE_URL and E2E_BETTER_AUTH_SECRET (falls back to BETTER_AUTH_SECRET). The secret
+    must equal the one the server under test uses. Raises SeedRefused when not allowed or not configured.
+    """
+    database_url = os.environ.get("E2E_SEED_DATABASE_URL", "")
+    secret = os.environ.get("E2E_BETTER_AUTH_SECRET") or os.environ.get("BETTER_AUTH_SECRET", "")
+    check_seed_allowed(base_url, database_url, secret)
+    import psycopg  # imported lazily: only the seeding tests need it
+
+    suffix = uuid.uuid4().hex[:10]
+    email = email or f"e2e-{suffix}@example.test"
+    user_id, account_id, session_id = (f"e2e-{kind}-{suffix}" for kind in ("user", "account", "session"))
+    token = secrets.token_urlsafe(32)
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
+    with psycopg.connect(database_url, autocommit=True) as conn:
+        conn.execute(
+            'INSERT INTO "user" (id, name, email, email_verified, created_at, updated_at) VALUES (%s,%s,%s,true,%s,%s)',
+            (user_id, name, email, now, now),
+        )
+        conn.execute(
+            'INSERT INTO account (id, account_id, provider_id, user_id, created_at, updated_at) VALUES (%s,%s,%s,%s,%s,%s)',
+            (account_id, f"e2e-google-{suffix}", "google", user_id, now, now),
+        )
+        conn.execute(
+            'INSERT INTO session (id, expires_at, token, created_at, updated_at, user_id) VALUES (%s,%s,%s,%s,%s,%s)',
+            (session_id, now + timedelta(days=lifetime_days), token, now, now, user_id),
+        )
+    return {
+        "user_id": user_id,
+        "email": email,
+        "name": name,
+        "token": token,
+        "cookie_name": session_cookie_name(base_url),
+        "cookie_value": sign_cookie_value(token, secret),
+    }
+
+
+def delete_seeded_user(user_id):
+    """Remove a seeded User (Account and Session rows go with it via ON DELETE CASCADE)."""
+    import psycopg
+
+    with psycopg.connect(os.environ["E2E_SEED_DATABASE_URL"], autocommit=True) as conn:
+        conn.execute('DELETE FROM "user" WHERE id = %s AND id LIKE \'e2e-user-%%\'', (user_id,))
