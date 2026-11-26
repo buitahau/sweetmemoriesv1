@@ -19,7 +19,7 @@
 
 ## Verification
 
-- [ ] After a `deploy-dev` run, `wrangler secret list -c wrangler.jsonc --env dev` shows the three names, and `deploy-dev` fails early when one is missing (deploy-dev runs #133 to #135 passed the "Require ..." checks; the `wrangler secret list` check needs Cloudflare credentials and has not been run)
+- [x] After a `deploy-dev` run, `wrangler secret list -c wrangler.jsonc --env dev` shows the three names, and `deploy-dev` fails early when one is missing (deploy-dev runs #133 to #135 passed the "Require ..." checks; on 2026-11-26 `wrangler secret list -c wrangler.jsonc --env dev` listed `BETTER_AUTH_SECRET`, `DATABASE_URL`, `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`, all `secret_text`)
 - [x] `.env.example` has the keys with empty values, and `git grep` finds no real values
 - [x] The infra docs list the steps
 - [x] Vitest (extend the existing env typing test or add one) confirms the keys are declared
