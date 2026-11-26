@@ -97,13 +97,6 @@ def test_US_google_sign_in_3_2_returning_user_manual():
     """US-google-sign-in-3.2: BLOCKED/manual, recorded in the feature delivery notes."""
 
 
-def _inject_cookie(name, value):
-    def handler(route):
-        route.continue_(headers={**route.request.headers, "cookie": f"{name}={value}"})
-
-    return handler
-
-
 def test_T10_V2_seeded_cookie_is_accepted_by_get_session(pw, auth_configured, seeded):
     """Task 10 Verification (guards the cookie-format coupling).
 
@@ -145,19 +138,13 @@ def test_US_google_sign_in_3_4_cookie_not_sent_to_subdomain(browser, auth_config
     ctx = browser.new_context()
     try:
         page = ctx.new_page()
-        # The jar starts empty. The seeded cookie is sent by header on one request only,
-        # so a stored cookie can only come from the server's Set-Cookie.
-        page.route(f"{BASE}/api/auth/get-session", _inject_cookie(name, seeded_stale["cookie_value"]))
-        page.goto(f"{BASE}/", wait_until="networkidle")
-        # evaluate awaits the fetch, so the Set-Cookie is processed before we read the jar
-        result = page.evaluate(
-            "fetch('/api/auth/get-session', {credentials: 'include'})"
-            ".then(async r => ({status: r.status, body: await r.text()}))"
+        # The jar starts empty. The seeded cookie is sent by header on one request only, so a stored
+        # cookie can only come from the server's Set-Cookie. ctx.request shares the context's cookie jar.
+        # (Overriding the Cookie header through page.route is silently ignored by Playwright.)
+        r = ctx.request.get(
+            f"{BASE}/api/auth/get-session", headers={"cookie": f"{name}={seeded_stale['cookie_value']}"}
         )
-        assert result["status"] == 200 and result["body"] not in ("", "null"), (
-            "Cookie header override was not applied: get-session returned no session"
-        )
-        page.unroute(f"{BASE}/api/auth/get-session")
+        assert r.status == 200 and r.text() not in ("", "null"), "seeded cookie was not accepted by get-session"
         stored = [c for c in ctx.cookies() if c["name"] == name]
         assert stored, "the server did not set a session cookie for the stale seeded session"
         assert stored[0]["domain"] == "localhost", f"cookie is not host-only: domain={stored[0]['domain']!r}"
