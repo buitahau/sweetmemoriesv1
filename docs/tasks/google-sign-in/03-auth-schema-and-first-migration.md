@@ -14,7 +14,7 @@
 
 ## Verification
 
-- [ ] `pnpm db:migrate` creates the four tables on a fresh branch and is a no-op on a second run (first run done live on 2026-11-20 against the Neon `devv2` branch: the four tables were created and the migration recorded. The second no-op run and the `E2E_NEON_BRANCH_URL` check (`test_T03_V1c`) were not run. Idempotent re-run is also covered on PGlite by the first-migration test in PR #145)
+- [x] `pnpm db:migrate` creates the four tables on a fresh branch and is a no-op on a second run (2026-11-26: `test_T03_V1c` passed against an empty Neon developer branch via `E2E_NEON_BRANCH_URL`: the first run created `user`, `session`, `account` and `verification`, the second applied nothing. Earlier: first run done live on 2026-11-20 against the Neon `devv2` branch: the four tables were created and the migration recorded. The second no-op run and the `E2E_NEON_BRANCH_URL` check (`test_T03_V1c`) were not run. Idempotent re-run is also covered on PGlite by the first-migration test in PR #145)
 - [x] Migration SQL reviewed: unique index on `user.email`, foreign key from `session` and `account` to `user`
 - [x] Vitest: the schema exports the four tables
 
@@ -30,6 +30,6 @@
 
 **Test evidence (dev, attempt 2, PASS):** `pnpm test` 25 files / 250 tests, typecheck and lint clean. Dev current on commit 965e407 (deploy-dev run 44445741352). `/api/health` 200, `/` and `/sign-in` 200 with no Set-Cookie, `/api/auth/session` 404 as expected until task 04. e2e google-sign-in: 19 passed, 4 BLOCKED. Homepage 102 passed, 1 skipped; skeleton 12 passed. Logs and screenshots live in the tester's session scratchpad (`logs/google-sign-in.log`, `logs/skeleton-homepage.log`, `logs/skeleton.log`, `curl/`, `screens/`), not in the repo.
 
-**Still open:** live `pnpm db:migrate` twice on a fresh Neon developer branch (BLOCKED, no `E2E_NEON_BRANCH_URL`); task 04 must compare this hand-written schema with `@better-auth/cli generate` output.
+**Still open:** task 04 must compare this hand-written schema with `@better-auth/cli generate` output.
 
 **Fix cycles:** 1.
