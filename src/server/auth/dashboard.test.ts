@@ -121,6 +121,27 @@ describe('loadDashboard', () => {
     expect(setHeader).toHaveBeenCalledWith('Cache-Control', 'no-store')
   })
 
+  it.each([
+    ['signed in', fullSession],
+    ['signed out', null],
+  ])('sets X-Robots-Tag: noindex when %s', async (_label, session) => {
+    getSessionMock.mockResolvedValue(session)
+    await loadDashboard(
+      new Request('http://localhost:3000/dashboard'),
+      setHeader,
+    )
+    expect(setHeader).toHaveBeenCalledWith('X-Robots-Tag', 'noindex')
+  })
+
+  it('sets the headers even when the session lookup fails', async () => {
+    getSessionMock.mockRejectedValue(new Error('boom'))
+    await expect(
+      loadDashboard(new Request('http://localhost:3000/dashboard'), setHeader),
+    ).rejects.toThrow('boom')
+    expect(setHeader).toHaveBeenCalledWith('Cache-Control', 'no-store')
+    expect(setHeader).toHaveBeenCalledWith('X-Robots-Tag', 'noindex')
+  })
+
   it('rethrows unexpected errors instead of hiding them', async () => {
     getSessionMock.mockRejectedValue(new Error('boom'))
     await expect(
