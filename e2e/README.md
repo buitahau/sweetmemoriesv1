@@ -31,7 +31,7 @@ python3 .claude/skills/webapp-testing/scripts/with_server.py --server "pnpm star
 - Task 06: `test_google_sign_in_task06_login_page_ui.py` (US-google-sign-in-1.1 to 1.7; needs `axe-playwright-python`; run with `with_server.py` as above).
 - Task 07: `test_google_sign_in_task07_google_button_states.py` (US 2.1 to 2.4 and 4.1 to 4.4, plus the bfcache reset; needs a configured auth server, otherwise BLOCKED; set `E2E_SITE_URL` if the server's SITE_URL differs from `E2E_BASE_URL`).
 - Task 08: `test_google_sign_in_task08_redirect_signed_in.py` (US 5.1 manual-cookie variant via `E2E_SESSION_COOKIE=name=value`, and 5.2).
-- Task 10: `test_google_sign_in_task10_signed_in.py` (US 3.3, 3.4, 5.1, 6.1, 6.2 and the `getSession` cookie-format check; 3.1 and 3.2 are manual on dev, ADR 0009) and `test_google_sign_in_task10_seed_helper.py` (unit checks of the helper, no server).
+- Task 10: `test_google_sign_in_task10_signed_in.py` (US 3.3, 3.4, 5.1, 6.1, 6.2 and the `getSession` cookie-format check; 3.1 and 3.2 are manual on dev, ADR 0009). `test_US_google_sign_in_3_3_dev_cookie_attributes` runs only with `E2E_BASE_URL` set to the https dev URL and checks the cookie attributes local http runs cannot see (`Secure`, `__Secure-` prefix) and `test_google_sign_in_task10_seed_helper.py` (unit checks of the helper, no server).
 
 ### Session seeding (task 10)
 

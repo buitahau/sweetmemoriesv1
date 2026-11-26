@@ -122,10 +122,48 @@ def test_US_google_sign_in_3_3_session_cookie_attributes(pw, auth_configured, se
     attrs = [a.strip().lower() for a in session[0].split(";")[1:]]
     assert "httponly" in attrs
     assert "samesite=lax" in attrs
+    assert "path=/" in attrs
     assert not any(a.startswith("domain") for a in attrs), f"cookie must be host-only: {session[0].split(';')[1:]}"
     # check_seed_allowed only permits a local server, so this runs over http and never sees Secure.
-    # The Secure-on-https half of 3.3 is not covered here; this only asserts Secure is absent on http.
+    # The Secure-on-https half of 3.3 is covered on dev by test_US_google_sign_in_3_3_dev_cookie_attributes.
     assert ("secure" in attrs) == BASE.startswith("https://")
+    assert seeded_stale["cookie_name"].startswith("__Secure-") == BASE.startswith("https://")
+
+
+def test_US_google_sign_in_3_3_dev_cookie_attributes(pw):
+    """US-google-sign-in-3.3 on the https dev URL, where seeding is refused (ADR 0009).
+
+    A real session cookie needs a real Google sign-in, so this inspects the OAuth state cookie that
+    POST /api/auth/sign-in/social sets. Better Auth builds every cookie, the session token included,
+    from the same `advanced` options (useSecureCookies, crossSubDomainCookies), so a Domain attribute
+    or a missing Secure/__Secure- prefix shows up here too. Like the deploy smoke check, the POST writes
+    one short-lived verification row. Skips as BLOCKED unless E2E_BASE_URL is the https dev URL.
+    """
+    host = urlparse(BASE).hostname or ""
+    if not (BASE.startswith("https://") and host.endswith(".workers.dev") and "sweetmemories-dev" in host):
+        pytest.skip("BLOCKED: needs E2E_BASE_URL set to the https dev URL (sweetmemories-dev.*.workers.dev)")
+    req = pw.request.new_context()
+    try:
+        r = req.post(
+            f"{BASE}/api/auth/sign-in/social",
+            headers={"content-type": "application/json", "origin": BASE},
+            data=json.dumps({"provider": "google", "callbackURL": "/dashboard"}),
+            max_redirects=0,
+        )
+    finally:
+        req.dispose()
+    assert r.status == 200, f"sign-in/social answered {r.status}"
+    set_cookies = [h["value"] for h in r.headers_array if h["name"].lower() == "set-cookie"]
+    assert set_cookies, "sign-in/social set no cookie to inspect"
+    for cookie in set_cookies:
+        name = cookie.split("=", 1)[0]
+        attrs = [a.strip().lower() for a in cookie.split(";")[1:]]
+        assert name.startswith("__Secure-better-auth."), f"cookie lacks the __Secure- prefix: {name}"
+        assert "secure" in attrs, f"{name} is not Secure"
+        assert "httponly" in attrs, f"{name} is not HttpOnly"
+        assert "samesite=lax" in attrs, f"{name} is not SameSite=Lax"
+        assert "path=/" in attrs, f"{name} does not have Path=/"
+        assert not any(a.startswith("domain") for a in attrs), f"{name} must be host-only: {cookie.split(';')[1:]}"
 
 
 def test_US_google_sign_in_3_4_cookie_not_sent_to_subdomain(browser, auth_configured, seeded_stale):
