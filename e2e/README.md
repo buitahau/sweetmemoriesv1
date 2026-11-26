@@ -42,3 +42,5 @@ The seeded scenarios use `helpers.seed_signed_in_session`, which inserts a User,
 - `E2E_BETTER_AUTH_SECRET` (or `BETTER_AUTH_SECRET`): must equal the server's secret.
 
 Run against `pnpm start` with the same `DATABASE_URL` and secret. The helper refuses a non-local `E2E_BASE_URL` and any non-local database that is not a Neon one with the allow-listed endpoint id (Neon hostnames never contain the branch name, so the allow-list is the only reliable guard against the dev or production database).
+
+`e2e/dashboard-home` has one test per US-dashboard-home scenario (1.1 to 3.3) plus the task 01 check that the dashboard carries only the first name. Run it with `.venv-e2e/bin/pytest e2e/dashboard-home -rs` against `pnpm start`. Signed-in scenarios use the task 10 session seeding above and skip as BLOCKED without it. 3.3 adds a second Session through `helpers.add_seeded_session`. Until dashboard-home tasks 02 and 03 deliver the Sign out button, the Sign out check in 1.1 and scenarios 3.1 to 3.3 skip as BLOCKED. Set `SIGN_OUT_DELIVERED = True` in `test_dashboard_home.py` once they land.
