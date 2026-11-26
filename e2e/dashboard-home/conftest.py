@@ -47,7 +47,11 @@ def seed():
         try:
             s = seed_signed_in_session(BASE, **kwargs)
         except SeedRefused as e:
-            pytest.skip(f"BLOCKED: {e}")
+            pytest.skip(
+                f"BLOCKED: {e}. Signed-in scenarios run only against a local server with seeding (ADR 0009); "
+                "on dev they stay BLOCKED by design and are covered by unit tests "
+                "(src/server/auth/dashboard.test.ts, src/components/dashboard-page.test.tsx)"
+            )
         created.append(s["user_id"])
         return s
 
