@@ -81,6 +81,7 @@ def test_US_dashboard_home_1_2_dashboard_is_no_store_and_noindex(auth_configured
     page, resp = _open_dashboard(browser_with(sam), "1_2_dashboard_headers")
     assert resp is not None and resp.status == 200
     assert "no-store" in (resp.header_value("cache-control") or "")
+    assert "noindex" in (resp.header_value("x-robots-tag") or "")
     robots = page.locator('meta[name="robots"]')
     expect(robots).to_have_count(1)
     assert "noindex" in (robots.get_attribute("content") or "")
@@ -130,6 +131,7 @@ def test_US_dashboard_home_2_1_anonymous_visitor_is_redirected(pw, ctx):
         assert 300 <= r.status < 400, f"expected a redirect, got {r.status}"
         assert urlparse(r.headers.get("location", "")).path == "/sign-in"
         assert "no-store" in r.headers.get("cache-control", "")
+        assert "noindex" in r.headers.get("x-robots-tag", "")
         body = r.text()
         for marker in ("Hi, ", "Hi there", "Dashboard", "Sign out"):
             assert marker not in body, f"redirect body contains dashboard content: {marker!r}"
@@ -144,12 +146,24 @@ def test_US_dashboard_home_2_1_anonymous_visitor_is_redirected(pw, ctx):
 
 
 @pytest.mark.parametrize("kind", ["forged", "expired"])
-def test_US_dashboard_home_2_2_forged_or_expired_cookie_is_redirected(auth_configured, seed, browser_with, kind):
+def test_US_dashboard_home_2_2_forged_or_expired_cookie_is_redirected(pw, auth_configured, seed, browser_with, kind):
     """US-dashboard-home-2.2 (failure, session: public): a forged or expired session cookie is redirected to /sign-in."""
     if kind == "forged":
         cookie = {"cookie_name": COOKIE_NAME, "cookie_value": sign_cookie_value("forged-token", "not-the-server-secret")}
     else:
         cookie = seed(name="Sam Tester", lifetime_days=-1)
+    if kind == "forged":
+        # Server-side check too: the forged cookie gets a no-store, noindex redirect with no dashboard markup.
+        req = pw.request.new_context(extra_http_headers={"cookie": f"{cookie['cookie_name']}={cookie['cookie_value']}"})
+        try:
+            r = req.get(f"{BASE}/dashboard", max_redirects=0)
+            assert 300 <= r.status < 400, f"expected a redirect, got {r.status}"
+            assert urlparse(r.headers.get("location", "")).path == "/sign-in"
+            assert "no-store" in r.headers.get("cache-control", "")
+            assert "noindex" in r.headers.get("x-robots-tag", "")
+            assert not GREETING.search(r.text())
+        finally:
+            req.dispose()
     page, _ = _open_dashboard(browser_with(cookie), f"2_2_{kind}_cookie_redirect")
     _assert_on_sign_in(page)
     expect(page.get_by_role("heading", name=GREETING)).to_have_count(0)

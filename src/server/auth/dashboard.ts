@@ -18,13 +18,15 @@ export function toDashboardData(session: AuthSession): DashboardData {
 /**
  * Dashboard data for this request, or null when there is no valid session
  * (no cookie, forged or expired cookie, auth not configured). Marks the response
- * `no-store` first, so neither the page nor its redirect is cached.
+ * `no-store` and `X-Robots-Tag: noindex` first, so neither the page nor its redirect
+ * is cached or indexed (the robots meta tag only exists on the 200 HTML).
  */
 export async function loadDashboard(
   request: Request,
   setHeader: (name: string, value: string) => void,
 ): Promise<DashboardData | null> {
   setHeader('Cache-Control', 'no-store')
+  setHeader('X-Robots-Tag', 'noindex')
   let session: AuthSession
   try {
     session = await requireSession(request)
