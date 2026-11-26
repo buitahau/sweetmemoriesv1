@@ -129,6 +129,32 @@ def seed_signed_in_session(base_url, email=None, name="Sam Tester", lifetime_day
     }
 
 
+def add_seeded_session(seeded, base_url, lifetime_days=7):
+    """Insert one more Session for an already seeded User (a second browser); return its token and cookie.
+
+    Same guard as seed_signed_in_session. The row goes away with delete_seeded_user (ON DELETE CASCADE).
+    """
+    database_url = os.environ.get("E2E_SEED_DATABASE_URL", "")
+    secret = os.environ.get("E2E_BETTER_AUTH_SECRET") or os.environ.get("BETTER_AUTH_SECRET", "")
+    check_seed_allowed(base_url, database_url, secret)
+    if not str(seeded.get("user_id", "")).startswith("e2e-user-"):
+        raise SeedRefused("add_seeded_session only adds sessions to Users created by seed_signed_in_session")
+    psycopg = _psycopg()
+    session_id = f"e2e-session-{uuid.uuid4().hex[:10]}"
+    token = secrets.token_urlsafe(32)
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
+    with psycopg.connect(database_url, autocommit=True) as conn:
+        conn.execute(
+            'INSERT INTO session (id, expires_at, token, created_at, updated_at, user_id) VALUES (%s,%s,%s,%s,%s,%s)',
+            (session_id, now + timedelta(days=lifetime_days), token, now, now, seeded["user_id"]),
+        )
+    return {
+        "token": token,
+        "cookie_name": session_cookie_name(base_url),
+        "cookie_value": sign_cookie_value(token, secret),
+    }
+
+
 def delete_seeded_user(user_id, base_url):
     """Remove a seeded User (Account and Session rows go with it via ON DELETE CASCADE).
 
