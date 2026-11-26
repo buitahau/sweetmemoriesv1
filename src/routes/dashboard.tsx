@@ -1,14 +1,10 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
+import { DashboardPage } from '../components/dashboard-page'
 import { getDashboard } from '../server/auth/dashboard.fn'
 
 function DashboardRoute() {
   const { firstName } = Route.useLoaderData()
-  // Minimal placeholder; the designed page lands in dashboard-home task 02.
-  return (
-    <main>
-      <h1>{firstName ? `Hi, ${firstName}` : 'Hi there'}</h1>
-    </main>
-  )
+  return <DashboardPage firstName={firstName} />
 }
 
 export const Route = createFileRoute('/dashboard')({
