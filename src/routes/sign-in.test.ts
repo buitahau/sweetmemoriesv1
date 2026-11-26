@@ -18,7 +18,7 @@ describe('/sign-in beforeLoad', () => {
       () => null,
       (e: unknown) => e,
     )
-    expect(thrown).toMatchObject({ options: { href: '/dashboard' } })
+    expect(thrown).toMatchObject({ options: { to: '/dashboard' } })
   })
 
   it('resolves without redirecting when not signed in', async () => {
