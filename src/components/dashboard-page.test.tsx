@@ -3,7 +3,8 @@ import { describe, expect, it } from 'vitest'
 import { DashboardPage } from './dashboard-page'
 
 // Unit-level cover for the signed-in e2e scenarios (US-dashboard-home-1.1, 1.4 and the task 01 loader check).
-// Those need a seeded session, which only works against a local server (ADR 0009), so they stay BLOCKED on dev.
+// Those need a seeded session, which only works against a local server (ADR 0009). The route wiring around this
+// component is covered by src/routes/-dashboard.wiring.test.tsx.
 describe('DashboardPage', () => {
   it('greets the User by first name in the only h1', () => {
     const html = renderToStaticMarkup(<DashboardPage firstName="Sam" />)
@@ -30,8 +31,18 @@ describe('DashboardPage', () => {
     expect(html).toContain('Hi, &lt;script&gt;')
   })
 
-  it('shows nothing beyond the greeting (no email, ids or tokens)', () => {
-    const html = renderToStaticMarkup(<DashboardPage firstName="Sam" />)
-    expect(html.replace(/<[^>]+>/g, '')).toBe('Hi, Sam')
+  it('never renders private fields even if the props carry them (no email, ids or tokens)', () => {
+    // Simulates a loader regression that passes the whole session through.
+    const leaky = {
+      firstName: 'Sam',
+      email: 'sam.tester@example.com',
+      id: 'user_7f3a9c',
+      image: 'https://lh3.googleusercontent.com/a/private-photo',
+      token: 'session-token-abc123',
+    }
+    const html = renderToStaticMarkup(<DashboardPage {...leaky} />)
+    for (const [key, value] of Object.entries(leaky)) {
+      if (key !== 'firstName') expect(html).not.toContain(value)
+    }
   })
 })
