@@ -90,22 +90,51 @@ def check_seed_allowed(base_url, database_url, secret):
         raise SeedRefused("the seed database endpoint does not match E2E_SEED_NEON_ENDPOINT")
 
 
+def _seed_config(base_url):
+    """The seed database URL and auth secret, after the check_seed_allowed guard (raises SeedRefused)."""
+    database_url = os.environ.get("E2E_SEED_DATABASE_URL", "")
+    secret = os.environ.get("E2E_BETTER_AUTH_SECRET") or os.environ.get("BETTER_AUTH_SECRET", "")
+    check_seed_allowed(base_url, database_url, secret)
+    return database_url, secret
+
+
+def _now():
+    return datetime.now(timezone.utc).replace(tzinfo=None)
+
+
+def _insert_session(conn, user_id, lifetime_days):
+    """Insert one Session row for user_id and return its token (the one place the session INSERT lives)."""
+    session_id = f"e2e-session-{uuid.uuid4().hex[:10]}"
+    token = secrets.token_urlsafe(32)
+    now = _now()
+    conn.execute(
+        'INSERT INTO session (id, expires_at, token, created_at, updated_at, user_id) VALUES (%s,%s,%s,%s,%s,%s)',
+        (session_id, now + timedelta(days=lifetime_days), token, now, now, user_id),
+    )
+    return token
+
+
+def _session_cookie(base_url, token, secret):
+    return {
+        "token": token,
+        "cookie_name": session_cookie_name(base_url),
+        "cookie_value": sign_cookie_value(token, secret),
+    }
+
+
 def seed_signed_in_session(base_url, email=None, name="Sam Tester", lifetime_days=7):
     """Insert a User, Account and Session; return a dict with the cookie to set and the ids to clean up.
 
     Reads E2E_SEED_DATABASE_URL and E2E_BETTER_AUTH_SECRET (falls back to BETTER_AUTH_SECRET). The secret
     must equal the one the server under test uses. Raises SeedRefused when not allowed or not configured.
     """
-    database_url = os.environ.get("E2E_SEED_DATABASE_URL", "")
-    secret = os.environ.get("E2E_BETTER_AUTH_SECRET") or os.environ.get("BETTER_AUTH_SECRET", "")
-    check_seed_allowed(base_url, database_url, secret)
+    database_url, secret = _seed_config(base_url)
     psycopg = _psycopg()
 
     suffix = uuid.uuid4().hex[:10]
     email = email or f"e2e-{suffix}@example.test"
-    user_id, account_id, session_id = (f"e2e-{kind}-{suffix}" for kind in ("user", "account", "session"))
-    token = secrets.token_urlsafe(32)
-    now = datetime.now(timezone.utc).replace(tzinfo=None)
+    user_id, account_id = (f"e2e-{kind}-{suffix}" for kind in ("user", "account"))
+    now = _now()
     with psycopg.connect(database_url, autocommit=True) as conn, conn.transaction():
         conn.execute(
             'INSERT INTO "user" (id, name, email, email_verified, created_at, updated_at) VALUES (%s,%s,%s,true,%s,%s)',
@@ -115,18 +144,8 @@ def seed_signed_in_session(base_url, email=None, name="Sam Tester", lifetime_day
             'INSERT INTO account (id, account_id, provider_id, user_id, created_at, updated_at) VALUES (%s,%s,%s,%s,%s,%s)',
             (account_id, f"e2e-google-{suffix}", "google", user_id, now, now),
         )
-        conn.execute(
-            'INSERT INTO session (id, expires_at, token, created_at, updated_at, user_id) VALUES (%s,%s,%s,%s,%s,%s)',
-            (session_id, now + timedelta(days=lifetime_days), token, now, now, user_id),
-        )
-    return {
-        "user_id": user_id,
-        "email": email,
-        "name": name,
-        "token": token,
-        "cookie_name": session_cookie_name(base_url),
-        "cookie_value": sign_cookie_value(token, secret),
-    }
+        token = _insert_session(conn, user_id, lifetime_days)
+    return {"user_id": user_id, "email": email, "name": name, **_session_cookie(base_url, token, secret)}
 
 
 def add_seeded_session(seeded, base_url, lifetime_days=7):
@@ -134,25 +153,13 @@ def add_seeded_session(seeded, base_url, lifetime_days=7):
 
     Same guard as seed_signed_in_session. The row goes away with delete_seeded_user (ON DELETE CASCADE).
     """
-    database_url = os.environ.get("E2E_SEED_DATABASE_URL", "")
-    secret = os.environ.get("E2E_BETTER_AUTH_SECRET") or os.environ.get("BETTER_AUTH_SECRET", "")
-    check_seed_allowed(base_url, database_url, secret)
+    database_url, secret = _seed_config(base_url)
     if not str(seeded.get("user_id", "")).startswith("e2e-user-"):
         raise SeedRefused("add_seeded_session only adds sessions to Users created by seed_signed_in_session")
     psycopg = _psycopg()
-    session_id = f"e2e-session-{uuid.uuid4().hex[:10]}"
-    token = secrets.token_urlsafe(32)
-    now = datetime.now(timezone.utc).replace(tzinfo=None)
     with psycopg.connect(database_url, autocommit=True) as conn:
-        conn.execute(
-            'INSERT INTO session (id, expires_at, token, created_at, updated_at, user_id) VALUES (%s,%s,%s,%s,%s,%s)',
-            (session_id, now + timedelta(days=lifetime_days), token, now, now, seeded["user_id"]),
-        )
-    return {
-        "token": token,
-        "cookie_name": session_cookie_name(base_url),
-        "cookie_value": sign_cookie_value(token, secret),
-    }
+        token = _insert_session(conn, seeded["user_id"], lifetime_days)
+    return _session_cookie(base_url, token, secret)
 
 
 def delete_seeded_user(user_id, base_url):
@@ -160,9 +167,7 @@ def delete_seeded_user(user_id, base_url):
 
     Applies the same check_seed_allowed guard as seeding, so the safety rule lives in one place.
     """
-    database_url = os.environ.get("E2E_SEED_DATABASE_URL", "")
-    secret = os.environ.get("E2E_BETTER_AUTH_SECRET") or os.environ.get("BETTER_AUTH_SECRET", "")
-    check_seed_allowed(base_url, database_url, secret)
+    database_url, _ = _seed_config(base_url)
     psycopg = _psycopg()
     with psycopg.connect(database_url, autocommit=True) as conn:
         conn.execute('DELETE FROM "user" WHERE id = %s AND id LIKE \'e2e-user-%%\'', (user_id,))

@@ -16,3 +16,6 @@ coverage
 
 __pycache__/
 *.pyc
+
+# e2e screenshots (written by every suite, never committed)
+e2e/*/screenshots/

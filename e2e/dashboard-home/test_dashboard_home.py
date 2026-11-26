@@ -9,10 +9,11 @@ Signed-in scenarios seed Users and Sessions (helpers.seed_signed_in_session, ADR
 without E2E_SEED_DATABASE_URL, E2E_SEED_NEON_ENDPOINT and E2E_BETTER_AUTH_SECRET (see e2e/README.md).
 Run against a local server, never production:
     E2E_BASE_URL=http://localhost:3000 .venv-e2e/bin/pytest e2e/dashboard-home -rs
-Screenshots go to e2e/dashboard-home/screenshots (not committed).
+Screenshots go to e2e/dashboard-home/screenshots (git-ignored by e2e/*/screenshots/ in .gitignore).
 """
 import os
 import pathlib
+import re
 import uuid
 from urllib.parse import urlparse
 
@@ -24,6 +25,7 @@ from helpers import SeedRefused, add_seeded_session, session_cookie_name, sign_c
 BASE = os.environ.get("E2E_BASE_URL", "http://localhost:3000").rstrip("/")
 SHOTS = pathlib.Path(__file__).parent / "screenshots"
 COOKIE_NAME = session_cookie_name(BASE)
+GREETING = re.compile(r"^Hi(,| there)")  # the dashboard h1: "Hi, <first name>" or "Hi there"
 
 # Flip to True once dashboard-home tasks 02 (Sign out button) and 03 (sign-out flow) land.
 SIGN_OUT_DELIVERED = False
@@ -138,7 +140,7 @@ def test_US_dashboard_home_2_1_anonymous_visitor_is_redirected(pw, ctx):
     page.goto(f"{BASE}/dashboard", wait_until="networkidle")
     _shot(page, "2_1_anonymous_redirect")
     _assert_on_sign_in(page)
-    expect(page.get_by_role("heading", name="Hi", exact=False)).to_have_count(0)
+    expect(page.get_by_role("heading", name=GREETING)).to_have_count(0)
 
 
 @pytest.mark.parametrize("kind", ["forged", "expired"])
@@ -150,7 +152,7 @@ def test_US_dashboard_home_2_2_forged_or_expired_cookie_is_redirected(auth_confi
         cookie = seed(name="Sam Tester", lifetime_days=-1)
     page, _ = _open_dashboard(browser_with(cookie), f"2_2_{kind}_cookie_redirect")
     _assert_on_sign_in(page)
-    expect(page.get_by_role("heading", name="Hi", exact=False)).to_have_count(0)
+    expect(page.get_by_role("heading", name=GREETING)).to_have_count(0)
 
 
 # --- US-dashboard-home-3: Sign out ---------------------------------------------------------------------------
