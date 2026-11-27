@@ -3,8 +3,8 @@
 Run against a local or dev URL, never production:
     E2E_BASE_URL=http://localhost:3000 .venv-e2e/bin/pytest e2e/homepage-seo -rs
 
-Task 01 (SITE_INDEXABLE and the shared site config) has its own file. The per-scenario suite for
-US-homepage-seo-1 to 5 (with the E2E_SEO_PROFILE profiles) arrives with task 04.
+One file per task: task 01 (site config), task 02 (static assets), task 03 (the `/` head tags, one
+test per scenario, with the E2E_SEO_PROFILE profiles documented in e2e/README.md).
 """
 import os
 import pathlib
