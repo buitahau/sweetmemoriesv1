@@ -1,6 +1,6 @@
 # 02 Static icons, manifest and OG image in `public/`
 
-**Status:** in progress
+**Status:** done
 **Side:** backend
 **Size:** S
 **Dependencies:** Q-assets answered; [homepage task 13](../homepage/13-fix-e2e-homepage-failures-under-wrangler-dev.md) (asset 404s under `wrangler dev`) fixed, or its root cause fixed here
@@ -39,3 +39,15 @@ Under `pnpm build && pnpm start` the font and favicon already 404 (homepage task
 - **`_headers`:** Nitro's `cloudflare-module` preset does not overwrite it: it prepends our file and appends its own `/assets/*` (`max-age=31536000, immutable`) rule, unless the file has a `/* ` rule (the unit test forbids one). Icons and `og/` cache for a week (`public, max-age=604800`): names are not hashed and the files are placeholders (Q-assets). `site.webmanifest` caches for an hour. No `Content-Type` override: the default is already `application/manifest+json`; `favicon.ico` is `image/vnd.microsoft.icon`.
 - **Unit tests:** `src/public-assets.test.ts`.
 - **E2E tests:** `e2e/homepage-seo/test_homepage_seo_task02_static_assets.py`, one test per scenario (US-homepage-seo-2.3, 4.2, 4.3, 4.4) plus `T02_V3` (each asset's `Cache-Control` equals `public/_headers`). The icon links on `/` come with task 03, so 4.2 fetches the asset paths the spec names.
+
+## Summary
+
+**Built:** placeholder static assets in `public/` exported from the mockup: `favicon.svg` (replaced with the mockup header logo: white heart on a `#FF8FAB` rounded square), `favicon.ico`, `favicon-32.png` (32×32), `apple-touch-icon.png` (180×180, full-bleed), `site.webmanifest` (`name` SweetMemories, `theme_color` `#FFB6C8`, 180 px icon) and `og/home.png` (1200×630). `public/_headers` sets `public, max-age=604800` for icons and `og/`, and `max-age=3600` for `site.webmanifest`; Nitro keeps it and appends its own `/assets/*` rule. No Worker code changes. Unit tests in `src/public-assets.test.ts` (manifest fields, PNG IHDR sizes, `_headers` rules). The asset 404s from homepage task 13 were not reproducible.
+
+**PRs:** [#182](https://github.com/buitahau/sweetmemoriesv1/pull/182) (static icons, manifest, OG image and `_headers`).
+
+**Test evidence (dev, attempt 1, PASS):** deploy-dev run 45937309318 on merge commit f7b582c. `pnpm test` 36 files / 427 passed, typecheck and lint clean. Curl on dev: `/favicon.svg`, `/favicon-32.png`, `/apple-touch-icon.png`, `/og/home.png` 200 with the right type and `public, max-age=604800`; `/site.webmanifest` 200 `application/manifest+json`, `max-age=3600`; `/favicon.ico` 200 `image/vnd.microsoft.icon`; `/_headers` 404 (build-time file, expected); no Set-Cookie on any asset; `/api/health` 200. e2e `e2e/homepage-seo/test_homepage_seo_task02_static_assets.py` against dev (headed Chromium): 5/5 passed. Feature regression `e2e/homepage-seo`: 16 passed, 1 skipped (T01_V3c BLOCKED until task 03). Evidence lives in the tester's session scratchpad (`task02-pytest.log`, `homepage-seo-feature-pytest.log`, `evidence/US-homepage-seo-2.3-og-image.png`, `evidence/T01-V3a_home.png`), not in the repo.
+
+**Still open:** the icon links on `/` come with [task 03](03-home-head-tags.md). Tester observation outside this task: the "home" word highlight on the home page at 1280 px looks slightly offset (homepage feature).
+
+**Fix cycles:** 0.
