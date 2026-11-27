@@ -7,7 +7,7 @@ US-homepage-seo-1.1 to 1.3, 2.1, 2.2, 2.4, 2.5, 3.1 to 3.6, 4.1, 5.1 and 5.2. Th
 All requests are public (no cookies).
 
 The server config cannot change during a run, so each run declares it with E2E_SEO_PROFILE
-(task 04 table). Scenarios tied to another profile skip with the reason; the rest run in every
+(task 04 table, seo_profile.py). Scenarios tied to another profile skip with the reason; the rest run in every
 profile and assert against the expected origin of the profile:
 
 | Profile            | Server config                                              | Profile-only scenarios   |
@@ -103,12 +103,13 @@ Then: valid JSON, no "</script" and no raw "<"
 Script: ...::test_US_homepage_seo_5_2_json_ld_valid_and_escaped
 """
 import json
-import os
 import re
 from html.parser import HTMLParser
 from urllib.parse import urlparse
 
 import pytest
+
+from seo_profile import PROFILE, only
 
 TITLE = "SweetMemories: little pages for family moments"
 DESCRIPTION = ("Turn first steps, birthdays and street parties into tiny pages your family and friends "
@@ -116,17 +117,6 @@ DESCRIPTION = ("Turn first steps, birthdays and street parties into tiny pages y
 SHARE_TITLE = "Every little moment deserves a home"
 IMAGE_ALT = "A SweetMemories page called Bob's first day, with photos and a smiling sun"
 PROD = "https://sweetmemories.com"
-
-PROFILE = os.environ.get("E2E_SEO_PROFILE", "dev")
-PROFILES = {"dev", "prod-like", "unset-indexable", "bad-url", "path-url"}
-if PROFILE not in PROFILES:
-    raise RuntimeError(f"E2E_SEO_PROFILE must be one of {sorted(PROFILES)}, got {PROFILE!r}")
-
-
-def only(*profiles):
-    return pytest.mark.skipif(PROFILE not in profiles,
-                              reason=f"profile {PROFILE!r}; this scenario needs E2E_SEO_PROFILE in {profiles}")
-
 
 def _origin(url):
     p = urlparse(url)
