@@ -1,6 +1,6 @@
 # Feature: google-sign-in
 
-**Status:** todo
+**Status:** done
 **Side:** both
 - backend: Neon schema and migrations, Better Auth with the Google provider at `/api/auth/*`, session helpers, cookie scope, redirect rules, error mapping, env and secrets.
 - front-end: the `/sign-in` page from the mockup, the button's loading and error states, and updates to homepage tests and specs.
@@ -129,6 +129,11 @@ Existing state: `src/routes/sign-in.tsx` and `src/components/sign-in-page.tsx` h
   - **3.1 done 2026-11-27:** real Google sign-in ended on `/dashboard` with the heading "Hi, hau" and a `__Secure-better-auth.session_token` cookie (`Secure`, `HttpOnly`, `SameSite=Lax`, host-only).
   - **3.2 done 2026-11-27:** the app session cookie was cleared to stand in for Sign out (no Sign out button until dashboard-home 03); `/dashboard` then went to `/sign-in`, "Continue with Google" went through Google without a prompt and landed on `/dashboard` ("Hi, hau") with a new session cookie. Signed-in `/sign-in` also redirected to `/dashboard` (task 08).
   - **One User:** after both sign-ins, `select email, count(*) from "user" group by email;` on the dev database returned 1 for the product owner's email (run by the product owner).
-- Seeded e2e scenarios (task 10) have not yet run against a real Neon developer branch: run `pytest e2e/google-sign-in -rs` against `pnpm start` with `E2E_SEED_DATABASE_URL`, `E2E_SEED_NEON_ENDPOINT` and `E2E_BETTER_AUTH_SECRET` set, and record the result here.
+- Seeded e2e scenarios (task 10) ran on 2026-11-26 against `pnpm start` on a personal Neon developer branch: 85 passed, 0 failed, 14 skipped (documented BLOCKED or manual scenarios); see [task 10](../tasks/google-sign-in/10-e2e-google-sign-in.md).
 - Manual dev run of 3.1 must also check the 3.3 cookie attribute that seeding cannot cover (seeding is local-only, ADR 0009): after the real sign-in on an https dev URL, inspect the `__Secure-better-auth.session_token` cookie in DevTools and confirm it is `Secure`, `HttpOnly` and `SameSite=Lax`. Record the result here.
   - **Done 2026-11-27** (product owner, real Google sign-in on `https://sweetmemories-dev.haubuitatmp.workers.dev`, DevTools): `__Secure-better-auth.session_token` is `Secure`, `HttpOnly`, `SameSite=Lax`, `Path=/`, host-only (no `Domain`). Now also automated: `test_US_google_sign_in_3_3_dev_cookie_attributes` (task 10 file) checks the same attributes on the server-issued `__Secure-better-auth.state` cookie on dev, which Better Auth builds from the same cookie options.
+- Login page vs mockup (task 06), 2026-11-27, dev `/sign-in` signed out at 1440, 768 and 375 px: no horizontal scroll, 0 requests to Google Fonts (fonts are self-hosted `/assets/*.woff2`). Accepted by the product owner with these differences from the mockup:
+  - Copy follows Q-copy-address, Q-copy-search and Q-legal: no address line, two promises, no Terms/Privacy line.
+  - The sun has no rays.
+  - The two photo cards are hidden below 1080 px (in the mockup they overlap the tagline at 768 and 375 px).
+  - At 375 px the heading is slightly smaller and fits on one line.

@@ -1,6 +1,6 @@
 # 06 Login page UI from mockup (idle state)
 
-**Status:** in progress
+**Status:** done
 **Side:** front-end
 **Size:** M
 **Dependencies:** none (can start now). Copy questions Q-copy-search, Q-copy-address, Q-legal answered
@@ -18,4 +18,6 @@
 ## Verification
 
 - [x] Vitest: renders the `h1` "Welcome! Come on in.", the "Continue with Google" button, a "Back to home" link to `/` and the status region; the placeholder text is gone; the decorative section is `aria-hidden`
-- [ ] Manual: compare side by side with the mockup at 1440, 768 and 375 px, no horizontal scroll, no requests to Google Fonts
+- [x] Manual: compare side by side with the mockup at 1440, 768 and 375 px, no horizontal scroll, no requests to Google Fonts
+
+**Manual check (2026-11-27):** side-by-side screenshots of the mockup and dev `/sign-in` at 1440, 768 and 375 px; no horizontal scroll, no Google Fonts requests. The product owner accepted the differences listed in the [feature delivery notes](../../features/google-sign-in.md#delivery-notes).
