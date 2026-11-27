@@ -23,6 +23,6 @@
 
 ## Verification
 
-- [ ] `pytest e2e/homepage` passes locally (`pnpm build && pnpm start`): pending.
+- [x] `pytest e2e/homepage` passes locally (`pnpm build && pnpm start`): 90 passed, 1 skipped (US-homepage-5.4) on `dev-v2` `cfefbfb`, recorded in [task 13](13-fix-e2e-homepage-failures-under-wrangler-dev.md).
 - [x] `pytest e2e/homepage` passes against dev through `E2E_BASE_URL`: 90 passed, 1 skipped (US-homepage-5.4, with its reason).
 - [x] Every scenario ID appears in a test name.

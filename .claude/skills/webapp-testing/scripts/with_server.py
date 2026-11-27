@@ -19,6 +19,8 @@ import socket
 import time
 import sys
 import argparse
+import os
+import signal
 
 def is_server_ready(port, timeout=30):
     """Wait for server to be ready by polling the port."""
@@ -30,6 +32,39 @@ def is_server_ready(port, timeout=30):
         except (socket.error, ConnectionRefusedError):
             time.sleep(0.5)
     return False
+
+
+def is_port_in_use(port):
+    """True when something already listens on localhost:port."""
+    try:
+        with socket.create_connection(('localhost', port), timeout=1):
+            return True
+    except OSError:
+        return False
+
+
+def stop_process_group(process, timeout=5):
+    """Stop the server and every child (e.g. the workerd child of wrangler dev)."""
+    try:
+        pgid = os.getpgid(process.pid)
+    except ProcessLookupError:
+        return
+    for sig, wait in ((signal.SIGTERM, timeout), (signal.SIGKILL, None)):
+        try:
+            os.killpg(pgid, sig)
+        except ProcessLookupError:
+            return
+        try:
+            process.wait(timeout=wait)
+        except subprocess.TimeoutExpired:
+            continue
+        # The shell exited; give children a moment, then make sure none survive.
+        time.sleep(0.5)
+        try:
+            os.killpg(pgid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+        return
 
 
 def main():
@@ -60,6 +95,14 @@ def main():
 
     server_processes = []
 
+    # A server left over from an earlier run would be tested instead of the new
+    # one (and readiness would pass at once), so refuse an occupied port.
+    busy = [s['port'] for s in servers if is_port_in_use(s['port'])]
+    if busy:
+        print(f"Error: port(s) {busy} already in use. Stop the old server first "
+              f"(e.g. `ss -ltnp | grep :{busy[0]}`), or pick another port.")
+        sys.exit(1)
+
     try:
         # Start all servers
         for i, server in enumerate(servers):
@@ -69,8 +112,11 @@ def main():
             process = subprocess.Popen(
                 server['cmd'],
                 shell=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                # Own process group, so cleanup reaches the real server behind
+                # wrappers such as `pnpm start` -> wrangler -> workerd.
+                start_new_session=True,
             )
             server_processes.append(process)
 
@@ -92,12 +138,7 @@ def main():
         # Clean up all servers
         print(f"\nStopping {len(server_processes)} server(s)...")
         for i, process in enumerate(server_processes):
-            try:
-                process.terminate()
-                process.wait(timeout=5)
-            except subprocess.TimeoutExpired:
-                process.kill()
-                process.wait()
+            stop_process_group(process)
             print(f"Server {i+1} stopped")
         print("All servers stopped")
 

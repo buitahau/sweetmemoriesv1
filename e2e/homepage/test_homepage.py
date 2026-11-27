@@ -14,7 +14,7 @@ from urllib.parse import urlparse
 import pytest
 from playwright.sync_api import expect
 
-from helpers import ROOT, run
+from helpers import ROOT, is_local_url, run
 
 # Collaboration-sensitive strings from spec Conflict 1. A Memory has one owner
 # and no contributor or invite feature exists, so the page must not promise it.
@@ -336,17 +336,24 @@ CAPITALISED_ALLOW_LIST = {
 }
 
 
-def _repo_env_values():
-    """Configured env values (process env and .env), non-empty, for the leak check."""
+def _repo_env_values(base_url):
+    """Configured env values of the server under test, non-empty, for the leak check.
+
+    A local server reads the process env and the local .env, so both apply. A
+    deployed server (non-local base_url) does not: only E2E_<NAME> describes it,
+    otherwise local values (e.g. SITE_URL=http://localhost:3000) are compared
+    against dev and fail falsely.
+    """
+    local = is_local_url(base_url)
     values = {}
     # E2E_<NAME> lets a run against a deployed URL supply the deployed values;
     # without it (or a local .env) the value checks below have nothing to compare.
     for name in ("DATABASE_URL", "NODE_ENV", "SITE_URL"):
-        v = os.environ.get(f"E2E_{name}") or os.environ.get(name)
+        v = os.environ.get(f"E2E_{name}") or (os.environ.get(name) if local else None)
         if v:
             values[name] = v
     env_file = ROOT / ".env"
-    if env_file.exists():
+    if local and env_file.exists():
         for line in env_file.read_text().splitlines():
             line = line.strip()
             if line and not line.startswith("#") and "=" in line:
@@ -369,9 +376,10 @@ def test_US_homepage_8_3_no_private_data(pw, base_url):
 
     Deviations from spec 8.3(b): the NODE_ENV value is not checked (a common word,
     false positives); only the NAME is. The package version is matched only as
-    "x.y.z" or vx.y.z. Env values are checked only when set in the runner env,
-    E2E_<NAME> or a local .env; on CI and against dev without them, only the names,
-    email pattern and version are really checked.
+    "x.y.z" or vx.y.z. Env values are checked only when set: for a local server in
+    the runner env, E2E_<NAME> or the local .env; against dev only in E2E_<NAME>
+    (local values do not describe the deployed server). Without them only the
+    names, email pattern and version are really checked.
     """
     req = pw.request.new_context(base_url=base_url)
     try:
@@ -387,7 +395,7 @@ def test_US_homepage_8_3_no_private_data(pw, base_url):
 
     # (b) env values and names, git SHA, package version
     assert "DATABASE_URL" not in html and "NODE_ENV" not in html
-    env_values = _repo_env_values()
+    env_values = _repo_env_values(base_url)
     for name, value in env_values.items():
         if name == "SITE_URL":
             continue
