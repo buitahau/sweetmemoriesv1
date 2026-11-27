@@ -4,6 +4,7 @@ import { readAuthConfig } from './config'
 import { isSafeSignInBody } from './redirects'
 
 const noStore = { 'Cache-Control': 'no-store' }
+const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS'])
 
 /** Logs name and message only, so failures show in `wrangler tail` without env values. */
 export function logAuthError(context: string, error: unknown): void {
@@ -32,11 +33,25 @@ function withNoStore(res: Response): Response {
  */
 export async function authHandler(request: Request): Promise<Response> {
   const config = readAuthConfig(process.env)
-  if (!config || !isDbConfigured()) return json(503, { error: 'Sign-in is unavailable.' })
+  if (!config || !isDbConfigured())
+    return json(503, { error: 'Sign-in is unavailable.' })
+
+  // Better Auth only checks `trustedOrigins` when cookies are sent, so a cookie-less
+  // cross-site POST could start a sign-in flow (login CSRF, issue #166). Reject any
+  // state-changing request whose Origin is present and is not the app origin.
+  const origin = request.headers.get('origin')
+  if (
+    !SAFE_METHODS.has(request.method) &&
+    origin !== null &&
+    origin !== config.baseURL
+  )
+    return json(403, { error: 'Invalid origin.' })
 
   const path = new URL(request.url).pathname
-  if (request.method === 'POST' &&
-    (path.startsWith('/api/auth/sign-in/') || path === '/api/auth/link-social')) {
+  if (
+    request.method === 'POST' &&
+    (path.startsWith('/api/auth/sign-in/') || path === '/api/auth/link-social')
+  ) {
     let body: unknown
     try {
       body = await request.clone().json()

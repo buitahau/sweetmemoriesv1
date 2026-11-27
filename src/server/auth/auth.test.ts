@@ -236,6 +236,36 @@ describe('authHandler', () => {
     expect(res.headers.get('set-cookie')).toBeNull()
   })
 
+  it.each(['https://evil.example', 'null', 'http://localhost:3001'])(
+    'rejects a cookie-less POST from foreign Origin %s with 403 and no Google URL',
+    async (origin) => {
+      const req = signIn({ provider: 'google', callbackURL: '/dashboard' })
+      req.headers.set('Origin', origin)
+      const res = await authHandler(req)
+      expect(res.status).toBe(403)
+      expect(res.headers.get('cache-control')).toContain('no-store')
+      expect(res.headers.get('set-cookie')).toBeNull()
+      expect(await res.text()).not.toContain('accounts.google.com')
+    },
+  )
+
+  it('rejects a foreign Origin on any auth POST, not only sign-in', async () => {
+    const req = new Request('http://localhost:3000/api/auth/sign-out', {
+      method: 'POST',
+      headers: { Origin: 'https://evil.example' },
+    })
+    expect((await authHandler(req)).status).toBe(403)
+  })
+
+  it('allows a GET with a foreign Origin', async () => {
+    const res = await authHandler(
+      new Request('http://localhost:3000/api/auth/get-session', {
+        headers: { Origin: 'https://evil.example' },
+      }),
+    )
+    expect(res.status).toBe(200)
+  })
+
   it('rejects extra scopes', async () => {
     const res = await authHandler(
       signIn({ provider: 'google', scopes: ['drive'] }),
