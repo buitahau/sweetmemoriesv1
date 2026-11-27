@@ -7,6 +7,8 @@ declare namespace NodeJS {
   interface ProcessEnv {
     DATABASE_URL?: string
     SITE_URL?: string
+    // "true" only in production; anything else means noindex (ADR 0006). Read by getSiteConfig().
+    SITE_INDEXABLE?: string
     GOOGLE_CLIENT_ID?: string
     GOOGLE_CLIENT_SECRET?: string
     BETTER_AUTH_SECRET?: string
