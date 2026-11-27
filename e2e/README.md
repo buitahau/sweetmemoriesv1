@@ -77,4 +77,4 @@ E2E_BASE_URL=http://localhost:3100 E2E_SEO_PROFILE=prod-like .venv-e2e/bin/pytes
 
 US-homepage-seo-2.5 (forwarded host ignored) always sends `X-Forwarded-Host: evil.example` and `Forwarded: host=evil.example`. Against a local server it also sends `Host: evil.example`; against dev it does not, because Cloudflare rejects a foreign `Host` before the Worker runs. The suite refuses to run against `sweetmemories.com`.
 
-`with_server.py` may leave the `workerd` child of `wrangler dev` running; check the port is free before the next profile.
+`with_server.py` stops only the process it started, so behind a `pnpm` wrapper the real server (the `workerd` child of `wrangler dev`, or `vite`) can keep running. The next profile then tests the old server with the old config and fails on its values. Check the port is free before the next profile, or start the binary directly with a fixed port (`--server "exec env SITE_URL=not-a-url node_modules/.bin/vite dev --port 3001 --strictPort" --port 3001`).
