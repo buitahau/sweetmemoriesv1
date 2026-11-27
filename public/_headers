@@ -1,0 +1,16 @@
+# Cloudflare static asset headers (homepage-seo task 02). Nitro prepends this file to
+# its own `/assets/*` rule in .output/public/_headers, so never add a `/* ` rule here:
+# it would make Nitro drop that rule. Icon and OG names are not content-hashed and the
+# files are placeholders (Q-assets), so they cache for a week, not a year.
+/favicon.svg
+  Cache-Control: public, max-age=604800
+/favicon.ico
+  Cache-Control: public, max-age=604800
+/favicon-32.png
+  Cache-Control: public, max-age=604800
+/apple-touch-icon.png
+  Cache-Control: public, max-age=604800
+/og/*
+  Cache-Control: public, max-age=604800
+/site.webmanifest
+  Cache-Control: public, max-age=3600
