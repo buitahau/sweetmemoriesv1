@@ -48,3 +48,4 @@ Run against `pnpm start` with the same `DATABASE_URL` and secret. The helper ref
 `e2e/homepage-seo` holds the checks per task (run with `.venv-e2e/bin/pytest e2e/homepage-seo -rs` against `pnpm build && pnpm start`, or `E2E_BASE_URL=<dev URL>`):
 
 - Task 01: `test_homepage_seo_task01_site_config.py` (`SITE_INDEXABLE` and `getSiteConfig`: static config and docs checks, a `wrangler deploy --dry-run` of the built Worker, the helper's Vitest suites, and live `/` checks; `test_T01_V3c` skips as BLOCKED until task 03 renders the robots and canonical tags). The per-scenario suite with `E2E_SEO_PROFILE` comes with task 04.
+- Task 02: `test_homepage_seo_task02_static_assets.py` (US-homepage-seo-2.3 and 4.2 to 4.4: OG image, icons, manifest and `favicon.ico` are served with the right type, size and `Cache-Control` and no `Set-Cookie`; plus `T02_V3`, the cache values from `public/_headers`). Public, no cookies.

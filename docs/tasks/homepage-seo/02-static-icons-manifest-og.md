@@ -30,7 +30,7 @@ Under `pnpm build && pnpm start` the font and favicon already 404 (homepage task
 - [x] Vitest: `public/site.webmanifest` parses as JSON with the expected `name`, `theme_color` and a 180 px icon entry.
 - [x] Vitest: read the PNG header (IHDR) dimensions: `og/home.png` is 1200×630, `favicon-32.png` is 32×32, `apple-touch-icon.png` is 180×180.
 - [x] Manual: after `pnpm build` the files and our `_headers` are in `.output/public`. Under `pnpm start`, `curl -I` on each asset returns `200`, the right content type (`image/x-icon` or `image/vnd.microsoft.icon` for `favicon.ico`), the `_headers` cache value and no `Set-Cookie`.
-- [ ] Covers US-homepage-seo-4 scenarios 2 to 4 and US-homepage-seo-2 scenario 3.
+- [x] Covers US-homepage-seo-4 scenarios 2 to 4 and US-homepage-seo-2 scenario 3.
 
 ## Notes
 
@@ -38,3 +38,4 @@ Under `pnpm build && pnpm start` the font and favicon already 404 (homepage task
 - **`favicon.svg`:** it was the orange hero heart. Replaced with the mockup `<helmet>` icon (white heart on a `#FF8FAB` rounded square, as the header logo). The PNG and ICO icons are rendered from it; `apple-touch-icon.png` is full-bleed (iOS rounds corners). Root head link unchanged.
 - **`_headers`:** Nitro's `cloudflare-module` preset does not overwrite it: it prepends our file and appends its own `/assets/*` (`max-age=31536000, immutable`) rule, unless the file has a `/* ` rule (the unit test forbids one). Icons and `og/` cache for a week (`public, max-age=604800`): names are not hashed and the files are placeholders (Q-assets). `site.webmanifest` caches for an hour. No `Content-Type` override: the default is already `application/manifest+json`; `favicon.ico` is `image/vnd.microsoft.icon`.
 - **Unit tests:** `src/public-assets.test.ts`.
+- **E2E tests:** `e2e/homepage-seo/test_homepage_seo_task02_static_assets.py`, one test per scenario (US-homepage-seo-2.3, 4.2, 4.3, 4.4) plus `T02_V3` (each asset's `Cache-Control` equals `public/_headers`). The icon links on `/` come with task 03, so 4.2 fetches the asset paths the spec names.
