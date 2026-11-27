@@ -92,6 +92,6 @@ Options:
 - We export them from the mockup (hero collage screenshot, heart logo) as placeholders now
 - Ship without an OG image for now
 
-Recommended answer: Export placeholders from the mockup now and swap in design assets later: the share preview works immediately and nothing blocks S2.
+Recommended answer: Export placeholders from the mockup now and swap in design assets later: the share preview works immediately and nothing blocks homepage-seo task 02.
 
 Answer: Agreed with the recommended answer (2026-11-14). Status: answered.

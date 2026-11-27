@@ -2,56 +2,66 @@
 
 **Status:** todo
 **Side:** both
-- backend: per-environment `SITE_URL` and `SITE_INDEXABLE` read on the server ([ADR 0006](../adr/0006-per-environment-site-url-and-indexing.md)), and the static assets (icons, manifest, OG image) served by the Worker with correct content types, cache headers and no cookies.
+- backend: per-environment `SITE_URL` and `SITE_INDEXABLE` read on the server ([ADR 0006](../adr/0006-per-environment-site-url-and-indexing.md)) and passed to `/` through a server function, and the static assets (icons, manifest, OG image) served by the Worker with correct content types, cache headers and no cookies.
 - front-end: the head tags on the `/` route: title, description, canonical, robots, Open Graph, Twitter, JSON-LD, theme-color, and icon and manifest links.
 
 **Mockup:** [Landing2.dc.html](../ui/Homepage/light%20pink/Landing2.dc.html) (the `<helmet>` block)
 
-Tasks: [../tasks/homepage-seo/](../tasks/homepage-seo/) (01 to 04). ADR: [0006](../adr/0006-per-environment-site-url-and-indexing.md). Open questions: [../decisions/homepage-feature.md](../decisions/homepage-feature.md) (Q-assets, Q-copy, Q-pricing), [../decisions/homepage-adr.md](../decisions/homepage-adr.md). Related: [homepage](homepage.md).
+Tasks: [../tasks/homepage-seo/](../tasks/homepage-seo/) (01 to 04). ADR: [0006](../adr/0006-per-environment-site-url-and-indexing.md), [0008](../adr/0008-login-session-cookie-scope-and-app-origin.md) (`SITE_URL` is also the auth base URL). Open questions: [../decisions/homepage-feature.md](../decisions/homepage-feature.md) (Q-assets, Q-copy, Q-pricing), [../decisions/homepage-adr.md](../decisions/homepage-adr.md). Related: [homepage](homepage.md), [google-sign-in](google-sign-in.md).
 
 ## Goal
 
-`/` is described correctly to search engines and shows a rich preview when its link is shared, and dev is never indexed.
+`/` is described correctly to search engines and shows a rich preview when its link is shared, and `/` on dev is never indexed.
 
 ## Summary and assumptions
 
 - The mockup's `<helmet>` hard-codes `https://sweetmemories.com/...`, which would be wrong on dev. URLs become root-relative, or absolute from `SITE_URL`.
-- `og/home.png`, `favicon-32.png`, `apple-touch-icon.png` and `site.webmanifest` are referenced but do not exist in the repo. There is no `public/` folder yet (Q-assets).
-- Values are read through `process.env` (nodejs_compat), with `.env` locally, as `src/env.d.ts` already does. Nothing reads `cloudflare:workers` env.
+- `public/` already exists with `favicon.svg`, linked from the root route head (`src/routes/__root.tsx`, homepage task 03). `og/home.png`, `favicon.ico`, `favicon-32.png`, `apple-touch-icon.png` and `site.webmanifest` do not exist yet (Q-assets: placeholders exported from the mockup now, design assets later).
+- `SITE_URL` already exists: declared in `src/env.d.ts`, documented in `.env.example` and `docs/infra/local-development.md`, set under `env.dev.vars` in `wrangler.jsonc`, and used by Better Auth as its base URL and trusted origin (ADR 0008). It is parsed by `normalizeSiteUrl` in `src/server/auth/config.ts`. This feature reuses that parser, so SEO and auth always agree on the origin. A wrong `SITE_URL` breaks sign-in as well as SEO. Only `SITE_INDEXABLE` is new.
+- Values are read through `process.env` (nodejs_compat) on the server only. On the client `process.env` is empty, so `/` must not read them in `head()`. The `/` route reads `{ siteUrl, indexable }` in its `loader` through a `createServerFn` GET (as `src/server/auth/dashboard.fn.ts` does) and builds the head from `loaderData`, so the server render and the hydrated client produce the same tags.
+- `pnpm start` runs `wrangler dev --env dev`, which uses `env.dev.vars` and ignores top-level `vars`. Locally, `.env` (or `.dev.vars`) overrides the dev values.
 - E2E tests go in `e2e/homepage-seo/`.
 
 ## Scope
 
 **In scope**
-- Head tags on `/` only. `/sign-in` gets only `noindex`, covered by [homepage](homepage.md).
-- `SITE_URL` and `SITE_INDEXABLE` for local and dev (`.env`, `.env.example`, `wrangler.jsonc` `env.dev.vars`, `src/env.d.ts`).
-- A `public/` folder with `favicon.svg`, `favicon.ico`, `favicon-32.png`, `apple-touch-icon.png`, `site.webmanifest`, `og/home.png` and `_headers`.
+- Head tags on `/` only. `/sign-in` already has `noindex`, owned by [google-sign-in](google-sign-in.md) (US-google-sign-in-1.4).
+- `SITE_INDEXABLE` for local and dev (`.env.example`, `wrangler.jsonc` `env.dev.vars`, `src/env.d.ts`), next to the existing `SITE_URL`.
+- New files in the existing `public/` folder: `favicon.ico`, `favicon-32.png`, `apple-touch-icon.png`, `site.webmanifest`, `og/home.png` and `_headers`. `favicon.svg` is checked, not recreated.
 - E2E suite `e2e/homepage-seo/`.
 
 **Out of scope**
 - Production environment creation and production values of the vars (documented only).
-- `robots.txt`, `sitemap.xml` and search-console verification.
-- SEO for User home pages and Memory pages.
-- Final design-made assets, unless Q-assets says design provides them now.
+- `robots.txt`, `sitemap.xml` and search-console verification. `/robots.txt` answers `404` (crawlers then allow everything), never `500`.
+- Noindex for responses other than `/` on dev: the 404 page, `/api/*` and static assets (including `/og/home.png`) carry no noindex signal. `public/_headers` cannot vary per environment, and a dev `robots.txt` Disallow would hide the noindex from crawlers. A Worker-wide `X-Robots-Tag` is a follow-up if needed.
+- SEO for User home pages and Memory pages. They live on `<user>.sweetmemories.com`, a separate cookie-free origin (rule 1, ADR 0008), so their canonicals need a per-subdomain origin, not the app's `SITE_URL`.
+- Final design-made assets (Q-assets).
 - Analytics and social pixels.
+
+## Copy
+
+- **Title:** `SweetMemories: little pages for family moments`
+- **Description:** `Turn first steps, birthdays and street parties into tiny pages your family and friends can open and share. Free to start with Google.` (the mockup's "open, share and add to" is replaced by owner-only wording; see the Copy subsection of [homepage](homepage.md)).
+- **OG and Twitter title:** `Every little moment deserves a home`
+- **OG and Twitter image alt:** `A SweetMemories page called Bob's first day, with photos and a smiling sun` (straight apostrophe, from the mockup). The placeholder `og/home.png` must show what this alt text says.
 
 ## User stories
 
 **US-homepage-seo-1: Title and description**
 - **Story:** As a search engine user, I want an accurate title and summary, so that I know what the site is before clicking.
 - **Scenarios:**
-  1. *Happy path*: **Given** the app is running, **When** a client fetches `/` without JavaScript, **Then** `<title>` is "SweetMemories: little pages for family moments" and `<meta name="description">` is exactly "Turn first steps, birthdays and street parties into tiny pages your family and friends can open and share. Free to start with Google." (the mockup's "open, share and add to" is replaced by owner-only wording; see the Copy subsection of [homepage](homepage.md)). The raw HTML must not contain "add to".
+  1. *Happy path*: **Given** the app is running, **When** a client fetches `/` without JavaScript, **Then** `<title>` is the agreed title and `<meta name="description">` is exactly the agreed description (see Copy). The raw HTML must not contain "add to".
   2. *One of each:* **Given** the HTML of `/`, **When** it is parsed, **Then** it contains exactly one `<title>` and exactly one `meta[name=description]`. The root default title is not duplicated.
   3. *Other pages:* **Given** the app is running, **When** a client fetches `/does-not-exist`, **Then** the response is `404` and its HTML has no canonical link and no `og:url` pointing at the home page.
 
 **US-homepage-seo-2: Social share preview**
 - **Story:** As someone sharing the SweetMemories link, I want a rich preview card, so that friends see what it is.
 - **Scenarios:**
-  1. *Open Graph:* **Given** production config (`SITE_URL=https://sweetmemories.com`), **When** a client fetches `/`, **Then** the HTML has `og:type=website`, `og:site_name=SweetMemories`, `og:url=https://sweetmemories.com/`, `og:title="Every little moment deserves a home"`, `og:description` (the agreed description), `og:image=https://sweetmemories.com/og/home.png`, `og:image:width=1200`, `og:image:height=630`, `og:image:alt` and `og:locale=en_US`.
-  2. *Twitter:* **Given** the same config, **When** a client fetches `/`, **Then** the HTML has `twitter:card=summary_large_image`, and `twitter:title`, `twitter:description`, `twitter:image` and `twitter:image:alt` match the OG values.
+  1. *Open Graph:* **Given** production config (`SITE_URL=https://sweetmemories.com`), **When** a client fetches `/`, **Then** the HTML has `og:type=website`, `og:site_name=SweetMemories`, `og:url=https://sweetmemories.com/`, `og:title` (the agreed OG title), `og:description` (the agreed description), `og:image=https://sweetmemories.com/og/home.png`, `og:image:width=1200`, `og:image:height=630`, `og:image:alt` (exactly the agreed alt text) and `og:locale=en_US`.
+  2. *Twitter:* **Given** the same config, **When** a client fetches `/`, **Then** the HTML has `twitter:card=summary_large_image`, and `twitter:title`, `twitter:description`, `twitter:image` and `twitter:image:alt` equal the OG values.
   3. *Image reachable:* **Given** the app is running, **When** a client fetches `/og/home.png`, **Then** the status is `200`, `Content-Type` is `image/png`, the image is 1200×630 px, and no `Set-Cookie` header is sent.
   4. *Dev uses dev URLs:* **Given** dev config (`SITE_URL=https://sweetmemories-dev.haubuitatmp.workers.dev`), **When** a client fetches `/` on dev, **Then** `og:url`, `og:image` and `twitter:image` start with the dev URL, not with `https://sweetmemories.com`.
-  5. *Host header ignored (security):* **Given** any environment, **When** a client fetches `/` with the header `Host: evil.example` or `X-Forwarded-Host: evil.example`, **Then** no absolute URL in the HTML contains `evil.example`.
+  5. *Forwarded host ignored (security):* **Given** any environment, **When** a client fetches `/` with `X-Forwarded-Host: evil.example` or `Forwarded: host=evil.example` (and, locally only, `Host: evil.example`; Cloudflare rejects a foreign `Host` before the Worker runs), **Then** no absolute URL in the HTML contains `evil.example`.
 
 **US-homepage-seo-3: Canonical and indexing per environment**
 - **Story:** As the product owner, I want production indexed and test environments hidden, so that search results only point at the real site.
@@ -59,16 +69,17 @@ Tasks: [../tasks/homepage-seo/](../tasks/homepage-seo/) (01 to 04). ADR: [0006](
   1. *Production:* **Given** production config (`SITE_INDEXABLE=true`), **When** a client fetches `/`, **Then** `<link rel="canonical" href="https://sweetmemories.com/">` and `<meta name="robots" content="index, follow">` are present.
   2. *Dev:* **Given** dev config (`SITE_INDEXABLE=false`), **When** a client fetches `/` on dev, **Then** `<meta name="robots" content="noindex, nofollow">` is present and the canonical is `https://sweetmemories-dev.haubuitatmp.workers.dev/`.
   3. *Indexing flag missing fails safe:* **Given** `SITE_INDEXABLE` is unset, **When** a client fetches `/`, **Then** robots is `noindex, nofollow`.
-  4. *Site URL missing fails safe:* **Given** `SITE_URL` is unset or not an absolute http(s) origin (for example `not-a-url`), **When** a client fetches `/`, **Then** the status is `200`, the page renders, there is no canonical link, no `og:url`, `og:image`, `twitter:image` or JSON-LD `url`, and robots is `noindex, nofollow`.
+  4. *Site URL missing fails safe:* **Given** `SITE_URL` is unset or not an absolute http(s) URL (for example `not-a-url` or `ftp://x`), **When** a client fetches `/`, **Then** the status is `200`, the page renders, there is no canonical link, no `og:url`, `og:image`, `twitter:image` or JSON-LD `url`, and robots is `noindex, nofollow`. A `SITE_URL` with a path (`https://x.com/path`) is reduced to its origin, as for auth.
   5. *Query strings:* **Given** production config, **When** a client fetches `/?utm_source=x`, **Then** the canonical is still `https://sweetmemories.com/`.
+  6. *After hydration:* **Given** any config, **When** a browser with JavaScript loads `/` and the page is idle, **Then** the canonical, robots, `og:url`, `og:image` and JSON-LD in the live DOM equal those in the raw HTML (the client never rewrites them to `noindex` or drops the canonical).
 
 **US-homepage-seo-4: Icons and manifest**
 - **Story:** As a visitor, I want a recognisable icon in my tab and on my home screen, so that I can find SweetMemories again.
 - **Scenarios:**
-  1. *Icon links:* **Given** a client fetches `/`, **When** the head is parsed, **Then** it has an SVG icon link (`/favicon.svg`), a 32×32 PNG icon link (`/favicon-32.png`), a 180×180 `apple-touch-icon` link (`/apple-touch-icon.png`), a `manifest` link (`/site.webmanifest`) and `<meta name="theme-color" content="#FFB6C8">`.
+  1. *Icon links:* **Given** a client fetches `/`, **When** the head is parsed, **Then** it has exactly one SVG icon link (`/favicon.svg`), a 32×32 PNG icon link (`/favicon-32.png`), a 180×180 `apple-touch-icon` link (`/apple-touch-icon.png`), a `manifest` link (`/site.webmanifest`) and `<meta name="theme-color" content="#FFB6C8">`.
   2. *Assets served:* **Given** the app runs as a Worker (`pnpm build && pnpm start`, or dev), **When** a client fetches each linked icon and `/site.webmanifest`, **Then** each returns `200` with the right `Content-Type` (`image/svg+xml`, `image/png`, `application/manifest+json`), a `Cache-Control` header, and no `Set-Cookie`.
   3. *Manifest content:* **Given** a client fetches `/site.webmanifest`, **When** it is parsed as JSON, **Then** `name` is "SweetMemories", `theme_color` is "#FFB6C8" and `icons` lists at least the 180 px PNG.
-  4. *Default favicon:* **Given** a client fetches `/favicon.ico`, **When** the response arrives, **Then** the status is `200`, not `404`.
+  4. *Default favicon:* **Given** a client fetches `/favicon.ico`, **When** the response arrives, **Then** the status is `200`, not `404`, and `Content-Type` is `image/x-icon` or `image/vnd.microsoft.icon`.
 
 **US-homepage-seo-5: Structured data**
 - **Story:** As a search engine, I want structured data about the site, so that I can show the site name correctly.
@@ -79,14 +90,18 @@ Tasks: [../tasks/homepage-seo/](../tasks/homepage-seo/) (01 to 04). ADR: [0006](
 ## Acceptance criteria
 
 - `/` has exactly one title, description, canonical, robots tag, the full OG and Twitter set, theme-color, icon and manifest links, and one valid WebSite JSON-LD, all matching the agreed copy.
-- Absolute URLs come only from `SITE_URL`, never from the request `Host` or `X-Forwarded-Host`. Production is `index, follow`. Any other or missing value is `noindex, nofollow`. A missing or invalid `SITE_URL` drops every absolute-URL tag instead of guessing.
-- Values are read through `process.env` and work under both `pnpm dev` and `pnpm start`. `.env.example` documents them.
+- The tags are the same in the raw HTML and after hydration.
+- Absolute URLs come only from `SITE_URL` (parsed by the same `normalizeSiteUrl` auth uses), never from the request `Host`, `X-Forwarded-Host` or `Forwarded`. Production is `index, follow`. Any other or missing value is `noindex, nofollow`. A missing or invalid `SITE_URL` drops every absolute-URL tag instead of guessing.
+- Values are read on the server through `process.env` and work under both `pnpm dev` and `pnpm start`. `.env.example` documents them.
 - The OG image (1200×630 PNG), SVG, ICO and PNG icons, apple-touch-icon and `site.webmanifest` are served from `public/` with correct content types, cache headers and no cookies.
 - The 404 page carries none of the home page's canonical or OG tags.
 
 ## Risks and security notes
 
-- **Host header injection:** absolute URLs come only from `SITE_URL`, never from `Host` or `X-Forwarded-Host` (US-homepage-seo-2.5).
+- **Host header injection:** absolute URLs come only from `SITE_URL`, never from `Host`, `X-Forwarded-Host` or `Forwarded` (US-homepage-seo-2.5).
 - **JSON-LD injection:** serialise with `<` escaped, even though the content is static.
-- **Dev indexing:** dev is public on workers.dev; without `noindex` it could be indexed as a duplicate of production. The failure mode is "not indexed".
-- **Config read path:** `pnpm dev` (Vite) does not read wrangler vars, and Nitro merges `wrangler.jsonc` into its output. S1 must verify the values under both `pnpm dev` and `pnpm start`, or the head silently falls back to noindex with no canonical.
+- **Hydration de-indexing:** if `head()` reads `process.env` directly, the client recomputes `siteUrl=null, indexable=false` and rewrites production to `noindex` with no canonical. Google renders JavaScript, so this would de-index production while raw-HTML tests pass. Task 03 passes the values through the loader, and US-homepage-seo-3.6 checks it.
+- **Dev indexing:** dev is public on workers.dev. Only `/` gets `noindex` from this feature (see Out of scope). The failure mode is "not indexed".
+- **Shared `SITE_URL`:** the same value drives auth (`trustedOrigins`). Changing it for SEO also changes sign-in.
+- **Config read path:** `pnpm dev` (Vite) reads `.env` but not wrangler vars; `pnpm start` reads `env.dev.vars`, overridden by `.env` or `.dev.vars`. Task 01 must verify the values under both, or the head silently falls back to noindex with no canonical.
+- **Asset 404s under `pnpm start`:** homepage task 13 records font and favicon 404s under `wrangler dev`. Task 02 depends on that fix.
