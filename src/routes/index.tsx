@@ -5,7 +5,7 @@ import { fetchSiteConfig } from '../server/site/site-config.fn'
 
 export const Route = createFileRoute('/')({
   // Site config is read on the server and travels in loaderData, so the server
-  // render and the hydrated client build the same head (never process.env here).
+  // render and the hydrated client build the same head (never server env vars here).
   loader: () => fetchSiteConfig(),
   head: ({ loaderData }) =>
     loaderData
