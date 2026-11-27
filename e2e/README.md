@@ -49,3 +49,23 @@ Run against `pnpm start` with the same `DATABASE_URL` and secret. The helper ref
 
 - Task 01: `test_homepage_seo_task01_site_config.py` (`SITE_INDEXABLE` and `getSiteConfig`: static config and docs checks, a `wrangler deploy --dry-run` of the built Worker, the helper's Vitest suites, and live `/` checks; `test_T01_V3c` skips as BLOCKED until task 03 renders the robots and canonical tags). The per-scenario suite with `E2E_SEO_PROFILE` comes with task 04.
 - Task 02: `test_homepage_seo_task02_static_assets.py` (US-homepage-seo-2.3 and 4.2 to 4.4: OG image, icons, manifest and `favicon.ico` are served with the right type, size and `Cache-Control` and no `Set-Cookie`; plus `T02_V3`, the cache values from `public/_headers`). Public, no cookies.
+- Task 03: `test_homepage_seo_task03_home_head_tags.py` (one test per head-tag scenario: US-homepage-seo-1.1 to 1.3, 2.1, 2.2, 2.4, 2.5, 3.1 to 3.6, 4.1, 5.1, 5.2; raw HTML, except 3.6 which compares the hydrated DOM with the raw HTML). The server config is fixed per run, so declare it with `E2E_SEO_PROFILE`; scenarios of another profile skip with the reason:
+
+  | Profile | Server config | Profile-only scenarios |
+  | --- | --- | --- |
+  | `dev` (default) | dev values, or local `SITE_URL=<E2E_BASE_URL>`, `SITE_INDEXABLE=false` | 2.4, 3.2 |
+  | `prod-like` | `SITE_URL=https://sweetmemories.com`, `SITE_INDEXABLE=true` | 2.1, 2.2, 3.1, 3.5, 5.1 |
+  | `unset-indexable` | `SITE_INDEXABLE` unset | 3.3 |
+  | `bad-url` | `SITE_URL=not-a-url` | 3.4 |
+  | `path-url` | `SITE_URL=https://sweetmemories.com/path`, `SITE_INDEXABLE=true` | 3.4 (reduced to origin) |
+
+  The built Worker takes overrides with `--var` (it cannot unset a var, so run `unset-indexable` under `pnpm dev` without `SITE_INDEXABLE` in the environment or `.env`):
+
+  ```
+  pnpm build
+  pnpm exec wrangler dev -c .output/server/wrangler.json --port 3100 \
+    --var SITE_URL:https://sweetmemories.com --var SITE_INDEXABLE:true &
+  E2E_BASE_URL=http://localhost:3100 E2E_SEO_PROFILE=prod-like .venv-e2e/bin/pytest e2e/homepage-seo -rs
+  ```
+
+  `with_server.py` may leave the `workerd` child of `wrangler dev` running; check the port is free before the next profile.
