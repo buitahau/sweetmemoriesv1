@@ -14,6 +14,7 @@ from urllib.parse import urlparse
 import pytest
 
 from helpers import ROOT, run
+from seo_profile import only
 
 SCRATCH_OUTDIR = ROOT / "node_modules" / ".cache" / "e2e-homepage-seo-dry-run"
 
@@ -153,9 +154,11 @@ def test_T01_V3b_forwarded_host_never_reaches_html(fetch, base_url):
     assert "evil.example" not in body
 
 
+@only("dev")
 def test_T01_V3c_home_head_uses_site_url_and_noindex(fetch, base_url):
     """T01-V3 (manual item, automated): `/` shows the target's own URL as canonical and `noindex, nofollow`
-    (dev profile: local `SITE_URL=http://localhost:3000` or the dev URL, `SITE_INDEXABLE=false`)."""
+    (dev profile: local `SITE_URL=http://localhost:3000` or the dev URL, `SITE_INDEXABLE=false`; other
+    E2E_SEO_PROFILE values configure the server differently, so it skips there)."""
     _, _, body = fetch("/")
     if not re.search(r'<meta[^>]+name="robots"', body):
         pytest.skip("BLOCKED: `/` has no robots meta yet; the head is rendered by homepage-seo task 03")

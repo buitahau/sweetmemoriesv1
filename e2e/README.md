@@ -45,27 +45,36 @@ Run against `pnpm start` with the same `DATABASE_URL` and secret. The helper ref
 
 `e2e/dashboard-home` has one test per US-dashboard-home scenario (1.1 to 3.3) plus the task 01 check that the dashboard carries only the first name. Run it with `.venv-e2e/bin/pytest e2e/dashboard-home -rs` against `pnpm start`. Signed-in scenarios use the task 10 session seeding above and skip as BLOCKED without it. 3.3 adds a second Session through `helpers.add_seeded_session`. Until dashboard-home tasks 02 and 03 deliver the Sign out button, the Sign out check in 1.1 and scenarios 3.1 to 3.3 skip as BLOCKED. Set `SIGN_OUT_DELIVERED = True` in `test_dashboard_home.py` once they land.
 
-`e2e/homepage-seo` holds the checks per task (run with `.venv-e2e/bin/pytest e2e/homepage-seo -rs` against `pnpm build && pnpm start`, or `E2E_BASE_URL=<dev URL>`):
+`e2e/homepage-seo` has one test per US-homepage-seo scenario (1.1 to 5.2), plus the task 01 and 02 checks. Every request is public (no cookies). Scenarios read the raw HTML (no JavaScript), except 3.6, which loads `/` in Chromium and compares the live head with the raw HTML.
 
-- Task 01: `test_homepage_seo_task01_site_config.py` (`SITE_INDEXABLE` and `getSiteConfig`: static config and docs checks, a `wrangler deploy --dry-run` of the built Worker, the helper's Vitest suites, and live `/` checks; `test_T01_V3c` skips as BLOCKED until task 03 renders the robots and canonical tags). The per-scenario suite with `E2E_SEO_PROFILE` comes with task 04.
-- Task 02: `test_homepage_seo_task02_static_assets.py` (US-homepage-seo-2.3 and 4.2 to 4.4: OG image, icons, manifest and `favicon.ico` are served with the right type, size and `Cache-Control` and no `Set-Cookie`; plus `T02_V3`, the cache values from `public/_headers`). Public, no cookies.
-- Task 03: `test_homepage_seo_task03_home_head_tags.py` (one test per head-tag scenario: US-homepage-seo-1.1 to 1.3, 2.1, 2.2, 2.4, 2.5, 3.1 to 3.6, 4.1, 5.1, 5.2; raw HTML, except 3.6 which compares the hydrated DOM with the raw HTML). The server config is fixed per run, so declare it with `E2E_SEO_PROFILE`; scenarios of another profile skip with the reason:
+- Task 01: `test_homepage_seo_task01_site_config.py` (`SITE_INDEXABLE` and `getSiteConfig`: static config and docs checks, a `wrangler deploy --dry-run` of the built Worker, the helper's Vitest suites, and live `/` checks; `test_T01_V3c` asserts dev values, so it runs in the `dev` profile only).
+- Task 02: `test_homepage_seo_task02_static_assets.py` (US-homepage-seo-2.3 and 4.2 to 4.4: OG image, icons, manifest and `favicon.ico` are served with the right type, size and `Cache-Control` and no `Set-Cookie`; plus `T02_V3`, the cache values from `public/_headers`).
+- Task 03: `test_homepage_seo_task03_home_head_tags.py` (the head-tag scenarios: US-homepage-seo-1.1 to 1.3, 2.1, 2.2, 2.4, 2.5, 3.1 to 3.6, 4.1, 5.1, 5.2).
+- Task 04: `test_homepage_seo_task04_suite.py` (no server needed: every spec scenario has a test named after its ID, the profile-only scenarios and per-profile skip lists match the task table, 3.6 runs in every profile, and this section documents the profiles). `seo_profile.py` holds the shared `E2E_SEO_PROFILE` handling.
 
-  | Profile | Server config | Profile-only scenarios |
-  | --- | --- | --- |
-  | `dev` (default) | dev values, or local `SITE_URL=<E2E_BASE_URL>`, `SITE_INDEXABLE=false` | 2.4, 3.2 |
-  | `prod-like` | `SITE_URL=https://sweetmemories.com`, `SITE_INDEXABLE=true` | 2.1, 2.2, 3.1, 3.5, 5.1 |
-  | `unset-indexable` | `SITE_INDEXABLE` unset | 3.3 |
-  | `bad-url` | `SITE_URL=not-a-url` | 3.4 |
-  | `path-url` | `SITE_URL=https://sweetmemories.com/path`, `SITE_INDEXABLE=true` | 3.4 (reduced to origin) |
+There is no production environment, and the server config cannot change during a run, so each run declares the config it expects with `E2E_SEO_PROFILE`. Scenarios that need another profile skip with the reason. All other scenarios run in every profile and assert against the target's own origin. An unknown profile fails the run.
 
-  The built Worker takes overrides with `--var` (it cannot unset a var, so run `unset-indexable` under `pnpm dev` without `SITE_INDEXABLE` in the environment or `.env`):
+| Profile | Server config | Profile-only scenarios | Command |
+| --- | --- | --- | --- |
+| `dev` (default) | dev values, or local `SITE_URL=http://localhost:3000`, `SITE_INDEXABLE=false` | 2.4, 3.2 | `.venv-e2e/bin/pytest e2e/homepage-seo -rs` against `pnpm start`, or with `E2E_BASE_URL=<dev URL>` |
+| `prod-like` | `SITE_URL=https://sweetmemories.com SITE_INDEXABLE=true pnpm dev` | 2.1, 2.2, 3.1, 3.5, 5.1 | `E2E_SEO_PROFILE=prod-like .venv-e2e/bin/pytest e2e/homepage-seo -rs` |
+| `unset-indexable` | `SITE_INDEXABLE` unset (not in the environment or `.env`) | 3.3 | `E2E_SEO_PROFILE=unset-indexable .venv-e2e/bin/pytest e2e/homepage-seo -rs` |
+| `bad-url` | `SITE_URL=not-a-url` | 3.4 | `E2E_SEO_PROFILE=bad-url .venv-e2e/bin/pytest e2e/homepage-seo -rs` |
+| `path-url` (extra) | `SITE_URL=https://sweetmemories.com/path`, `SITE_INDEXABLE=true` | 3.4 (reduced to origin) | `E2E_SEO_PROFILE=path-url .venv-e2e/bin/pytest e2e/homepage-seo -rs` |
 
-  ```
-  pnpm build
-  pnpm exec wrangler dev -c .output/server/wrangler.json --port 3100 \
-    --var SITE_URL:https://sweetmemories.com --var SITE_INDEXABLE:true &
-  E2E_BASE_URL=http://localhost:3100 E2E_SEO_PROFILE=prod-like .venv-e2e/bin/pytest e2e/homepage-seo -rs
-  ```
+`/` does not depend on the auth config, so the non-dev profiles run locally with overrides under `pnpm dev` (shell variables or `.env`; restart the server between profiles). Vite does not apply `public/_headers`, so under `pnpm dev` the Cache-Control checks (US-homepage-seo-4.2 and `T02_V3`) skip as BLOCKED; they run against the Worker. The built Worker also takes overrides with `--var`, but it cannot unset a var, so run `unset-indexable` under `pnpm dev`. Set `E2E_BASE_URL` when the server is not on port 3000. Examples:
 
-  `with_server.py` may leave the `workerd` child of `wrangler dev` running; check the port is free before the next profile.
+```
+SITE_URL=https://sweetmemories.com SITE_INDEXABLE=true .venv-e2e/bin/python \
+  .claude/skills/webapp-testing/scripts/with_server.py --server "pnpm dev" --port 3000 -- \
+  env E2E_SEO_PROFILE=prod-like .venv-e2e/bin/pytest e2e/homepage-seo -rs
+
+pnpm build
+pnpm exec wrangler dev -c .output/server/wrangler.json --port 3100 \
+  --var SITE_URL:https://sweetmemories.com --var SITE_INDEXABLE:true &
+E2E_BASE_URL=http://localhost:3100 E2E_SEO_PROFILE=prod-like .venv-e2e/bin/pytest e2e/homepage-seo -rs
+```
+
+US-homepage-seo-2.5 (forwarded host ignored) always sends `X-Forwarded-Host: evil.example` and `Forwarded: host=evil.example`. Against a local server it also sends `Host: evil.example`; against dev it does not, because Cloudflare rejects a foreign `Host` before the Worker runs. The suite refuses to run against `sweetmemories.com`.
+
+`with_server.py` stops only the process it started, so behind a `pnpm` wrapper the real server (the `workerd` child of `wrangler dev`, or `vite`) can keep running. The next profile then tests the old server with the old config and fails on its values. Check the port is free before the next profile, or start the binary directly with a fixed port (`--server "exec env SITE_URL=not-a-url node_modules/.bin/vite dev --port 3001 --strictPort" --port 3001`).

@@ -8,7 +8,8 @@ spec names. All requests are public (no cookies). Run against `pnpm build && pnp
     .venv-e2e/bin/python .claude/skills/webapp-testing/scripts/with_server.py \
       --server "pnpm start" --port 3000 -- .venv-e2e/bin/pytest e2e/homepage-seo -rs
 
-Cases skip as BLOCKED when no server answers at E2E_BASE_URL (default http://localhost:3000).
+Cases skip as BLOCKED when no server answers at E2E_BASE_URL (default http://localhost:3000). 4.2 and
+T02_V3 need the Worker (Vite's `pnpm dev` ignores public/_headers) and skip as BLOCKED under `pnpm dev`.
 
 ### US-homepage-seo-2.3 OG image reachable
 Story: US-homepage-seo-2   Type: happy   Session: public
@@ -65,6 +66,16 @@ def api(pw, base_url):
     ctx.dispose()
 
 
+@pytest.fixture(scope="module")
+def worker(api, base_url):
+    """Skips as BLOCKED when the target is a Vite dev server (`pnpm dev`): only the Worker (`pnpm start` or
+    dev) applies public/_headers, so Cache-Control can only be checked there. Vite answers /@vite/client."""
+    if api.get("/@vite/client").status == 200:
+        pytest.skip(f"BLOCKED: {base_url} is a Vite dev server, which does not apply public/_headers; "
+                    "run the Cache-Control checks against the Worker (`pnpm start` or dev)")
+    return api
+
+
 def _media_type(resp):
     return resp.headers.get("content-type", "").split(";")[0].strip().lower()
 
@@ -113,9 +124,10 @@ def test_US_homepage_seo_2_3_og_image_reachable(api, browser, base_url, shot):
         ctx.close()
 
 
-def test_US_homepage_seo_4_2_icon_and_manifest_assets_served(api):
+def test_US_homepage_seo_4_2_icon_and_manifest_assets_served(worker):
     """US-homepage-seo-4.2 (story US-homepage-seo-4): each icon and the manifest is 200 with the right
     Content-Type, a Cache-Control header and no Set-Cookie."""
+    api = worker
     problems = []
     for path, media in ICONS.items():
         resp = api.get(path)
@@ -162,8 +174,9 @@ def test_US_homepage_seo_4_4_default_favicon_ico(api):
     assert _set_cookies(resp) == []
 
 
-def test_T02_V3_cache_control_matches_headers_file(api):
+def test_T02_V3_cache_control_matches_headers_file(worker):
     """T02-V3 (task Verification): each asset's Cache-Control equals the value in public/_headers."""
+    api = worker
     rules = _headers_rules()
     assert rules, "public/_headers has no Cache-Control rules"
     problems = []
