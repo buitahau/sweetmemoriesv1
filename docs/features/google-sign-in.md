@@ -116,6 +116,7 @@ Existing state: `src/routes/sign-in.tsx` and `src/components/sign-in-page.tsx` h
 - Rule 1: the session cookie must be host-only ([ADR 0008](../adr/0008-login-session-cookie-scope-and-app-origin.md)). Any later `crossSubDomainCookies` or cookie `Domain` breaks rule 1 and must be refused in review. `app`, `admin`, `api` and `www` go on the reserved-subdomain list when that feature lands.
 - Rule 5: email, name and Google tokens live in `user` and `account` tables and never appear on `/`, Memory pages or logs. Better Auth stores Google tokens in `account`; consider a follow-up to not persist or to encrypt them.
 - Open redirect: `callbackURL` and `errorCallbackURL` are relative paths only; `trustedOrigins` is exactly `SITE_URL`.
+- Login CSRF: Better Auth only checks `trustedOrigins` when cookies are sent, so `/api/auth/*` rejects any non-GET request whose `Origin` is present and is not `SITE_URL` with `403` (issue #166, e2e T04-V2d).
 - Reflected input: `?error=` maps to fixed messages and is never rendered.
 - Secrets: `GOOGLE_CLIENT_SECRET`, `BETTER_AUTH_SECRET` and `DATABASE_URL` are Worker or GitHub environment secrets only, never printed or returned. Rotating `BETTER_AUTH_SECRET` signs everyone out.
 - Caching: `/api/auth/*` responses are `no-store`.

@@ -2,7 +2,7 @@
 
 Spec scenarios covered at the API level: US-google-sign-in-2.4 (open-redirect blocked), the server half of
 US-google-sign-in-4.4 (auth misconfigured gives a generic body) and US-google-sign-in-6.1 (/api/health sets no
-cookie). The task's Verification items are named T04-V1 to T04-V5 (plus V2b and V2c). The browser scenarios of US-1 to 6 belong
+cookie). The task's Verification items are named T04-V1 to T04-V5 (plus V2b, V2c and V2d, the issue #166 Origin check). The browser scenarios of US-1 to 6 belong
 to task 10. Live checks need a running server at E2E_BASE_URL (default http://localhost:3000, `pnpm start`);
 when the server has no auth config they skip as BLOCKED. Never run against production.
 """
@@ -26,7 +26,7 @@ def _call(path, method="GET", body=None, headers=None):
     headers = {**UA, **(headers or {})}
     if data is not None:
         headers["Content-Type"] = "application/json"
-        headers["Origin"] = BASE
+        headers.setdefault("Origin", BASE)
     req = urllib.request.Request(BASE + path, data=data, method=method, headers=headers)
     try:
         with urllib.request.urlopen(req, timeout=15) as r:
@@ -81,6 +81,17 @@ def test_T04_V2b_foreign_error_callback_url_and_scopes_are_rejected():
         assert 400 <= status < 500, f"{payload} gave {status}"
         assert "accounts.google.com" not in body
 
+
+
+def test_T04_V2d_cross_origin_cookieless_post_is_rejected():
+    """Issue #166 (login CSRF): a cookie-less POST sign-in/social with a foreign Origin gives 403 and no Google URL."""
+    _configured_or_skip()
+    status, headers, body = _call("/api/auth/sign-in/social", "POST",
+                                  {"provider": "google", "callbackURL": "/dashboard"},
+                                  headers={"Origin": "https://evil.example"})
+    assert status == 403, f"expected 403, got {status}"
+    assert "accounts.google.com" not in body
+    assert headers.get("Set-Cookie") is None
 
 def test_T04_V2c_valid_relative_callback_url_passes_the_guard():
     """T04-V2 (positive control): a valid relative callbackURL is not refused by the guard; with real config the
