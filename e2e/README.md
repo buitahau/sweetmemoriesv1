@@ -62,7 +62,7 @@ There is no production environment, and the server config cannot change during a
 | `bad-url` | `SITE_URL=not-a-url` | 3.4 | `E2E_SEO_PROFILE=bad-url .venv-e2e/bin/pytest e2e/homepage-seo -rs` |
 | `path-url` (extra) | `SITE_URL=https://sweetmemories.com/path`, `SITE_INDEXABLE=true` | 3.4 (reduced to origin) | `E2E_SEO_PROFILE=path-url .venv-e2e/bin/pytest e2e/homepage-seo -rs` |
 
-`/` does not depend on the auth config, so the non-dev profiles run locally with overrides under `pnpm dev` (shell variables or `.env`; restart the server between profiles). The built Worker also takes overrides with `--var`, but it cannot unset a var, so run `unset-indexable` under `pnpm dev`. Set `E2E_BASE_URL` when the server is not on port 3000. Examples:
+`/` does not depend on the auth config, so the non-dev profiles run locally with overrides under `pnpm dev` (shell variables or `.env`; restart the server between profiles). Vite does not apply `public/_headers`, so under `pnpm dev` the Cache-Control checks (US-homepage-seo-4.2 and `T02_V3`) skip as BLOCKED; they run against the Worker. The built Worker also takes overrides with `--var`, but it cannot unset a var, so run `unset-indexable` under `pnpm dev`. Set `E2E_BASE_URL` when the server is not on port 3000. Examples:
 
 ```
 SITE_URL=https://sweetmemories.com SITE_INDEXABLE=true .venv-e2e/bin/python \
