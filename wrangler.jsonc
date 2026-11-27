@@ -13,9 +13,13 @@
     "dev": {
       "name": "sweetmemories-dev",
       "workers_dev": true,
-      // Plain var (ADR 0006). Better Auth baseURL comes from SITE_URL; without it every
-      // /api/auth/* request answers 503. Do not also push SITE_URL from CI.
-      "vars": { "SITE_URL": "https://sweetmemories-dev.haubuitatmp.workers.dev" }
+      // Plain vars (ADR 0006). SITE_URL is Better Auth's baseURL and the SEO origin; without
+      // it every /api/auth/* request answers 503. SITE_INDEXABLE is "true" only in
+      // production, so dev is noindex. Do not also push these from CI.
+      "vars": {
+        "SITE_URL": "https://sweetmemories-dev.haubuitatmp.workers.dev",
+        "SITE_INDEXABLE": "false"
+      }
     }
   }
 }

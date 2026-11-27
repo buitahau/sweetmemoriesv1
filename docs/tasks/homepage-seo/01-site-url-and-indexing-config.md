@@ -15,15 +15,15 @@ Implement [ADR 0006](../../adr/0006-per-environment-site-url-and-indexing.md). `
 
 ## Checklist
 
-- [ ] Declare `SITE_INDEXABLE` in `src/env.d.ts` (`ProcessEnv`) next to `SITE_URL`
-- [ ] Add `SITE_INDEXABLE=false` to `.env.example` with a comment (`"true"` only in production; `pnpm start` gets `"false"` from `env.dev.vars` unless `.env` overrides it)
-- [ ] Add `"SITE_INDEXABLE": "false"` next to the existing `SITE_URL` under `env.dev.vars` in `wrangler.jsonc`; confirm `pnpm build` still produces an accepted `.output/server/wrangler.json`
-- [ ] Helper `getSiteConfig()` returning `{ siteUrl: string | null, indexable: boolean }`: `siteUrl` comes from the existing `normalizeSiteUrl` in `src/server/auth/config.ts` (absolute `http(s)` URL reduced to its origin, else `null`), so SEO and auth always agree; `indexable` is true only when `SITE_INDEXABLE === "true"` and `siteUrl` is not null; it takes no request input and never reads `Host`, `X-Forwarded-Host` or `Forwarded`
-- [ ] Expose it to routes through a `createServerFn` GET (same pattern as `src/server/auth/dashboard.fn.ts`), used by the `/` loader in task 03
-- [ ] Document `SITE_INDEXABLE` in `docs/infra/local-development.md` and `docs/infra/dev-environment.md`, and note there that `SITE_URL` drives both auth and SEO
+- [x] Declare `SITE_INDEXABLE` in `src/env.d.ts` (`ProcessEnv`) next to `SITE_URL`
+- [x] Add `SITE_INDEXABLE=false` to `.env.example` with a comment (`"true"` only in production; `pnpm start` gets `"false"` from `env.dev.vars` unless `.env` overrides it)
+- [x] Add `"SITE_INDEXABLE": "false"` next to the existing `SITE_URL` under `env.dev.vars` in `wrangler.jsonc`; confirm `pnpm build` still produces an accepted `.output/server/wrangler.json`
+- [x] Helper `getSiteConfig()` returning `{ siteUrl: string | null, indexable: boolean }`: `siteUrl` comes from the existing `normalizeSiteUrl` in `src/server/auth/config.ts` (absolute `http(s)` URL reduced to its origin, else `null`), so SEO and auth always agree; `indexable` is true only when `SITE_INDEXABLE === "true"` and `siteUrl` is not null; it takes no request input and never reads `Host`, `X-Forwarded-Host` or `Forwarded`
+- [x] Expose it to routes through a `createServerFn` GET (same pattern as `src/server/auth/dashboard.fn.ts`), used by the `/` loader in task 03
+- [x] Document `SITE_INDEXABLE` in `docs/infra/local-development.md` and `docs/infra/dev-environment.md`, and note there that `SITE_URL` drives both auth and SEO
 
 ## Verification
 
-- [ ] Vitest on the helper: unset or `"false"` gives `indexable=false`; `"true"` with a valid URL gives `true`; `"true"` with `not-a-url` or `ftp://x` gives `siteUrl=null` and `indexable=false`; `https://x.com/path` and a trailing slash give the origin `https://x.com`; the signature takes no request input.
-- [ ] Existing auth tests for `normalizeSiteUrl` still pass unchanged.
+- [x] Vitest on the helper: unset or `"false"` gives `indexable=false`; `"true"` with a valid URL gives `true`; `"true"` with `not-a-url` or `ftp://x` gives `siteUrl=null` and `indexable=false`; `https://x.com/path` and a trailing slash give the origin `https://x.com`; the signature takes no request input.
+- [x] Existing auth tests for `normalizeSiteUrl` still pass unchanged.
 - [ ] Manual: the head rendered in task 03 shows the local URL and `noindex` under both `pnpm dev` and `pnpm build && pnpm start` (with `SITE_URL=http://localhost:3000` in `.env`), and the dev URL after the dev deploy.
