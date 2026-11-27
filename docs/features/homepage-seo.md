@@ -1,6 +1,6 @@
 # Feature: homepage-seo
 
-**Status:** todo
+**Status:** done
 **Side:** both
 - backend: per-environment `SITE_URL` and `SITE_INDEXABLE` read on the server ([ADR 0006](../adr/0006-per-environment-site-url-and-indexing.md)) and passed to `/` through a server function, and the static assets (icons, manifest, OG image) served by the Worker with correct content types, cache headers and no cookies.
 - front-end: the head tags on the `/` route: title, description, canonical, robots, Open Graph, Twitter, JSON-LD, theme-color, and icon and manifest links.
