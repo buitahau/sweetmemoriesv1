@@ -3,8 +3,9 @@
 Run against a local or dev URL, never production:
     E2E_BASE_URL=http://localhost:3000 .venv-e2e/bin/pytest e2e/homepage-seo -rs
 
-One file per task: task 01 (site config), task 02 (static assets), task 03 (the `/` head tags, one
-test per scenario, with the E2E_SEO_PROFILE profiles documented in e2e/README.md).
+One file per task: task 01 (site config), task 02 (static assets), task 03 (the `/` head tags) and
+task 04 (checks on the suite itself). One test per US-homepage-seo scenario; the E2E_SEO_PROFILE
+profiles (seo_profile.py) and their commands are documented in e2e/README.md.
 """
 import os
 import pathlib
