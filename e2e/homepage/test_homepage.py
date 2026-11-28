@@ -364,6 +364,14 @@ def _repo_env_values(base_url):
     return values
 
 
+def _wrangler_site_urls():
+    """SITE_URL values set in wrangler.jsonc (the value a local `pnpm start` Worker uses)."""
+    cfg = ROOT / "wrangler.jsonc"
+    if not cfg.exists():
+        return set()
+    return set(re.findall(r'"SITE_URL"\s*:\s*"([^"]+)"', cfg.read_text()))
+
+
 def _split_head_body(html):
     m = re.search(r"<body\b.*?</body>", html, re.S | re.I)
     body = m.group(0) if m else html
@@ -379,7 +387,9 @@ def test_US_homepage_8_3_no_private_data(pw, base_url):
     "x.y.z" or vx.y.z. Env values are checked only when set: for a local server in
     the runner env, E2E_<NAME> or the local .env; against dev only in E2E_<NAME>
     (local values do not describe the deployed server). Without them only the
-    names, email pattern and version are really checked.
+    names, email pattern and version are really checked. Locally, the SITE_URL
+    values in wrangler.jsonc are checked too (a built Worker uses them, not .env).
+    SITE_URL is allowed in the body only as the router hydration `siteUrl` entry.
     """
     req = pw.request.new_context(base_url=base_url)
     try:
@@ -412,9 +422,25 @@ def test_US_homepage_8_3_no_private_data(pw, base_url):
     version = json.loads((ROOT / "package.json").read_text()).get("version")
     if version:
         assert f'"{version}"' not in html and f"v{version}" not in html, "package version leaked into HTML"
-    site_url = env_values.get("SITE_URL")
-    if site_url:
-        assert site_url not in body, "SITE_URL appears in the body; allowed only in head URL tags"
+    # A local Worker build (`pnpm start`) takes SITE_URL from wrangler.jsonc, not .env,
+    # so locally check those values too; a value the page does not use passes trivially.
+    site_urls = {env_values["SITE_URL"]} if env_values.get("SITE_URL") else set()
+    if is_local_url(base_url):
+        site_urls |= _wrangler_site_urls()
+    for site_url in sorted(site_urls):
+        if site_url not in html:
+            continue
+        # Spec 8.3: the one body exception is the router's hydration data, which carries the
+        # home route's loader data as `siteUrl:"<SITE_URL>"`. Remove that entry, then nothing else may remain.
+        hydration_entry = re.compile(r'siteUrl:\s*"' + re.escape(site_url) + '"')
+        body_rest = body
+        for m in re.finditer(r"<script\b[^>]*>(.*?)</script>", body, re.S | re.I):
+            if "$_TSR" in m.group(1):
+                body_rest = body_rest.replace(m.group(0), hydration_entry.sub("siteUrl:null", m.group(0), count=1))
+        assert site_url not in body_rest, (
+            "SITE_URL appears in the body outside the router hydration `siteUrl` entry; "
+            "allowed only in head URL tags and that entry"
+        )
         # JSON-LD scripts: the only SITE_URL-derived value allowed is `url` == SITE_URL + "/".
         head_tags = head
         for m in re.finditer(r'<script\b[^>]*type="application/ld\+json"[^>]*>(.*?)</script>', head, re.S | re.I):
