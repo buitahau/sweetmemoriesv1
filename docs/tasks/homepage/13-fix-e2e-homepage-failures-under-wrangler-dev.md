@@ -1,6 +1,6 @@
 # 13 Triage the 13 failing `e2e/homepage` tests under `wrangler dev`
 
-**Status:** in progress
+**Status:** done
 **Side:** front-end
 **Size:** M
 **Dependencies:** [12](12-e2e-homepage.md)
@@ -21,8 +21,8 @@ Found while closing [google-sign-in task 09](../google-sign-in/09-retire-sign-in
 - [x] Also under `wrangler dev`: `test_US_google_sign_in_1_5_mobile` and `test_US_google_sign_in_1_7_accessibility` at 1440, 768 and 375 px pass on a fresh build
 - [x] Fix `test_US_homepage_8_3_no_private_data` against dev: it compared dev's HTML with the local `.env` `SITE_URL` (`http://localhost:3000`). Against a non-local `E2E_BASE_URL` it now uses only `E2E_<NAME>` values
 - [x] Stop leftover servers: `with_server.py` now refuses an occupied port and stops the whole process group (`e2e/README.md`)
-- [ ] Decide what to do about `SITE_URL` in the `<body>` (see Open finding), then fix the app or the spec
-- [ ] Decide whether the `homepage` row in `docs/features/Progress.md` stays `in progress` until the open finding is resolved
+- [x] Decide what to do about `SITE_URL` in the `<body>` (see Open finding), then fix the app or the spec: spec changed (see Resolution)
+- [x] Decide whether the `homepage` row in `docs/features/Progress.md` stays `in progress` until the open finding is resolved: resolved, row set to `done`
 
 ## Verification
 
@@ -43,6 +43,14 @@ The skip is US-homepage-5.4 (BLOCKED: no Template storage yet).
 
 **Cause of the 13 failures:** a `wrangler dev` left running on port 3000 from an earlier run (under Node 26, not 24). It returns 404 for `/favicon.ico` and the font files, so pages render without their CSS. Testing against it reproduces the list in this task: 1.8 font preload, 1.9 console and favicon, 10.1 header row at 305 to 414 px and mobile 375, 10.3 reduced motion and hover lift, 7.1 address rows, and google-sign-in 1.5 and 1.7 at three widths. The old `with_server.py` stopped only the `pnpm` wrapper, so `workerd` kept the port, and its readiness check passed at once against the old server. No app defect was found.
 
-## Open finding: `SITE_URL` appears in the body
+## Open finding: `SITE_URL` appears in the body (resolved)
 
 With the deployed value supplied (`E2E_SITE_URL=<dev URL>`), US-homepage-8.3 fails: the TanStack Router hydration script at the end of `<body>` carries the home route's loader data `{siteUrl: "<dev URL>", indexable: false}` (from [homepage-seo task 03](../homepage-seo/03-home-head-tags.md)). Spec 8.3 says `SITE_URL` may appear only in the listed head tags, "never in the body". The value is the public site origin, not private data, so this is a spec-versus-app mismatch rather than a leak. Options: keep `siteUrl` out of the client payload (for example, build the head on the server only), or allow the router's hydration payload in spec 8.3. Without `E2E_SITE_URL` the test does not see this: locally it compares against `.env` (`http://localhost:3000`), but the built Worker uses `SITE_URL` from `wrangler.jsonc` (the dev URL), so the local value check does not catch it either.
+
+## Resolution (2026-11-28)
+
+Spec change, no app change. Spec 8.3 now allows `SITE_URL` in the body only as the `siteUrl` value of the home route's loader data in the router hydration script: it is the public origin, already in the head tags, and `head()` needs it on the client to rebuild the same canonical and OG tags. Moving it out of the payload would mean a build-time constant (same value, different place), `window.location.origin` (wrong canonical on other hosts) or a server-only head (against the framework).
+
+`test_US_homepage_8_3_no_private_data` replaces only that `siteUrl:"<SITE_URL>"` entry inside the `$_TSR` script and fails on any other copy in the body. For a local server it also checks the `SITE_URL` values in `wrangler.jsonc`, which closes the gap where the local run compared against `.env` only.
+
+Verification: local Worker build on port 3100, `e2e/homepage` 90 passed, 1 skipped (5.4); 8.3 against dev with `E2E_SITE_URL=<dev URL>` passes; adding the dev URL to the body text or to another script makes it fail.
